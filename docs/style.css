@@ -264,7 +264,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
   top: calc(50% + 70px);
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 560px;
+  width: 90%;
   height: 180px;
   border-radius: 16px;
   overflow: hidden;
