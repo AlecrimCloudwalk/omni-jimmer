@@ -246,22 +246,19 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .phone-mockup {
   position: relative;
-  width: 320px;
-  height: 640px;
-  background: #000;
-  border-radius: 25px;
-  padding: 8px;
-  box-shadow: 0 0 0 2px #333, 0 8px 32px rgba(0,0,0,0.3);
-  overflow: hidden;
+  width: 300px;
+  height: 600px;
+  background: transparent;
+  overflow: visible;
 }
 
 .phone-mockup-video {
   position: absolute;
-  top: 8px;
-  left: 8px;
-  width: calc(100% - 16px);
-  height: calc(100% - 16px);
-  border-radius: 18px;
+  top: 22px;
+  left: 22px;
+  width: calc(100% - 44px);
+  height: calc(100% - 44px);
+  border-radius: 30px;
   object-fit: cover;
   z-index: 1;
 }
@@ -282,11 +279,11 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .video-overlay {
   position: absolute;
-  top: calc(50% + 70px);
+  top: calc(50% + 60px);
   left: 50%;
   transform: translate(-50%, -65%);
-  width: 87%;
-  height: 180px;
+  width: 82%;
+  height: 160px;
   border-radius: 16px;
   overflow: hidden;
   z-index: 20;
