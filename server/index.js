@@ -138,9 +138,9 @@ app.post('/api/replicate/audio', async (req, res) => {
     const input = {
       text: v.text,
       voice_id: v.voice_id || 'Friendly_Person',
-      emotion: v.emotion || 'happy',
-      speed: v.speed || 1,
-      pitch: v.pitch || 0,
+      emotion: v.emotion === 'auto' ? 'auto' : (v.emotion || 'happy'),
+      speed: Number(v.speed) || 1,
+      pitch: parseInt(v.pitch) || 0,
       english_normalization: false,
       sample_rate: 32000,
       bitrate: 128000,
