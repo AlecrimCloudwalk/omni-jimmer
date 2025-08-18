@@ -14,27 +14,37 @@ const API_BASE = IS_LOCAL ? 'http://localhost:8787' : '/api';
 // For GitHub Pages, we'll use direct API calls
 const GITHUB_PAGES_MODE = IS_GITHUB_PAGES || (!IS_LOCAL && !IS_VERCEL);
 
-// API Key Management Functions
-function saveOpenAIKey() {
+// API Key Management Functions - Make them globally accessible
+window.saveOpenAIKey = function() {
   const key = document.getElementById('openaiKeyInput').value.trim();
   if (key) {
     localStorage.setItem('openai_api_key', key);
     alert('OpenAI API key saved!');
     document.getElementById('openaiKeyInput').value = '';
+    checkApiKeysAndHideNotice();
   }
 }
 
-function saveReplicateKey() {
+window.saveReplicateKey = function() {
   const key = document.getElementById('replicateKeyInput').value.trim();
   if (key) {
     localStorage.setItem('replicate_api_key', key);
     alert('Replicate API key saved!');
     document.getElementById('replicateKeyInput').value = '';
+    checkApiKeysAndHideNotice();
   }
 }
 
-function hideApiNotice() {
+window.hideApiNotice = function() {
   document.getElementById('apiKeyNotice').style.display = 'none';
+}
+
+function checkApiKeysAndHideNotice() {
+  const hasOpenAI = localStorage.getItem('openai_api_key');
+  const hasReplicate = localStorage.getItem('replicate_api_key');
+  if (hasOpenAI && hasReplicate) {
+    hideApiNotice();
+  }
 }
 
 function showApiNoticeIfNeeded() {
@@ -43,6 +53,9 @@ function showApiNoticeIfNeeded() {
     const hasReplicate = localStorage.getItem('replicate_api_key');
     if (!hasOpenAI || !hasReplicate) {
       document.getElementById('apiKeyNotice').style.display = 'block';
+      // Pre-fill keys if they exist
+      if (hasOpenAI) document.getElementById('openaiKeyInput').value = '••••••••';
+      if (hasReplicate) document.getElementById('replicateKeyInput').value = '••••••••';
     }
   }
 }
@@ -528,9 +541,11 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
     
     if (GITHUB_PAGES_MODE) {
       // Direct OpenAI API call for GitHub Pages
-      const openaiKey = localStorage.getItem('openai_api_key') || prompt('Enter your OpenAI API key:');
-      if (openaiKey) localStorage.setItem('openai_api_key', openaiKey);
-      if (!openaiKey) throw new Error('OpenAI API key required');
+      const openaiKey = localStorage.getItem('openai_api_key');
+      if (!openaiKey) {
+        showApiNoticeIfNeeded();
+        throw new Error('Please provide your OpenAI API key using the key input above');
+      }
       
       const r = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
@@ -540,7 +555,7 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
         },
         body: JSON.stringify({
           model: 'gpt-4o-mini',
-          messages: [{ role: 'user', content: promptTemplate.join('\n') }],
+          messages: [{ role: 'user', content: promptTemplate.rules.join('\n') }],
           temperature: 0.8
         })
       });
@@ -636,9 +651,11 @@ async function generateImage(imagePrompt) {
      let imageUrl;
      if (GITHUB_PAGES_MODE) {
        // Direct Replicate API call with CORS proxy for GitHub Pages
-       const replicateKey = localStorage.getItem('replicate_api_key') || prompt('Enter your Replicate API key:');
-       if (replicateKey) localStorage.setItem('replicate_api_key', replicateKey);
-       if (!replicateKey) throw new Error('Replicate API key required');
+       const replicateKey = localStorage.getItem('replicate_api_key');
+       if (!replicateKey) {
+         showApiNoticeIfNeeded();
+         throw new Error('Please provide your Replicate API key using the key input above');
+       }
        
        // Use CORS proxy for Replicate API (try multiple proxies for reliability)
        const proxies = [
@@ -722,9 +739,11 @@ async function generateVeo3Video(videoPrompt) {
      let videoUrl;
      if (GITHUB_PAGES_MODE) {
        // Direct Replicate API call with CORS proxy for GitHub Pages
-       const replicateKey = localStorage.getItem('replicate_api_key') || prompt('Enter your Replicate API key:');
-       if (replicateKey) localStorage.setItem('replicate_api_key', replicateKey);
-       if (!replicateKey) throw new Error('Replicate API key required');
+       const replicateKey = localStorage.getItem('replicate_api_key');
+       if (!replicateKey) {
+         showApiNoticeIfNeeded();
+         throw new Error('Please provide your Replicate API key using the key input above');
+       }
        
        // Use CORS proxy for Replicate API - Veo3 model (try multiple proxies for reliability)
        const proxies = [
