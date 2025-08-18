@@ -62,19 +62,16 @@ app.post('/api/gpt/prompts', async (req, res) => {
       ],
       brand,
       rules: [
-        'All text must be Brazilian Portuguese',
-        'Voice length ~8–12 seconds',
-        'Audio should speak TO the business owner about using Dinn (InfinitePay\'s AI assistant) to improve sales, get insights, help with digital payments, etc.',
-        'HEAVILY emphasize city/region context in both image and script',
+        'CRITICAL: Return the image prompt in this EXACT format in Portuguese:',
+        'Format: \'[Gender] brasileiro(a) de cerca de [age] anos, [physical description], veste [clothing]. Ele/Ela está em [specific location/landmark], em [city], sob [lighting]. [Background description with local elements]. Com a câmera Selfie VLOG, próxima ao rosto, ele/ela fala para a câmera, gesticulando de forma natural. A câmera tem leves tremores de mão, estilo vlog. Sound FX: [local ambient sounds]. Fala do personagem: \"[8-12 second speech about using Dinn for business growth]\"\'',
+        'The speech in \'Fala do personagem\' should be about using Dinn (InfinitePay\'s AI assistant) to improve sales, get insights, help with digital payments, etc.',
+        'CRITICAL: HEAVILY emphasize the specific city/region - make it OBVIOUS which Brazilian city this is',
         'CRITICAL: The person in the image and the voice MUST be the same gender - if image shows a woman, voice must be female; if image shows a man, voice must be male',
-        'Image should show the business owner as the main focus, with regional/local context in background',
-        'Audio tone: encouraging, helpful, focused on business growth',
-        'Frame the person prominently - they are speaking directly to the camera/user',
-        'IMPORTANT: Character must be looking DIRECTLY into the camera lens, making eye contact with viewer',
-        'CRITICAL: POV shot from mobile phone camera perspective - person holding phone at arm\'s length speaking into the camera',
-        'CRITICAL: DO NOT include any specific business names, store names, or person names in the image prompt',
-        'Composition: mobile phone POV, 25mm equivalent lens, person looking directly at phone camera lens',
-        'AVOID any text, writing, signs with words, or readable text in the image - focus on visual elements only',
+        'Include specific landmarks (Cristo Redentor for Rio, Elevador Lacerda for Salvador, Avenida Paulista for São Paulo, etc.)',
+        'Person should reflect regional diversity - skin tone, facial features, and style typical of that Brazilian region',
+        'Include city-specific ambient sounds and local atmosphere',
+        'Audio tone in \'Fala do personagem\': encouraging, helpful, focused on business growth with local expressions',
+        'Use Brazilian Portuguese throughout, including regional expressions when appropriate',
       ],
     };
 
@@ -102,20 +99,28 @@ app.post('/api/gpt/prompts', async (req, res) => {
     
     // FORCE strict gender matching
     if (detectedGender === 'female' || detectedGender.includes('female') || detectedGender.includes('woman')) {
-      voiceId = 'Friendly_Person'; // Always female voice for female characters
+      voiceId = 'Wise_Woman'; // Always female voice for female characters
     } else if (detectedGender === 'male' || detectedGender.includes('male') || detectedGender.includes('man')) {
       voiceId = 'Deep_Voice_Man'; // Always male voice for male characters
     } else {
-      voiceId = 'Friendly_Person'; // Default to female
+      voiceId = 'Wise_Woman'; // Default to female
     }
     
     json.voice_metadata = json.voice_metadata || {};
     json.voice_metadata.voice_id = voiceId; // Override whatever OpenAI suggested
     json.voice_metadata.emotion = json.voice_metadata.emotion || 'happy';
-    json.voice_metadata.speed = json.voice_metadata.speed || 1.3; // Faster speech
+    json.voice_metadata.speed = json.voice_metadata.speed || 1.35; // Faster speech
     json.voice_metadata.pitch = json.voice_metadata.pitch || 0;
     json.voice_metadata.language_boost = 'Portuguese';
     json.voice_metadata.english_normalization = false;
+    
+    // Extract "Fala do personagem" from image_prompt for audio
+    if (json.image_prompt && json.image_prompt.includes('Fala do personagem:')) {
+      const speechMatch = json.image_prompt.match(/Fala do personagem:\s*"([^"]+)"/);
+      if (speechMatch) {
+        json.voice_metadata.text = speechMatch[1];
+      }
+    }
 
     res.json(json);
   } catch (err) {
