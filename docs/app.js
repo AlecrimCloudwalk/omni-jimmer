@@ -103,6 +103,7 @@ const imagePromptEl = document.getElementById("imagePrompt");
 const veo3PromptEl = document.getElementById("veo3Prompt");
 const previewImageRadio = document.getElementById("previewImage");
 const previewVideoRadio = document.getElementById("previewVideo");
+const previewAudioRadio = document.getElementById("previewAudio");
 
 init();
 
@@ -126,6 +127,7 @@ function init() {
   // Preview mode switching
   previewImageRadio.addEventListener("change", updatePreviewMode);
   previewVideoRadio.addEventListener("change", updatePreviewMode);
+  previewAudioRadio.addEventListener("change", updatePreviewMode);
 
   // No API card hiding needed since it's removed from HTML
 }
@@ -151,6 +153,8 @@ function updatePreviewMode() {
   if (!videoOverlay) return;
   
   const showImage = previewImageRadio.checked;
+  const showVideo = previewVideoRadio.checked;
+  const showAudio = previewAudioRadio.checked;
   const videoPlaceholder = videoOverlay.querySelector('.video-placeholder');
   
   if (showImage) {
@@ -165,7 +169,7 @@ function updatePreviewMode() {
       previewImg.style.objectFit = 'cover';
       videoPlaceholder.appendChild(previewImg);
     }
-  } else {
+  } else if (showVideo) {
     // Show the generated video in the preview (if available)
     const videoInCenter = veo3Container.querySelector('video');
     if (videoInCenter && videoPlaceholder) {
@@ -179,6 +183,34 @@ function updatePreviewMode() {
       previewVideo.style.height = '100%';
       previewVideo.style.objectFit = 'cover';
       videoPlaceholder.appendChild(previewVideo);
+    }
+  } else if (showAudio) {
+    // Show audio player if available
+    const generatedAudio = document.querySelector('audio[src*="replicate.delivery"]');
+    if (generatedAudio && videoPlaceholder) {
+      videoPlaceholder.innerHTML = '';
+      const audioContainer = document.createElement('div');
+      audioContainer.style.display = 'flex';
+      audioContainer.style.flexDirection = 'column';
+      audioContainer.style.alignItems = 'center';
+      audioContainer.style.justifyContent = 'center';
+      audioContainer.style.height = '100%';
+      audioContainer.style.padding = '20px';
+      audioContainer.style.background = 'rgba(0,0,0,0.8)';
+      
+      const audioIcon = document.createElement('div');
+      audioIcon.innerHTML = '🎵';
+      audioIcon.style.fontSize = '40px';
+      audioIcon.style.marginBottom = '10px';
+      
+      const previewAudio = document.createElement('audio');
+      previewAudio.src = generatedAudio.src;
+      previewAudio.controls = true;
+      previewAudio.style.width = '90%';
+      
+      audioContainer.appendChild(audioIcon);
+      audioContainer.appendChild(previewAudio);
+      videoPlaceholder.appendChild(audioContainer);
     }
   }
 }
@@ -394,7 +426,7 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
         "",
         "RETORNE JSON com 'image_prompt', 'video_prompt', 'overlay_text' (máximo 15 chars) e 'button_text' (máximo 12 chars) seguindo essas estruturas exatas.",
         "",
-        "OVERLAY_TEXT: Texto curto para sobreposição no vídeo (ex: 'Tap to Pay', 'Pix Rápido', 'Vendas+').",
+        "OVERLAY_TEXT: OBRIGATÓRIO 2 linhas exatas separadas por \\n (ex: 'Tap to Pay\\nno iPhone', 'Pix Rápido\\nAgora', 'Vendas+\\nOnline').",
         "BUTTON_TEXT: Texto do botão call-to-action (ex: 'Começar', 'Usar agora', 'Testar').",
       ],
     };
