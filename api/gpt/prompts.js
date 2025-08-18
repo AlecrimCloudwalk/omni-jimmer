@@ -92,21 +92,48 @@ RETORNE JSON com 'image_prompt', 'video_prompt', 'overlay_text' (máximo 15 char
     };
 
     console.log('Making OpenAI API call...');
-    const r = await axios.post('https://api.openai.com/v1/chat/completions', {
-      model: 'gpt-4o-mini',
-      messages: [
-        { role: 'system', content: system },
-        { role: 'user', content: `Respond ONLY with JSON. No markdown. Use ethnicity: "${randomEthnicity}". User Profile and instructions: ${JSON.stringify(user)}` },
-      ],
-      temperature: 0.8,
-      response_format: { type: 'json_object' }
-    }, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
-      },
-      timeout: 30000 // 30 second timeout
-    });
+    
+    // Retry logic for upstream connection issues
+    let r;
+    let lastError;
+    const maxRetries = 3;
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`OpenAI API attempt ${attempt}/${maxRetries}`);
+        r = await axios.post('https://api.openai.com/v1/chat/completions', {
+          model: 'gpt-4o-mini',
+          messages: [
+            { role: 'system', content: system },
+            { role: 'user', content: `Respond ONLY with JSON. No markdown. Use ethnicity: "${randomEthnicity}". User Profile and instructions: ${JSON.stringify(user)}` },
+          ],
+          temperature: 0.8,
+          response_format: { type: 'json_object' }
+        }, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${OPENAI_API_KEY}`,
+          },
+          timeout: 25000 // 25 second timeout
+        });
+        
+        console.log('OpenAI API call successful on attempt', attempt);
+        break; // Success, exit retry loop
+        
+      } catch (error) {
+        console.error(`OpenAI API attempt ${attempt} failed:`, error.message);
+        lastError = error;
+        
+        if (attempt === maxRetries) {
+          throw error; // Final attempt failed, throw error
+        }
+        
+        // Wait before retry (exponential backoff)
+        const delay = 1000 * Math.pow(2, attempt - 1);
+        console.log(`Waiting ${delay}ms before retry...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
 
     console.log('OpenAI API call successful');
     const data = r.data;
@@ -138,6 +165,23 @@ fala da pessoa: "Oi! Aqui em ${city}, o Dinn está ajudando empresários a revol
     res.json(json);
   } catch (err) {
     console.error('GPT error:', err?.response?.data || err?.message || err);
-    res.status(500).json({ error: 'prompt_generation_failed', detail: err?.response?.data || err?.message });
+    
+    // More specific error handling
+    let errorDetail = err?.message || 'Unknown error';
+    if (err?.code === 'ECONNRESET' || err?.code === 'ECONNABORTED') {
+      errorDetail = 'Connection timeout or reset. Please try again.';
+    } else if (err?.response?.status === 429) {
+      errorDetail = 'OpenAI rate limit exceeded. Please wait a moment and try again.';
+    } else if (err?.response?.status === 401) {
+      errorDetail = 'OpenAI API key invalid or expired.';
+    } else if (err?.response?.data) {
+      errorDetail = JSON.stringify(err.response.data);
+    }
+    
+    res.status(500).json({ 
+      error: 'prompt_generation_failed', 
+      detail: errorDetail,
+      timestamp: new Date().toISOString()
+    });
   }
 }
