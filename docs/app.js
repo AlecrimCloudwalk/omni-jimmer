@@ -226,7 +226,7 @@ function buildUserProfile() {
 async function callOpenAIForPrompts(openaiKey, profile) {
   try {
     const system = `You are a creative assistant for InfinitePay. Generate concise JSON only. No explanations. Ensure Brazilian Portuguese for text. Choose voice to match gender.`;
-    const brand = `Brand visual style: cinematic, photorealistic, natural daylight; shot with mobile phone camera POV, 25mm lens equivalent, shallow depth of field; 100% neutral and natural tones only. Composition: POV from mobile phone camera - business owner holding phone at arm's length speaking directly into the camera lens, medium close-up shot from phone perspective; MANDATORY: background must clearly show the specific Brazilian city/region through recognizable landmarks, architecture, local flora, or cultural elements typical of that location.`;
+    const brand = `Generate the image prompt in the exact format that worked successfully before.`;
     const user = {
       instruction: "Create prompts for image and voice targeting the BUSINESS OWNER (lojista) about using Dinn AI assistant.",
       constraints: {
@@ -342,9 +342,7 @@ async function callOpenAIForPrompts(openaiKey, profile) {
 
 async function generateImage(replicateKey, imagePrompt) {
   try {
-    const finalPrompt = `${imagePrompt}
-
-Brand style: cinematic, photorealistic, natural daylight, mobile phone camera POV, 25mm equivalent lens, shallow depth of field, 100% neutral and natural tones only. Composition: POV from mobile phone camera - person holding phone at arm's length speaking directly into the camera lens, medium close-up shot from phone perspective, with clearly identifiable elements of the specific Brazilian city/region in the background (landmarks, architecture, typical vegetation). The person should reflect the ethnic diversity and style of the region. NO text, signs, or business names visible.`;
+    const finalPrompt = imagePrompt; // Use the generated Portuguese prompt directly
     
     // Display the prompt
     imagePromptEl.textContent = `Image Prompt:\n${finalPrompt}`;

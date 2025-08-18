@@ -38,7 +38,7 @@ app.post('/api/gpt/prompts', async (req, res) => {
     if (!OPENAI_API_KEY) return res.status(500).json({ error: 'missing OPENAI_API_KEY' });
     const profile = req.body?.profile || {};
     const system = 'You are a creative assistant for InfinitePay. Generate concise JSON only. No explanations. Ensure Brazilian Portuguese for text. Choose voice to match gender.';
-    const brand = `Brand visual style: cinematic, photorealistic, natural daylight; shot with mobile phone camera POV, 25mm lens equivalent, shallow depth of field; 100% neutral and natural tones only. Composition: POV from mobile phone camera - business owner holding phone at arm's length speaking directly into the camera lens, medium close-up shot from phone perspective; MANDATORY: background must clearly show the specific Brazilian city/region through recognizable landmarks, architecture, local flora, or cultural elements typical of that location.`;
+    const brand = `Generate the image prompt in the exact format that worked successfully before.`;
     const user = {
       instruction: 'Create prompts for image and voice targeting the BUSINESS OWNER (lojista) about using Dinn AI assistant.',
       constraints: {
