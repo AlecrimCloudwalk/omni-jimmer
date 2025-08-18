@@ -383,7 +383,7 @@ function updateOverlayText(overlayText, buttonText) {
   const ctaButton = document.querySelector('.cta-button');
   
   if (textOverlay && overlayText) {
-    textOverlay.innerHTML = overlayText.replace(/\n/g, '<br>');
+    textOverlay.textContent = overlayText;
   }
   
   if (ctaButton && buttonText) {
@@ -395,7 +395,7 @@ function updateOverlayText(overlayText, buttonText) {
   const buttonTextDisplay = document.getElementById('buttonTextDisplay');
   
   if (overlayTextDisplay && overlayText) {
-    overlayTextDisplay.innerHTML = overlayText.replace(/\n/g, '<br>');
+    overlayTextDisplay.textContent = overlayText;
   }
   
   if (buttonTextDisplay && buttonText) {
