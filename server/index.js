@@ -147,6 +147,7 @@ app.post('/api/replicate/audio', async (req, res) => {
       channel: 'mono',
       language_boost: 'Portuguese'
     };
+    console.log('Audio input being sent:', JSON.stringify(input, null, 2));
     const r = await axios.post('https://api.replicate.com/v1/models/minimax/speech-02-hd/predictions', { input }, {
       headers: {
         'Content-Type': 'application/json',
