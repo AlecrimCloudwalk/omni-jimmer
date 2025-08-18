@@ -96,6 +96,15 @@
           </label>
         </div>
 
+        <div class="generation-options">
+          <label>
+            <input id="enableImage" type="checkbox" checked> Generate Image
+          </label>
+          <label>
+            <input id="enableVeo3" type="checkbox" checked> Generate Veo3 Video
+          </label>
+        </div>
+
         <div class="actions">
           <button id="shuffleBtn" type="button">Shuffle</button>
           <button id="generateBtn" type="button" class="primary">Generate</button>
@@ -111,22 +120,16 @@
         <div id="imageContainer" class="media"></div>
       </div>
       <div class="step">
-        <h3>2) Audio</h3>
-        <div id="audioStatus" class="status">Waiting…</div>
-        <div id="audioPrompt" class="prompt-display"></div>
-        <div id="audioContainer" class="media"></div>
-      </div>
-      <div class="step">
-        <h3>3) Video</h3>
-        <div id="videoStatus" class="status">Waiting…</div>
-        <div id="videoPrompt" class="prompt-display"></div>
-        <div id="videoContainer" class="media"></div>
+        <h3>2) Veo3 Video</h3>
+        <div id="veo3Status" class="status">Waiting…</div>
+        <div id="veo3Prompt" class="prompt-display"></div>
+        <div id="veo3Container" class="media"></div>
       </div>
     </section>
   </main>
 
   <footer class="footer">
-    <small>Models: Seedream-3 (image), Minimax Speech-02-HD (TTS), OmniHuman (video). Content: pt-BR. UI: English.</small>
+    <small>Models: Seedream-3 (image), Veo3-Fast (video). Content: pt-BR. UI: English.</small>
   </footer>
 
   <script src="./app.js" type="module"></script>

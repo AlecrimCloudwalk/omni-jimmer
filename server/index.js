@@ -31,48 +31,83 @@ if (!REPLICATE_API_TOKEN) console.warn('WARN: Missing REPLICATE_API_TOKEN in .en
 const BRAND_GREEN = '#c1f732';
 const BRAND_PURPLE = '#c87ef7';
 
+const ETHNICITIES = [
+  'parda, pele morena, traços mistos',
+  'negra, pele escura, traços afrodescendentes',
+  'branca, pele clara, traços europeus',
+  'morena, pele bronzeada, traços brasileiros típicos',
+  'negra retinta, pele bem escura, cabelos crespos',
+  'parda clara, pele amorenada, cabelos ondulados',
+  'asiática, descendente japonesa, traços orientais',
+  'indígena, traços nativos brasileiros',
+  'mulata, pele dourada, traços afro-brasileiros',
+  'cafuza, mistura indígena e africana, pele acobreada'
+];
+
+function getRandomEthnicity() {
+  return ETHNICITIES[Math.floor(Math.random() * ETHNICITIES.length)];
+}
+
 app.get('/health', (_req, res) => res.json({ ok: true }));
 
 app.post('/api/gpt/prompts', async (req, res) => {
   try {
     if (!OPENAI_API_KEY) return res.status(500).json({ error: 'missing OPENAI_API_KEY' });
     const profile = req.body?.profile || {};
-    const system = 'You are a creative assistant for InfinitePay. Generate concise JSON only. No explanations. Ensure Brazilian Portuguese for text. Choose voice to match gender.';
-    const brand = `Generate the image prompt in the exact format that worked successfully before.`;
+    const randomEthnicity = getRandomEthnicity();
+    
+    console.log('Random ethnicity selected:', randomEthnicity);
+    
+    const system = `Você é um roteirista e especialista em criação de prompts descritivos para geração de imagens e vídeos realistas em estilo POV (primeira pessoa) e selfie vlog com ultra realismo, 4K, efeitos sonoros integrados e coerência narrativa.
+
+Sua tarefa é criar **dois prompts cinematográficos em português** para cada cliente:
+1. Um para IMAGEM (pessoa segurando celular em selfie)
+2. Um para VÍDEO Veo3 (pessoa falando para câmera)
+
+⚠️ ALERTA CRÍTICO DE COMPLIANCE: NUNCA use dados pessoais reais (nomes, empresas). Crie SEMPRE personagens genéricos anônimos. Impersonation é proibida por lei.
+
+RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
+    const brand = `Generate two separate cinematic prompts: one for image and one for video.`;
     const user = {
-      instruction: 'Create prompts for image and voice targeting the BUSINESS OWNER (lojista) about using Dinn AI assistant.',
+      instruction: 'Create two separate cinematic prompts in Portuguese: one for image generation and one for video generation about promoting Dinn AI assistant to business owners.',
       constraints: {
         language: 'pt-BR',
-        maxAudioSeconds: 14,
-        voiceModel: 'minimax/speech-02-hd',
-        videoModel: 'bytedance/omni-human',
+        videoModel: 'google/veo-3-fast',
         imageModel: 'bytedance/seedream-3',
       },
       profile,
       outputs: [
         'image_prompt',
-        'voice_metadata.text',
-        'voice_metadata.voice_id',
-        'voice_metadata.emotion',
-        'voice_metadata.speed',
-        'voice_metadata.pitch',
-        'person.gender',
-        'person.ageRange',
-        'person.sceneNotes',
+        'video_prompt'
       ],
       brand,
+      ethnicity: randomEthnicity,
       rules: [
-        'CRITICAL: Return the image prompt in this EXACT format in Portuguese:',
-        'Use this EXACT template structure, only changing the specific details:',
-        'TEMPLATE: \'Um [homem/mulher] brasileiro(a) de cerca de [age] anos, [detailed physical description including skin tone, hair, facial features], veste [detailed clothing description]. Ele/Ela está [location description with specific landmark], em [city], sob [lighting description]. [Detailed background description with local elements, architecture, movement, etc.]. Com a câmera Selfie VLOG, próxima ao rosto, ele/ela [diz para/fala para] a câmera, gesticulando de forma natural. A câmera tem leves tremores de mão, estilo vlog. Sound FX: [specific local ambient sounds]. Fala do personagem: \"[Brazilian Portuguese speech about using Dinn for business]\"\'',
-        'The speech in \'Fala do personagem\' should be about using Dinn (InfinitePay\'s AI assistant) to improve sales, get insights, help with digital payments, etc.',
-        'CRITICAL: HEAVILY emphasize the specific city/region - make it OBVIOUS which Brazilian city this is',
-        'CRITICAL: The person in the image and the voice MUST be the same gender - if image shows a woman, voice must be female; if image shows a man, voice must be male',
-        'Include specific landmarks (Cristo Redentor for Rio, Elevador Lacerda for Salvador, Avenida Paulista for São Paulo, etc.)',
-        'Person should reflect regional diversity - skin tone, facial features, and style typical of that Brazilian region',
-        'Include city-specific ambient sounds and local atmosphere',
-        'Audio tone in \'Fala do personagem\': encouraging, helpful, focused on business growth with local expressions',
-        'Use Brazilian Portuguese throughout, including regional expressions when appropriate',
+        'CRÍTICO: NUNCA use nomes pessoais reais. NUNCA diga \'sou [nome]\' ou \'meu nome é [nome]\'. Use apenas \'Oi!\' ou \'Olá!\'.',
+        'CRÍTICO: NUNCA use nomes de empresas reais. NUNCA mencione o nome da loja/empresa do cliente. Use termos genéricos como \'uma loja\', \'um estabelecimento\', \'uma empresa\'.',
+        'CRÍTICO: NUNCA use \'o personagem\' - use \'uma mulher\', \'um homem\', etc. para evitar personagens de anime.',
+        'CRÍTICO: SEM LETREIROS - Nunca inclua placas, letreiros, nomes de lojas, textos visíveis ou escritas de qualquer tipo nas descrições.',
+        'HORÁRIOS: Use horários naturais como \'Seis horas da manhã\', \'Meio-dia ensolarado\', \'Oito horas da noite\', \'Final de tarde\', \'Início da manhã\'',
+        'AMBIENTES EXTERNOS: Para atividades ao ar livre, use pontos turísticos da cidade (Cristo Redentor-RJ, Elevador Lacerda-Salvador, Avenida Paulista-SP, Pelourinho-Salvador, Pão de Açúcar-RJ, etc.)',
+        `ETNIA OBRIGATÓRIA: Use sempre '${randomEthnicity}' para garantir diversidade racial brasileira`,
+        '',
+        'ESTRUTURA PARA IMAGE_PROMPT:',
+        '1. HORÁRIO + AMBIENTAÇÃO: \'[horário do dia], interior/exterior do local baseado no CNAE, descrição cinematográfica\'',
+        '2. PERSONAGEM: \'Uma mulher/Um homem brasileiro(a) de [idade] anos, [etnia], [cidade/região], [aparência detalhada].\'',
+        '3. CÂMERA: \'Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível.\'',
+        '',
+        'ESTRUTURA PARA VIDEO_PROMPT:',  
+        '1. HORÁRIO + AMBIENTAÇÃO: \'[horário do dia], mesmo ambiente da imagem\'',
+        '2. PERSONAGEM: \'Uma mulher/Um homem brasileiro(a) de [idade] anos, [etnia], [cidade/região], [aparência detalhada].\'',
+        '3. CÂMERA: \'Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.\'',
+        '4. FALA: \'fala da pessoa: \"Oi! Aqui em [cidade], o Dinn está revolucionando...\"\'',
+        '',
+        'Exemplo de estrutura:',
+        'IMAGE: \'Meio-dia ensolarado, exterior de uma loja de roupas em Salvador, cercada por clientes e com vitrines exibindo vestidos leves e coloridos, sem letreiros visíveis. Uma mulher brasileira de 35 anos, parda, pele morena, Salvador BA, cabelos castanhos escuros e olhos castanhos, vestindo um vestido florido. Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível.\'',
+        'VIDEO: \'Oito horas da noite, interior de uma loja brasileira aconchegante, com produtos organizados e ambiente acolhedor, sem letreiros visíveis. Uma mulher brasileira de 30 anos, negra, pele escura, São Paulo SP, cabelos crespos pretos e olhos castanhos. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.\\n\\nfala da pessoa: \"Oi! Aqui em São Paulo, o Dinn está revolucionando os negócios!\"\'',
+        'OUTDOOR: \'Meio-dia ensolarado, em frente ao Cristo Redentor no Rio de Janeiro, movimento de turistas ao fundo. Um homem brasileiro de 40 anos, moreno, pele bronzeada, Rio de Janeiro RJ, personal trainer, roupas esportivas. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.\\n\\nfala da pessoa: \"Oi! Aqui no Rio, o Dinn está ajudando profissionais como eu!\"\'',
+        '',
+        'RETORNE JSON com \'image_prompt\' e \'video_prompt\' seguindo essas estruturas exatas.',
       ],
     };
 
@@ -94,34 +129,20 @@ app.post('/api/gpt/prompts', async (req, res) => {
     const content = data.choices?.[0]?.message?.content || '{}';
     const json = JSON.parse(content);
 
-    // STRICT gender consistency and faster speech
-    const detectedGender = json.person?.gender || profile.gender || '';
-    let voiceId;
-    
-    // FORCE strict gender matching
-    if (detectedGender === 'female' || detectedGender.includes('female') || detectedGender.includes('woman')) {
-      voiceId = 'Wise_Woman'; // Always female voice for female characters
-    } else if (detectedGender === 'male' || detectedGender.includes('male') || detectedGender.includes('man')) {
-      voiceId = 'Deep_Voice_Man'; // Always male voice for male characters
-    } else {
-      voiceId = 'Wise_Woman'; // Default to female
+    // Ensure we have both prompts with correct structure
+    if (!json.image_prompt) {
+      const city = profile.city || 'Brasil';
+      json.image_prompt = `Meio da tarde, interior de uma loja brasileira moderna, iluminação natural, ao fundo produtos e clientes, sem letreiros visíveis. Uma pessoa brasileira de aparência simpática, ${randomEthnicity}, ${city}. Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível.`;
     }
     
-    json.voice_metadata = json.voice_metadata || {};
-    json.voice_metadata.voice_id = voiceId; // Override whatever OpenAI suggested
-    json.voice_metadata.emotion = json.voice_metadata.emotion || 'happy';
-    json.voice_metadata.speed = json.voice_metadata.speed || 1.35; // Faster speech
-    json.voice_metadata.pitch = json.voice_metadata.pitch || 0;
-    json.voice_metadata.language_boost = 'Portuguese';
-    json.voice_metadata.english_normalization = false;
-    
-    // Extract "Fala do personagem" from image_prompt for audio
-    if (json.image_prompt && json.image_prompt.includes('Fala do personagem:')) {
-      const speechMatch = json.image_prompt.match(/Fala do personagem:\s*"([^"]+)"/);
-      if (speechMatch) {
-        json.voice_metadata.text = speechMatch[1];
-      }
+    if (!json.video_prompt) {
+      const city = profile.city || 'sua cidade';
+      json.video_prompt = `Meio da tarde, interior de uma loja brasileira moderna, iluminação natural, ao fundo produtos e clientes. Uma pessoa brasileira de aparência simpática, ${randomEthnicity}, ${city}. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.
+
+fala da pessoa: "Oi! Aqui em ${city}, o Dinn está ajudando empresários a revolucionar seus negócios!"`;
     }
+    
+    // Note: voice_metadata kept for compatibility but not used
 
     res.json(json);
   } catch (err) {
@@ -139,7 +160,7 @@ app.post('/api/replicate/image', async (req, res) => {
       prompt,
       aspect_ratio: '16:9',
       size: 'regular',
-      guidance_scale: 2.5,
+      guidance_scale: 5.0,
     };
     const r = await axios.post('https://api.replicate.com/v1/models/bytedance/seedream-3/predictions', { input }, {
       headers: {
@@ -157,27 +178,24 @@ app.post('/api/replicate/image', async (req, res) => {
   }
 });
 
-app.post('/api/replicate/audio', async (req, res) => {
+// DEPRECATED: Audio and OmniHuman routes kept for compatibility but not used in simplified pipeline
+// app.post('/api/replicate/audio', ...) 
+// app.post('/api/replicate/video', ...)
+
+app.post('/api/replicate/veo3', async (req, res) => {
   try {
     if (!REPLICATE_API_TOKEN) return res.status(500).json({ error: 'missing REPLICATE_API_TOKEN' });
-    const v = req.body?.voice || {};
-    const validVoices = ['Wise_Woman', 'Friendly_Person', 'Inspirational_girl', 'Deep_Voice_Man', 'Calm_Woman', 'Casual_Guy', 'Lively_Girl', 'Patient_Man', 'Young_Knight', 'Determined_Man', 'Lovely_Girl', 'Decent_Boy', 'Imposing_Manner', 'Elegant_Man', 'Abbess', 'Sweet_Girl_2', 'Exuberant_Girl'];
-    const voiceId = validVoices.includes(v.voice_id) ? v.voice_id : 'Friendly_Person';
+    const prompt = req.body?.prompt;
+    if (!prompt) return res.status(400).json({ error: 'missing prompt' });
     
     const input = {
-      text: v.text,
-      voice_id: voiceId,
-      emotion: ['auto', 'neutral', 'happy', 'sad', 'angry', 'fearful', 'disgusted', 'surprised'].includes(v.emotion) ? v.emotion : 'happy',
-      speed: Number(v.speed) || 1,
-      pitch: parseInt(v.pitch) || 0,
-      english_normalization: false,
-      sample_rate: 32000,
-      bitrate: 128000,
-      channel: 'mono',
-      language_boost: 'Portuguese'
+      prompt: prompt,
+      aspect_ratio: '16:9',
+      duration: 8
     };
-    console.log('Audio input being sent:', JSON.stringify(input, null, 2));
-    const r = await axios.post('https://api.replicate.com/v1/models/minimax/speech-02-hd/predictions', { input }, {
+    
+    console.log('Veo3 input being sent:', JSON.stringify(input, null, 2));
+    const r = await axios.post('https://api.replicate.com/v1/models/google/veo-3-fast/predictions', { input }, {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Token ${REPLICATE_API_TOKEN}`,
@@ -185,33 +203,11 @@ app.post('/api/replicate/audio', async (req, res) => {
     });
     const pred = r.data;
     const url = await waitForReplicate(pred.urls.get);
-    if (!url) return res.status(500).json({ error: 'audio_generation_failed' });
+    if (!url) return res.status(500).json({ error: 'veo3_generation_failed' });
     res.json({ url });
   } catch (err) {
-    console.error('Audio error:', err?.response?.data || err?.message || err);
-    res.status(500).json({ error: 'audio_generation_failed', detail: err?.response?.data || err?.message });
-  }
-});
-
-app.post('/api/replicate/video', async (req, res) => {
-  try {
-    if (!REPLICATE_API_TOKEN) return res.status(500).json({ error: 'missing REPLICATE_API_TOKEN' });
-    const image = req.body?.imageUrl;
-    const audio = req.body?.audioUrl;
-    if (!image || !audio) return res.status(400).json({ error: 'missing image or audio' });
-    const r = await axios.post('https://api.replicate.com/v1/models/bytedance/omni-human/predictions', { input: { image, audio } }, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Token ${REPLICATE_API_TOKEN}`,
-      }
-    });
-    const pred = r.data;
-    const url = await waitForReplicate(pred.urls.get);
-    if (!url) return res.status(500).json({ error: 'video_generation_failed' });
-    res.json({ url });
-  } catch (err) {
-    console.error('Video error:', err?.response?.data || err?.message || err);
-    res.status(500).json({ error: 'video_generation_failed', detail: err?.response?.data || err?.message });
+    console.error('Veo3 error:', err?.response?.data || err?.message || err);
+    res.status(500).json({ error: 'veo3_generation_failed', detail: err?.response?.data || err?.message });
   }
 });
 
