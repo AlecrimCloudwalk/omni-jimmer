@@ -217,7 +217,7 @@ function buildUserProfile() {
 async function callOpenAIForPrompts(openaiKey, profile) {
   try {
     const system = `You are a creative assistant for InfinitePay. Generate concise JSON only. No explanations. Ensure Brazilian Portuguese for text. Choose voice to match gender.`;
-    const brand = `Brand visual style: cinematic, photorealistic, natural daylight; predominantly neutral/natural tones (95%) with VERY SUBTLE hints of avocado green ${BRAND_GREEN} or soft purple ${BRAND_PURPLE} (2-3% max, like small details in signage, packaging, or decor). Composition: medium shot of business owner at work in their actual location; emphasize regional/city context in background elements, architecture, local landmarks, or cultural details.`;
+    const brand = `Brand visual style: cinematic, photorealistic, natural daylight; 98% neutral/natural tones with EXTREMELY SUBTLE hints of avocado green ${BRAND_GREEN} or soft purple ${BRAND_PURPLE} (1-2% max, like tiny details on one background element only). Composition: close-up to medium shot focused on the business owner's face and upper body, with shop/regional context softly blurred in background; the person should be the clear main subject.`;
     const user = {
       instruction: "Create prompts for image and voice targeting the BUSINESS OWNER (lojista) about using JIM AI assistant.",
       constraints: {
@@ -245,9 +245,10 @@ async function callOpenAIForPrompts(openaiKey, profile) {
         "Voice length ~8–12 seconds",
         "Audio should speak TO the business owner about using JIM (InfinitePay's AI assistant) to improve sales, get insights, help with digital payments, etc.",
         "HEAVILY emphasize city/region context in both image and script",
-        "Match voice gender to person",
-        "Image should show the business owner in their regional/local context",
+        "CRITICAL: The person in the image and the voice MUST be the same gender - if image shows a woman, voice must be female; if image shows a man, voice must be male",
+        "Image should show the business owner as the main focus, with regional/local context in background",
         "Audio tone: encouraging, helpful, focused on business growth",
+        "Frame the person prominently - they are speaking directly to the camera/user",
       ],
     };
 
@@ -311,7 +312,7 @@ async function callOpenAIForPrompts(openaiKey, profile) {
 
 async function generateImage(replicateKey, imagePrompt) {
   try {
-    const finalPrompt = `${imagePrompt}\n\nEstilo da marca: fotografia cinematográfica diurna, tons neutros/naturais predominantes (95%), com apenas pequenos detalhes sutis em verde abacate ou roxo suave (2-3% no máximo), enfatizando o contexto regional/local do negócio.`;
+    const finalPrompt = `${imagePrompt}\n\nEstilo da marca: fotografia cinematográfica diurna, 98% tons neutros/naturais, com detalhes EXTREMAMENTE sutis em verde abacate ou roxo suave (1-2% no máximo, apenas em um elemento no fundo). Foco principal: pessoa falando diretamente para a câmera, contexto regional suavemente desfocado ao fundo.`;
     const body = {
       version: "bytedance/seedream-3",
       input: {
