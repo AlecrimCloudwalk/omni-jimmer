@@ -82,12 +82,12 @@ RETORNE JSON com 'image_prompt', 'video_prompt', 'overlay_text' (máximo 15 char
         '1. HORÁRIO + AMBIENTAÇÃO: \'[horário do dia], mesmo ambiente da imagem\'',
         '2. PERSONAGEM: \'Uma mulher/Um homem brasileiro(a) de [idade] anos, [etnia], [cidade/região], [aparência detalhada].\'',
         '3. CÂMERA: \'Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.\'',
-        '4. FALA: \'fala da pessoa: "Oi! Aqui em [cidade], o Dinn está revolucionando..."\'',
+        '4. FALA: \'fala da pessoa: "Oi! Aqui em [cidade], o Dinn está revolucionando os negócios! Vem usar você também!"\'',
         '',
         'RETORNE JSON com \'image_prompt\', \'video_prompt\', \'overlay_text\' (máximo 15 chars) e \'button_text\' (máximo 12 chars) seguindo essas estruturas exatas.',
         '',
-        'OVERLAY_TEXT: Texto curto para sobreposição no vídeo (ex: \'Tap to Pay\', \'Pix Rápido\', \'Vendas+\').',
-        'BUTTON_TEXT: Texto do botão call-to-action (ex: \'Começar\', \'Usar agora\', \'Testar\').',
+        'OVERLAY_TEXT: OBRIGATÓRIO 2 linhas exatas separadas por \\n. Use EXATAMENTE estes exemplos: \'Pagamento de contas\\ne boletos\', \'Indique a InfinitePay\\ne ganhe R$ 50\', \'Gestão de Cobrança\\ninteligente\', \'Emitir boletos\\ngratuitamente\', \'Transforme seu celular\\nem uma maquininha\', \'Cartão virtual gratuito\\ne sem anuidade\'.',
+        'BUTTON_TEXT: Use EXATAMENTE estes exemplos para o botão: \'Pagar contas\', \'Indicar agora\', \'Começar a usar\', \'Saber mais\'.',
       ],
     };
 
@@ -151,7 +151,7 @@ RETORNE JSON com 'image_prompt', 'video_prompt', 'overlay_text' (máximo 15 char
       const city = profile.city || 'sua cidade';
       json.video_prompt = `Meio da tarde, interior de uma loja brasileira moderna, iluminação natural, ao fundo produtos e clientes. Uma pessoa brasileira de aparência simpática, ${randomEthnicity}, ${city}. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.
 
-fala da pessoa: "Oi! Aqui em ${city}, o Dinn está ajudando empresários a revolucionar seus negócios!"`;
+fala da pessoa: "Oi! Aqui em ${city}, o Dinn está ajudando empresários a revolucionar seus negócios! Vem usar você também!"`;
     }
     
     // Add default overlay and button text if not provided

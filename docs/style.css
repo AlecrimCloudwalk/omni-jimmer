@@ -429,19 +429,17 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 4px;
   z-index: 10;
-  width: 120px;
+  width: 140px;
   justify-content: space-between;
 }
 
 .indicator {
-  width: 12px;
+  width: 14px;
   height: 3px;
   background: rgba(255, 255, 255, 0.4);
   border-radius: 2px;
   transition: all 0.3s ease;
-  flex: 1;
 }
 
 .indicator.active {

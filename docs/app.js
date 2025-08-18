@@ -472,12 +472,12 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
         "1. HORÁRIO + AMBIENTAÇÃO: '[horário do dia], mesmo ambiente da imagem'",
         `2. PERSONAGEM: 'Uma mulher/Um homem brasileiro(a) de [idade] anos, [etnia], [cidade/região], [aparência detalhada], ${randomClothing}.'`,
         "3. CÂMERA: 'Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.'",
-        `4. FALA: 'fala da pessoa: "Oi! Aqui em [cidade], ${profile.productCallout || 'o Dinn'} está revolucionando..."'`,
+        `4. FALA: 'fala da pessoa: "Oi! Aqui em [cidade], ${profile.productCallout || 'o Dinn'} está revolucionando os negócios! Vem usar você também!"'`,
         "",
         "Exemplo de estrutura:",
         "IMAGE: 'Meio-dia ensolarado, exterior de uma loja de roupas em Salvador, cercada por clientes e com vitrines exibindo vestidos leves e coloridos, sem letreiros visíveis. Uma mulher brasileira de 35 anos, parda, pele morena, Salvador BA, cabelos castanhos escuros e olhos castanhos, vestindo um vestido florido. Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível.'",
-        `VIDEO: 'Oito horas da noite, interior de uma loja brasileira aconchegante, com produtos organizados e ambiente acolhedor, sem letreiros visíveis. Uma mulher brasileira de 30 anos, negra, pele escura, São Paulo SP, cabelos crespos pretos e olhos castanhos. Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.\\n\\nfala da pessoa: "Oi! Aqui em São Paulo, ${profile.productCallout || 'o Dinn'} está revolucionando os negócios!"'`,
-        `OUTDOOR: 'Meio-dia ensolarado, em frente ao Cristo Redentor no Rio de Janeiro, movimento de turistas ao fundo. Um homem brasileiro de 40 anos, moreno, pele bronzeada, Rio de Janeiro RJ, personal trainer, roupas esportivas. Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.\\n\\nfala da pessoa: "Oi! Aqui no Rio, ${profile.productCallout || 'o Dinn'} está ajudando profissionais como eu!"'`,
+        `VIDEO: 'Oito horas da noite, interior de uma loja brasileira aconchegante, com produtos organizados e ambiente acolhedor, sem letreiros visíveis. Uma mulher brasileira de 30 anos, negra, pele escura, São Paulo SP, cabelos crespos pretos e olhos castanhos. Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.\\n\\nfala da pessoa: "Oi! Aqui em São Paulo, ${profile.productCallout || 'o Dinn'} está revolucionando os negócios! Vem usar você também!"'`,
+        `OUTDOOR: 'Meio-dia ensolarado, em frente ao Cristo Redentor no Rio de Janeiro, movimento de turistas ao fundo. Um homem brasileiro de 40 anos, moreno, pele bronzeada, Rio de Janeiro RJ, personal trainer, roupas esportivas. Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.\\n\\nfala da pessoa: "Oi! Aqui no Rio, ${profile.productCallout || 'o Dinn'} está ajudando profissionais como eu! Experimenta aí!"'`,
         "",
         "RETORNE JSON com 'image_prompt', 'video_prompt', 'overlay_text' (máximo 15 chars) e 'button_text' (máximo 12 chars) seguindo essas estruturas exatas.",
         "",
@@ -510,7 +510,7 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
       const product = profile.productCallout || 'o Dinn';
       json.video_prompt = `Meio da tarde, interior de uma loja brasileira moderna, iluminação natural, ao fundo produtos e clientes, sem letreiros visíveis. Uma pessoa brasileira de aparência simpática, ${randomEthnicity}, ${city}. Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.
 
-fala da pessoa: "Oi! Aqui em ${city}, ${product} está ajudando empresários a revolucionar seus negócios!"`;
+fala da pessoa: "Oi! Aqui em ${city}, ${product} está ajudando empresários a revolucionar seus negócios! Vem usar você também!"`;
     }
     
     // Add default overlay and button text if not provided
