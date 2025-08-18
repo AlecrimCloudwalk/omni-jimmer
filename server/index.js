@@ -111,7 +111,7 @@ app.post('/api/replicate/image', async (req, res) => {
     if (!prompt) return res.status(400).json({ error: 'missing prompt' });
     const input = {
       prompt,
-      aspect_ratio: '9:16',
+      aspect_ratio: '16:9',
       size: 'regular',
       guidance_scale: 2.5,
     };
@@ -138,7 +138,7 @@ app.post('/api/replicate/audio', async (req, res) => {
     const input = {
       text: v.text,
       voice_id: v.voice_id || 'Friendly_Person',
-      emotion: v.emotion === 'auto' ? 'auto' : (v.emotion || 'happy'),
+      emotion: ['auto', 'neutral', 'happy', 'sad', 'angry', 'fearful', 'disgusted', 'surprised'].includes(v.emotion) ? v.emotion : 'happy',
       speed: Number(v.speed) || 1,
       pitch: parseInt(v.pitch) || 0,
       english_normalization: false,

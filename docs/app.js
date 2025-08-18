@@ -309,10 +309,10 @@ async function generateImage(replicateKey, imagePrompt) {
     const body = {
       version: "bytedance/seedream-3",
       input: {
-        prompt: finalPrompt,
-        aspect_ratio: "9:16",
-        size: "regular",
-        guidance_scale: 2.5
+              prompt: finalPrompt,
+      aspect_ratio: "16:9",
+      size: "regular",
+      guidance_scale: 2.5
       }
     };
     imageStatus.textContent = "Generating image…";
