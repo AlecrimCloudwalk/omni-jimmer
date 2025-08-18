@@ -383,7 +383,9 @@ function updateOverlayText(overlayText, buttonText) {
   const ctaButton = document.querySelector('.cta-button');
   
   if (textOverlay && overlayText) {
-    textOverlay.textContent = overlayText;
+    // Clean up any literal \n and replace with HTML line breaks
+    const cleanText = overlayText.replace(/\\n/g, '\n').replace(/\n/g, '<br>');
+    textOverlay.innerHTML = cleanText;
   }
   
   if (ctaButton && buttonText) {
@@ -395,7 +397,9 @@ function updateOverlayText(overlayText, buttonText) {
   const buttonTextDisplay = document.getElementById('buttonTextDisplay');
   
   if (overlayTextDisplay && overlayText) {
-    overlayTextDisplay.textContent = overlayText;
+    // Clean up any literal \n and replace with HTML line breaks
+    const cleanText = overlayText.replace(/\\n/g, '\n').replace(/\n/g, '<br>');
+    overlayTextDisplay.innerHTML = cleanText;
   }
   
   if (buttonTextDisplay && buttonText) {
@@ -521,11 +525,23 @@ fala da pessoa: "Oi! Aqui em ${city}, ${product} está ajudando empresários a r
       json.button_text = "Começar a usar";
     }
     
-    // Apply pronunciation improvements to video_prompt only
+    // Apply pronunciation improvements to video_prompt only (not overlay_text or button_text)
     if (json.video_prompt) {
       json.video_prompt = json.video_prompt
         .replace(/\bJIM\b/g, 'Din')
         .replace(/\bInfinitePay\b/g, 'Infinitipêi');
+    }
+    
+    // Keep JIM in overlay_text and button_text for consistency with brand
+    if (json.overlay_text) {
+      json.overlay_text = json.overlay_text
+        .replace(/\bDinn\b/g, 'JIM')
+        .replace(/\bDin\b/g, 'JIM');
+    }
+    if (json.button_text) {
+      json.button_text = json.button_text
+        .replace(/\bDinn\b/g, 'JIM')
+        .replace(/\bDin\b/g, 'JIM');
     }
     
     // Set default voice metadata  
