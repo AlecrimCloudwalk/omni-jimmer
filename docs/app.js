@@ -6,7 +6,11 @@ const IS_LOCAL = (
   location.protocol === 'file:'
 );
 const IS_GITHUB_PAGES = location.hostname.includes('github.io');
+const IS_VERCEL = location.hostname.includes('vercel.app') || location.hostname.includes('vercel.app');
+
+// API endpoints
 const API_BASE = IS_LOCAL ? 'http://localhost:8787' : '';
+const VERCEL_API_BASE = '/api'; // Vercel serverless functions
 
 const CNAE_OPTIONS = [
   "5611-2/01 - Restaurante",
@@ -364,6 +368,18 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
         throw new Error(`Local prompt error: ${t}`);
       }
       json = await r.json();
+    } else if (IS_VERCEL || !IS_GITHUB_PAGES) {
+      // Use Vercel serverless functions
+      const r = await fetch(`${VERCEL_API_BASE}/gpt/prompts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profile: profile })
+      });
+      if (!r.ok) {
+        const t = await r.text();
+        throw new Error(`Vercel prompt error: ${t}`);
+      }
+      json = await r.json();
     } else {
       const completion = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
@@ -439,17 +455,27 @@ async function generateImage(replicateKey, imagePrompt) {
       guidance_scale: 5.0
       }
     };
-    // Status is already set by caller function
-    let imageUrl;
-    if (IS_LOCAL) {
-      const r = await fetch(`${API_BASE}/api/replicate/image`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: finalPrompt })
-      });
-      if (!r.ok) throw new Error(await r.text());
-      const j = await r.json();
-      imageUrl = j.url;
+         // Status is already set by caller function
+     let imageUrl;
+     if (IS_LOCAL) {
+       const r = await fetch(`${API_BASE}/api/replicate/image`, {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ prompt: finalPrompt })
+       });
+       if (!r.ok) throw new Error(await r.text());
+       const j = await r.json();
+       imageUrl = j.url;
+     } else if (IS_VERCEL || !IS_GITHUB_PAGES) {
+       // Use Vercel serverless functions
+       const r = await fetch(`${VERCEL_API_BASE}/replicate/image`, {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ prompt: finalPrompt })
+       });
+       if (!r.ok) throw new Error(await r.text());
+       const j = await r.json();
+       imageUrl = j.url;
     } else {
              // Use different approach for GitHub Pages
        const corsProxy = "https://cors-anywhere.herokuapp.com/";
@@ -491,17 +517,27 @@ async function generateImage(replicateKey, imagePrompt) {
 async function generateVeo3Video(replicateKey, videoPrompt) {
   try {
     // Prompt is already displayed by displayPrompts() function
-    // Status is already set by caller function
-    let videoUrl;
-    if (IS_LOCAL) {
-      const r = await fetch(`${API_BASE}/api/replicate/veo3`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: videoPrompt })
-      });
-      if (!r.ok) throw new Error(await r.text());
-      const j = await r.json();
-      videoUrl = j.url;
+         // Status is already set by caller function
+     let videoUrl;
+     if (IS_LOCAL) {
+       const r = await fetch(`${API_BASE}/api/replicate/veo3`, {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ prompt: videoPrompt })
+       });
+       if (!r.ok) throw new Error(await r.text());
+       const j = await r.json();
+       videoUrl = j.url;
+     } else if (IS_VERCEL || !IS_GITHUB_PAGES) {
+       // Use Vercel serverless functions
+       const r = await fetch(`${VERCEL_API_BASE}/replicate/veo3`, {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ prompt: videoPrompt })
+       });
+       if (!r.ok) throw new Error(await r.text());
+       const j = await r.json();
+       videoUrl = j.url;
     } else {
              // Use different approach for GitHub Pages
        const corsProxy = "https://cors-anywhere.herokuapp.com/";
