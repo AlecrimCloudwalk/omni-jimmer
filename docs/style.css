@@ -257,18 +257,34 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  overflow: hidden;
+}
+
+.phone-mockup-video {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: calc(100% - 16px);
+  height: calc(100% - 16px);
+  border-radius: 18px;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.phone-mockup-video.hidden {
+  display: none;
 }
 
 .video-overlay {
   position: absolute;
   top: calc(50% + 70px);
   left: 50%;
-  transform: translate(-50%, -50%);
-  width: 90%;
+  transform: translate(-50%, -65%);
+  width: 87%;
   height: 180px;
   border-radius: 16px;
   overflow: hidden;
-  z-index: 10;
+  z-index: 20;
 }
 
 .video-component {
@@ -342,48 +358,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
   margin-left: 16px;
 }
 
-.cta-prompts {
-  position: absolute;
-  bottom: -60px;
-  right: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
 
-.cta-arrow {
-  font-size: 24px;
-  color: var(--green);
-  animation: bounce 2s infinite;
-}
-
-.cta-text {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-
-.cta-line {
-  font-size: 11px;
-  color: var(--green);
-  font-weight: 600;
-  text-align: center;
-  white-space: nowrap;
-}
-
-@keyframes bounce {
-  0%, 20%, 50%, 80%, 100% {
-    transform: translateY(0);
-  }
-  40% {
-    transform: translateY(-10px);
-  }
-  60% {
-    transform: translateY(-5px);
-  }
-}
 
 /* Simplified - removed unused notification and bottom action styles */
 
