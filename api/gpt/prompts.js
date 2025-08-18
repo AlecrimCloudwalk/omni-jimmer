@@ -52,7 +52,7 @@ Sua tarefa é criar **dois prompts cinematográficos em português** para cada c
 
 ⚠️ ALERTA CRÍTICO DE COMPLIANCE: NUNCA use dados pessoais reais (nomes, empresas). Crie SEMPRE personagens genéricos anônimos. Impersonation é proibida por lei.
 
-RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
+RETORNE JSON com 'image_prompt', 'video_prompt', 'overlay_text' (máximo 15 chars) e 'button_text' (máximo 12 chars).`;
 
     const user = {
       instruction: 'Create two separate cinematic prompts in Portuguese: one for image generation and one for video generation about promoting Dinn AI assistant to business owners.',
@@ -62,7 +62,7 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
         imageModel: 'bytedance/seedream-3',
       },
       profile,
-      outputs: ['image_prompt', 'video_prompt'],
+      outputs: ['image_prompt', 'video_prompt', 'overlay_text', 'button_text'],
       ethnicity: randomEthnicity,
       rules: [
         'CRÍTICO: NUNCA use nomes pessoais reais. NUNCA diga \'sou [nome]\' ou \'meu nome é [nome]\'. Use apenas \'Oi!\' ou \'Olá!\'.',
@@ -84,7 +84,10 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
         '3. CÂMERA: \'Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.\'',
         '4. FALA: \'fala da pessoa: "Oi! Aqui em [cidade], o Dinn está revolucionando..."\'',
         '',
-        'RETORNE JSON com \'image_prompt\' e \'video_prompt\' seguindo essas estruturas exatas.',
+        'RETORNE JSON com \'image_prompt\', \'video_prompt\', \'overlay_text\' (máximo 15 chars) e \'button_text\' (máximo 12 chars) seguindo essas estruturas exatas.',
+        '',
+        'OVERLAY_TEXT: Texto curto para sobreposição no vídeo (ex: \'Tap to Pay\', \'Pix Rápido\', \'Vendas+\').',
+        'BUTTON_TEXT: Texto do botão call-to-action (ex: \'Começar\', \'Usar agora\', \'Testar\').',
       ],
     };
 
@@ -122,6 +125,14 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
       json.video_prompt = `Meio da tarde, interior de uma loja brasileira moderna, iluminação natural, ao fundo produtos e clientes. Uma pessoa brasileira de aparência simpática, ${randomEthnicity}, ${city}. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.
 
 fala da pessoa: "Oi! Aqui em ${city}, o Dinn está ajudando empresários a revolucionar seus negócios!"`;
+    }
+    
+    // Add default overlay and button text if not provided
+    if (!json.overlay_text) {
+      json.overlay_text = "Tap to Pay\nno iPhone";
+    }
+    if (!json.button_text) {
+      json.button_text = "Começar a usar";
     }
     
     res.json(json);

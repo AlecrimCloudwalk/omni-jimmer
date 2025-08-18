@@ -187,7 +187,15 @@ async function onShuffle() {
     const res = await fetch("./clients.sample.json");
     const list = await res.json();
     const sample = list[Math.floor(Math.random() * list.length)];
+    
+    // Add random time of day for variance
+    const timesOfDay = ['Amanhecer', 'Meio-dia ensolarado', 'Final de tarde', 'Anoitecer', 'Noite'];
+    const randomTime = timesOfDay[Math.floor(Math.random() * timesOfDay.length)];
+    
     fillForm(sample);
+    
+    // Store random time for prompt generation
+    window.randomTimeOfDay = randomTime;
   } catch (e) {
     console.error(e);
   }
@@ -236,7 +244,7 @@ async function onGenerate() {
   const promises = [];
   
   if (enableImageEl.checked) {
-    imageStatus.textContent = "Generating image…";
+    imageStatus.innerHTML = '🎨 Generating image… <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" style="width: 20px; height: 20px; vertical-align: middle;">';
     promises.push(generateImage(promptResult.image_prompt));
   } else {
     imageStatus.textContent = "Disabled (checkbox unchecked)";
@@ -244,7 +252,7 @@ async function onGenerate() {
   }
   
   if (enableVeo3El.checked) {
-    if (veo3Status) veo3Status.textContent = "Generating Veo3 video…";
+    if (veo3Status) veo3Status.innerHTML = '🎬 Generating video… <img src="https://media.giphy.com/media/xTkcEQACH24SMPxIQg/giphy.gif" style="width: 20px; height: 20px; vertical-align: middle;">';
     promises.push(generateVeo3Video(promptResult.video_prompt));
   } else {
     if (veo3Status) veo3Status.textContent = "Disabled (checkbox unchecked)";
@@ -288,6 +296,23 @@ function displayPrompts(promptResult) {
   if (veo3PromptEl) {
     veo3PromptEl.textContent = `Veo3 Video Prompt:\n${promptResult.video_prompt}`;
     veo3PromptEl.classList.add("show");
+  }
+  
+  // Update overlay text in the app preview
+  updateOverlayText(promptResult.overlay_text, promptResult.button_text);
+}
+
+function updateOverlayText(overlayText, buttonText) {
+  // Update the text overlay in the app preview
+  const textOverlay = document.querySelector('.text-overlay p');
+  const ctaButton = document.querySelector('.cta-button');
+  
+  if (textOverlay && overlayText) {
+    textOverlay.innerHTML = overlayText.replace(/\n/g, '<br>');
+  }
+  
+  if (ctaButton && buttonText) {
+    ctaButton.textContent = buttonText;
   }
 }
 
@@ -334,7 +359,9 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
       profile,
       outputs: [
         "image_prompt",
-        "video_prompt"
+        "video_prompt",
+        "overlay_text",
+        "button_text"
       ],
       brand,
       ethnicity: randomEthnicity,
@@ -343,7 +370,7 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
         "CRÍTICO: NUNCA use nomes de empresas reais. NUNCA mencione o nome da loja/empresa do cliente. Use termos genéricos como 'uma loja', 'um estabelecimento', 'uma empresa'.",
         "CRÍTICO: NUNCA use 'o personagem' - use 'uma mulher', 'um homem', etc. para evitar personagens de anime.",
         "CRÍTICO: SEM LETREIROS - Nunca inclua placas, letreiros, nomes de lojas, textos visíveis ou escritas de qualquer tipo nas descrições.",
-        "HORÁRIOS: Use horários naturais como 'Seis horas da manhã', 'Meio-dia ensolarado', 'Oito horas da noite', 'Final de tarde', 'Início da manhã'",
+        `HORÁRIOS: Use preferencialmente '${window.randomTimeOfDay || 'Meio-dia ensolarado'}' ou horários naturais similares como 'Seis horas da manhã', 'Final de tarde', 'Início da manhã'`,
         "AMBIENTES EXTERNOS: Para atividades ao ar livre, use pontos turísticos da cidade (Cristo Redentor-RJ, Elevador Lacerda-Salvador, Avenida Paulista-SP, Pelourinho-Salvador, Pão de Açúcar-RJ, etc.)",
         `ETNIA OBRIGATÓRIA: Use sempre '${randomEthnicity}' para garantir diversidade racial brasileira`,
         "",
@@ -363,7 +390,10 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
         "VIDEO: 'Oito horas da noite, interior de uma loja brasileira aconchegante, com produtos organizados e ambiente acolhedor, sem letreiros visíveis. Uma mulher brasileira de 30 anos, negra, pele escura, São Paulo SP, cabelos crespos pretos e olhos castanhos. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.\\n\\nfala da pessoa: \"Oi! Aqui em São Paulo, o Dinn está revolucionando os negócios!\"'",
         "OUTDOOR: 'Meio-dia ensolarado, em frente ao Cristo Redentor no Rio de Janeiro, movimento de turistas ao fundo. Um homem brasileiro de 40 anos, moreno, pele bronzeada, Rio de Janeiro RJ, personal trainer, roupas esportivas. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.\\n\\nfala da pessoa: \"Oi! Aqui no Rio, o Dinn está ajudando profissionais como eu!\"'",
         "",
-        "RETORNE JSON com 'image_prompt' e 'video_prompt' seguindo essas estruturas exatas.",
+        "RETORNE JSON com 'image_prompt', 'video_prompt', 'overlay_text' (máximo 15 chars) e 'button_text' (máximo 12 chars) seguindo essas estruturas exatas.",
+        "",
+        "OVERLAY_TEXT: Texto curto para sobreposição no vídeo (ex: 'Tap to Pay', 'Pix Rápido', 'Vendas+').",
+        "BUTTON_TEXT: Texto do botão call-to-action (ex: 'Começar', 'Usar agora', 'Testar').",
       ],
     };
 
@@ -391,6 +421,14 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
       json.video_prompt = `Meio da tarde, interior de uma loja brasileira moderna, iluminação natural, ao fundo produtos e clientes, sem letreiros visíveis. Uma pessoa brasileira de aparência simpática, ${randomEthnicity}, ${city}. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.
 
 fala da pessoa: "Oi! Aqui em ${city}, o Dinn está ajudando empresários a revolucionar seus negócios!"`;
+    }
+    
+    // Add default overlay and button text if not provided
+    if (!json.overlay_text) {
+      json.overlay_text = "Tap to Pay\nno iPhone";
+    }
+    if (!json.button_text) {
+      json.button_text = "Começar a usar";
     }
     
     // Set default voice metadata  
