@@ -35,6 +35,7 @@ const GENDER_BY_CNAE = {
 const openaiKeyEl = document.getElementById("openaiKey");
 const replicateKeyEl = document.getElementById("replicateKey");
 const rememberKeysEl = document.getElementById("rememberKeys");
+const apiCardEl = document.getElementById("apiCard");
 
 const cnaeEl = document.getElementById("cnae");
 const regionEl = document.getElementById("region");
@@ -85,6 +86,10 @@ function init() {
 
   shuffleBtn.addEventListener("click", onShuffle);
   generateBtn.addEventListener("click", onGenerate);
+
+  if (IS_LOCAL && apiCardEl) {
+    apiCardEl.style.display = 'none';
+  }
 }
 
 function updateCities() {
@@ -143,9 +148,11 @@ function saveKeysIfNeeded() {
 async function onGenerate() {
   const openaiKey = openaiKeyEl.value.trim();
   const replicateKey = replicateKeyEl.value.trim();
-  if (!openaiKey || !replicateKey) {
-    alert("Please provide both OpenAI and Replicate API keys.");
-    return;
+  if (!IS_LOCAL) {
+    if (!openaiKey || !replicateKey) {
+      alert("Please provide both OpenAI and Replicate API keys.");
+      return;
+    }
   }
   saveKeysIfNeeded();
 

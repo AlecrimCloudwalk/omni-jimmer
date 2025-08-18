@@ -25,7 +25,7 @@ PORT=8787
 npm i
 npm run dev
 ```
-3) Open `docs/index.html` in your browser via `file://` or a static server, preferably at `http://localhost` so the frontend uses the local proxy automatically.
+3) Open `docs/index.html` in your browser via `http://localhost` (served by any static server). In local mode, the UI hides API keys and uses the local proxy with your `.env` keys.
 4) Click Shuffle → Generate. Pipeline runs via local proxy to avoid CORS: Image → Audio → Video.
 
 Notes:
