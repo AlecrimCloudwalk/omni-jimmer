@@ -15,11 +15,12 @@
     <p class="sub">UI in English. Generated content in Brazilian Portuguese.</p>
   </header>
 
-  <main class="container">
-    <section class="controls">
+  <main class="three-column-container">
+    <!-- LEFT COLUMN: Controls -->
+    <section class="left-column">
       <div class="card">
         <h2>Customer Profile</h2>
-        <div class="grid-2">
+        <div class="form-grid">
           <label>
             Business name
             <input id="businessName" type="text" placeholder="Padaria Pão Quentinho" />
@@ -95,18 +96,106 @@
       </div>
     </section>
 
-    <section class="output">
+    <!-- CENTER COLUMN: Generated Content -->
+    <section class="center-column">
       <div class="step">
-        <h3>1) Image</h3>
+        <h3>Generated Image</h3>
         <div id="imageStatus" class="status">Waiting…</div>
         <div id="imagePrompt" class="prompt-display"></div>
         <div id="imageContainer" class="media"></div>
       </div>
       <div class="step">
-        <h3>2) Veo3 Video</h3>
+        <h3>Generated Video</h3>
         <div id="veo3Status" class="status">Waiting…</div>
         <div id="veo3Prompt" class="prompt-display"></div>
         <div id="veo3Container" class="media"></div>
+      </div>
+    </section>
+
+    <!-- RIGHT COLUMN: App Preview -->
+    <section class="right-column">
+      <div class="app-preview">
+        <h3>App Preview</h3>
+        <div class="phone-mockup">
+          <div class="phone-screen">
+            <div class="phone-content">
+              <!-- Phone UI Background -->
+              <div class="status-bar">
+                <span class="time">9:41</span>
+                <div class="status-icons">
+                  <span class="signal">●●●●</span>
+                  <span class="wifi">📶</span>
+                  <span class="battery">🔋</span>
+                </div>
+              </div>
+              
+              <div class="account-header">
+                <span class="account-name">$claudiawalker</span>
+                <div class="balance">
+                  <span class="currency">R$</span>
+                  <span class="amount">4.200,00</span>
+                </div>
+              </div>
+
+              <div class="action-buttons">
+                <div class="action-btn active">
+                  <div class="btn-icon">🏪</div>
+                  <span>Área Pix</span>
+                  <div class="badge">Parcele</div>
+                </div>
+                <div class="action-btn">
+                  <div class="btn-icon">↑</div>
+                  <span>Enviar</span>
+                </div>
+                <div class="action-btn">
+                  <div class="btn-icon">|||</div>
+                  <span>Pagar</span>
+                </div>
+                <div class="action-btn">
+                  <div class="btn-icon">💰</div>
+                  <span>Depositar</span>
+                </div>
+              </div>
+
+              <div class="jim-section">
+                <button class="jim-button">
+                  <span class="jim-text">Fale com JIM</span>
+                  <span class="jim-icon">✨</span>
+                </button>
+              </div>
+
+              <!-- Video Component Overlay -->
+              <div class="video-overlay" id="videoOverlay">
+                <div class="video-component">
+                  <div class="video-placeholder">
+                    <span>Generated video will appear here</span>
+                  </div>
+                  <div class="video-controls">
+                    <div class="text-overlay">
+                      <p>Tap to Pay no iPhone</p>
+                    </div>
+                    <button class="start-button">Começar a usar</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="notification-section">
+                <div class="notification">
+                  <div class="notification-avatar">👤</div>
+                  <span class="notification-text">Receba em 6 segs</span>
+                  <div class="notification-icon">🦊</div>
+                </div>
+              </div>
+
+              <div class="bottom-action">
+                <button class="tap-to-pay-btn">
+                  <span class="sound-icon">🔊</span>
+                  <span>Tap to Pay no iPhone</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   </main>

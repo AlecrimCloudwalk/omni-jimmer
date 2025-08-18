@@ -97,6 +97,7 @@ const imageStatus = document.getElementById("imageStatus");
 const veo3Status = document.getElementById("veo3Status");
 const imageContainer = document.getElementById("imageContainer");
 const veo3Container = document.getElementById("veo3Container");
+const videoOverlay = document.getElementById("videoOverlay");
 const imagePromptEl = document.getElementById("imagePrompt");
 const veo3PromptEl = document.getElementById("veo3Prompt");
 
@@ -442,6 +443,24 @@ async function generateVeo3Video(videoPrompt) {
       a.href = videoUrl; a.download = "veo3-video.mp4"; a.textContent = "📥 Download";
       a.className = "download-btn";
       veo3Container.appendChild(a);
+      
+      // Also update the phone mockup video overlay
+      if (videoOverlay) {
+        const videoPlaceholder = videoOverlay.querySelector('.video-placeholder');
+        if (videoPlaceholder) {
+          videoPlaceholder.innerHTML = '';
+          const overlayVideo = document.createElement("video");
+          overlayVideo.src = videoUrl;
+          overlayVideo.muted = true;
+          overlayVideo.loop = true;
+          overlayVideo.autoplay = true;
+          overlayVideo.style.width = "100%";
+          overlayVideo.style.height = "100%";
+          overlayVideo.style.objectFit = "cover";
+          videoPlaceholder.appendChild(overlayVideo);
+        }
+      }
+      
       if (veo3Status) veo3Status.textContent = "Done.";
     } else {
       if (veo3Status) veo3Status.textContent = "Veo3 video generation failed.";
