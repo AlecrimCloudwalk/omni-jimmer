@@ -17,27 +17,6 @@
 
   <main class="container">
     <section class="controls">
-      <div class="card" id="apiCard">
-        <h2>API Keys</h2>
-        <label>
-          OpenAI API Key
-          <input id="openaiKey" type="password" placeholder="sk-..." autocomplete="off" />
-        </label>
-        <label>
-          Replicate API Token
-          <input id="replicateKey" type="password" placeholder="r8_..." autocomplete="off" />
-        </label>
-        <label class="row">
-          <input id="rememberKeys" type="checkbox" />
-          <span>Store keys in this browser (localStorage)</span>
-        </label>
-        <div class="warn">
-          <strong>⚠️ CORS Limitation:</strong> On GitHub Pages, direct API calls are blocked by browsers.
-          <br><strong>✅ Solution:</strong> Run locally with <code>npm run dev</code> for full functionality.
-          <br><em>GitHub Pages only shows prompts (no actual generation).</em>
-        </div>
-      </div>
-
       <div class="card">
         <h2>Customer Profile</h2>
         <div class="grid-2">

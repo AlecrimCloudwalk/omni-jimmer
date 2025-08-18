@@ -5,12 +5,10 @@ const IS_LOCAL = (
   location.hostname === '127.0.0.1' ||
   location.protocol === 'file:'
 );
-const IS_GITHUB_PAGES = location.hostname.includes('github.io');
-const IS_VERCEL = location.hostname.includes('vercel.app') || location.hostname.includes('vercel.app');
+const IS_VERCEL = location.hostname.includes('vercel.app');
 
-// API endpoints
-const API_BASE = IS_LOCAL ? 'http://localhost:8787' : '';
-const VERCEL_API_BASE = '/api'; // Vercel serverless functions
+// API endpoints - prefer Vercel, fallback to local
+const API_BASE = IS_LOCAL ? 'http://localhost:8787' : '/api';
 
 const CNAE_OPTIONS = [
   "5611-2/01 - Restaurante",
@@ -74,10 +72,7 @@ const GENDER_BY_CNAE = {
   "Loja de Roupas": "female",
 };
 
-const openaiKeyEl = document.getElementById("openaiKey");
-const replicateKeyEl = document.getElementById("replicateKey");
-const rememberKeysEl = document.getElementById("rememberKeys");
-const apiCardEl = document.getElementById("apiCard");
+// API keys are now handled server-side via environment variables
 
 const cnaeEl = document.getElementById("cnae");
 const regionEl = document.getElementById("region");
@@ -119,21 +114,12 @@ function init() {
   regionEl.addEventListener("change", updateCities);
   updateCities();
 
-  const savedOpenAI = localStorage.getItem("openaiKey");
-  const savedReplicate = localStorage.getItem("replicateKey");
-  const savedRemember = localStorage.getItem("rememberKeys") === "true";
-  if (savedRemember) {
-    if (savedOpenAI) openaiKeyEl.value = savedOpenAI;
-    if (savedReplicate) replicateKeyEl.value = savedReplicate;
-    rememberKeysEl.checked = true;
-  }
+  // API keys are handled server-side, no localStorage needed
 
   shuffleBtn.addEventListener("click", onShuffle);
   generateBtn.addEventListener("click", onGenerate);
 
-  if (IS_LOCAL && apiCardEl) {
-    apiCardEl.style.display = 'none';
-  }
+  // No API card hiding needed since it's removed from HTML
 }
 
 function updateCities() {
@@ -185,34 +171,16 @@ function selectValue(select, val) {
   select.selectedIndex = idx >= 0 ? idx : 0;
 }
 
-function saveKeysIfNeeded() {
-  if (rememberKeysEl.checked) {
-    localStorage.setItem("rememberKeys", "true");
-    localStorage.setItem("openaiKey", openaiKeyEl.value.trim());
-    localStorage.setItem("replicateKey", replicateKeyEl.value.trim());
-  } else {
-    localStorage.removeItem("rememberKeys");
-    localStorage.removeItem("openaiKey");
-    localStorage.removeItem("replicateKey");
-  }
-}
+// API key functions removed - handled server-side
 
 async function onGenerate() {
-  const openaiKey = openaiKeyEl.value.trim();
-  const replicateKey = replicateKeyEl.value.trim();
-  if (!IS_LOCAL) {
-    if (!openaiKey || !replicateKey) {
-      alert("Please provide both OpenAI and Replicate API keys.");
-      return;
-    }
-  }
-  saveKeysIfNeeded();
+  // API keys are handled server-side, no validation needed
 
   lockUI(true);
   clearOutputs();
 
   const profile = buildUserProfile();
-  const promptResult = await callOpenAIForPrompts(openaiKey, profile);
+  const promptResult = await callOpenAIForPrompts(profile);
   if (!promptResult) {
     lockUI(false);
     return;
@@ -226,7 +194,7 @@ async function onGenerate() {
   
   if (enableImageEl.checked) {
     imageStatus.textContent = "Generating image…";
-    promises.push(generateImage(replicateKey, promptResult.image_prompt));
+    promises.push(generateImage(promptResult.image_prompt));
   } else {
     imageStatus.textContent = "Disabled (checkbox unchecked)";
     promises.push(Promise.resolve(null));
@@ -234,7 +202,7 @@ async function onGenerate() {
   
   if (enableVeo3El.checked) {
     if (veo3Status) veo3Status.textContent = "Generating Veo3 video…";
-    promises.push(generateVeo3Video(replicateKey, promptResult.video_prompt));
+    promises.push(generateVeo3Video(promptResult.video_prompt));
   } else {
     if (veo3Status) veo3Status.textContent = "Disabled (checkbox unchecked)";
     promises.push(Promise.resolve(null));
@@ -299,7 +267,7 @@ function buildUserProfile() {
   };
 }
 
-async function callOpenAIForPrompts(openaiKey, profile) {
+async function callOpenAIForPrompts(profile) {
   try {
     const randomEthnicity = getRandomEthnicity();
     
@@ -357,54 +325,17 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
     };
 
     let json;
-    if (IS_LOCAL) {
-      const r = await fetch(`${API_BASE}/api/gpt/prompts`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ profile: profile })
-      });
-      if (!r.ok) {
-        const t = await r.text();
-        throw new Error(`Local prompt error: ${t}`);
-      }
-      json = await r.json();
-    } else if (IS_VERCEL || !IS_GITHUB_PAGES) {
-      // Use Vercel serverless functions
-      const r = await fetch(`${VERCEL_API_BASE}/gpt/prompts`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ profile: profile })
-      });
-      if (!r.ok) {
-        const t = await r.text();
-        throw new Error(`Vercel prompt error: ${t}`);
-      }
-      json = await r.json();
-    } else {
-      const completion = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${openaiKey}`,
-        },
-        body: JSON.stringify({
-          model: "gpt-4o-mini",
-          messages: [
-            { role: "system", content: system },
-            { role: "user", content: `Respond ONLY with JSON. No markdown. Use ethnicity: "${randomEthnicity}". User Profile and instructions: ${JSON.stringify(user)}` },
-          ],
-          temperature: 0.8,
-          response_format: { type: "json_object" }
-        }),
-      });
-      if (!completion.ok) {
-        const t = await completion.text();
-        throw new Error(`OpenAI error: ${t}`);
-      }
-      const data = await completion.json();
-      const content = data.choices?.[0]?.message?.content || "";
-      json = JSON.parse(content);
+    const endpoint = `${API_BASE}/gpt/prompts`;
+    const r = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ profile: profile })
+    });
+    if (!r.ok) {
+      const t = await r.text();
+      throw new Error(`Prompt generation error: ${t}`);
     }
+    json = await r.json();
 
     // Ensure we have both prompts with correct structure
     if (!json.image_prompt) {
@@ -440,7 +371,7 @@ fala da pessoa: "Oi! Aqui em ${city}, o Dinn está ajudando empresários a revol
   }
 }
 
-async function generateImage(replicateKey, imagePrompt) {
+async function generateImage(imagePrompt) {
   try {
     const finalPrompt = imagePrompt; // Use the generated Portuguese prompt directly
     
@@ -456,41 +387,15 @@ async function generateImage(replicateKey, imagePrompt) {
       }
     };
          // Status is already set by caller function
-     let imageUrl;
-     if (IS_LOCAL) {
-       const r = await fetch(`${API_BASE}/api/replicate/image`, {
-         method: 'POST',
-         headers: { 'Content-Type': 'application/json' },
-         body: JSON.stringify({ prompt: finalPrompt })
-       });
-       if (!r.ok) throw new Error(await r.text());
-       const j = await r.json();
-       imageUrl = j.url;
-     } else if (IS_VERCEL || !IS_GITHUB_PAGES) {
-       // Use Vercel serverless functions
-       const r = await fetch(`${VERCEL_API_BASE}/replicate/image`, {
-         method: 'POST',
-         headers: { 'Content-Type': 'application/json' },
-         body: JSON.stringify({ prompt: finalPrompt })
-       });
-       if (!r.ok) throw new Error(await r.text());
-       const j = await r.json();
-       imageUrl = j.url;
-    } else {
-             // Use different approach for GitHub Pages
-       const corsProxy = "https://cors-anywhere.herokuapp.com/";
-       const res = await fetch(corsProxy + "https://api.replicate.com/v1/models/bytedance/seedream-3/predictions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Token ${replicateKey}`,
-        },
-        body: JSON.stringify({ input: body.input })
-      });
-      if (!res.ok) throw new Error(await res.text());
-      const pred = await res.json();
-      imageUrl = await waitForReplicatePrediction(replicateKey, pred.urls.get);
-    }
+     const endpoint = `${API_BASE}/replicate/image`;
+     const r = await fetch(endpoint, {
+       method: 'POST',
+       headers: { 'Content-Type': 'application/json' },
+       body: JSON.stringify({ prompt: finalPrompt })
+     });
+     if (!r.ok) throw new Error(await r.text());
+     const j = await r.json();
+     const imageUrl = j.url;
     if (imageUrl) {
       const img = document.createElement("img");
       img.src = imageUrl;
@@ -514,51 +419,19 @@ async function generateImage(replicateKey, imagePrompt) {
 
 
 
-async function generateVeo3Video(replicateKey, videoPrompt) {
+async function generateVeo3Video(videoPrompt) {
   try {
     // Prompt is already displayed by displayPrompts() function
          // Status is already set by caller function
-     let videoUrl;
-     if (IS_LOCAL) {
-       const r = await fetch(`${API_BASE}/api/replicate/veo3`, {
-         method: 'POST',
-         headers: { 'Content-Type': 'application/json' },
-         body: JSON.stringify({ prompt: videoPrompt })
-       });
-       if (!r.ok) throw new Error(await r.text());
-       const j = await r.json();
-       videoUrl = j.url;
-     } else if (IS_VERCEL || !IS_GITHUB_PAGES) {
-       // Use Vercel serverless functions
-       const r = await fetch(`${VERCEL_API_BASE}/replicate/veo3`, {
-         method: 'POST',
-         headers: { 'Content-Type': 'application/json' },
-         body: JSON.stringify({ prompt: videoPrompt })
-       });
-       if (!r.ok) throw new Error(await r.text());
-       const j = await r.json();
-       videoUrl = j.url;
-    } else {
-             // Use different approach for GitHub Pages
-       const corsProxy = "https://cors-anywhere.herokuapp.com/";
-       const res = await fetch(corsProxy + "https://api.replicate.com/v1/models/google/veo-3-fast/predictions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Token ${replicateKey}`,
-        },
-        body: JSON.stringify({
-          input: { 
-            prompt: videoPrompt,
-            aspect_ratio: "16:9",
-            duration: 8
-          }
-        })
-      });
-      if (!res.ok) throw new Error(await res.text());
-      const pred = await res.json();
-      videoUrl = await waitForReplicatePrediction(replicateKey, pred.urls.get);
-    }
+     const endpoint = `${API_BASE}/replicate/veo3`;
+     const r = await fetch(endpoint, {
+       method: 'POST',
+       headers: { 'Content-Type': 'application/json' },
+       body: JSON.stringify({ prompt: videoPrompt })
+     });
+     if (!r.ok) throw new Error(await r.text());
+     const j = await r.json();
+     const videoUrl = j.url;
     if (videoUrl && veo3Container) {
       const video = document.createElement("video");
       video.controls = true;
@@ -581,26 +454,6 @@ async function generateVeo3Video(replicateKey, videoPrompt) {
   }
 }
 
-  async function waitForReplicatePrediction(replicateKey, getUrl) {
-    // Poll until status succeeded and return the first output URL or delivery URL
-    const corsProxy = "https://cors-anywhere.herokuapp.com/";
-    for (let i = 0; i < 120; i++) { // up to ~2 minutes
-      const res = await fetch(corsProxy + getUrl, {
-        headers: { "Authorization": `Token ${replicateKey}` }
-      });
-    const pred = await res.json();
-    if (pred.status === "succeeded") {
-      // seedream returns array of URLs; tts/video returns a single delivery URL in output
-      const out = pred.output;
-      if (Array.isArray(out)) return out[0];
-      if (typeof out === "string") return out;
-      if (out && out.url) return out.url; // some SDKs show as object
-      return null;
-    }
-    if (pred.status === "failed" || pred.status === "canceled") return null;
-    await new Promise(r => setTimeout(r, 1000));
-  }
-  return null;
-}
+// Polling function removed - handled server-side
 
 
