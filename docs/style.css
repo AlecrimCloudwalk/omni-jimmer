@@ -272,6 +272,37 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
   font-weight: 600;
 }
 
+.audio-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.audio-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.audio-toggle input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+.audio-toggle span {
+  font-size: 14px;
+  color: #a8a8ad;
+  user-select: none;
+}
+
+.audio-toggle input[type="checkbox"]:checked + span {
+  color: var(--text);
+  font-weight: 600;
+}
+
 .phone-mockup {
   position: relative;
   width: 290px;

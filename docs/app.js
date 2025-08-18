@@ -103,7 +103,7 @@ const imagePromptEl = document.getElementById("imagePrompt");
 const veo3PromptEl = document.getElementById("veo3Prompt");
 const previewImageRadio = document.getElementById("previewImage");
 const previewVideoRadio = document.getElementById("previewVideo");
-const previewAudioRadio = document.getElementById("previewAudio");
+const videoAudioToggle = document.getElementById("videoAudioToggle");
 
 init();
 
@@ -127,7 +127,7 @@ function init() {
   // Preview mode switching
   previewImageRadio.addEventListener("change", updatePreviewMode);
   previewVideoRadio.addEventListener("change", updatePreviewMode);
-  previewAudioRadio.addEventListener("change", updatePreviewMode);
+  videoAudioToggle.addEventListener("change", updateVideoAudio);
 
   // No API card hiding needed since it's removed from HTML
 }
@@ -153,8 +153,6 @@ function updatePreviewMode() {
   if (!videoOverlay) return;
   
   const showImage = previewImageRadio.checked;
-  const showVideo = previewVideoRadio.checked;
-  const showAudio = previewAudioRadio.checked;
   const videoPlaceholder = videoOverlay.querySelector('.video-placeholder');
   
   if (showImage) {
@@ -169,49 +167,29 @@ function updatePreviewMode() {
       previewImg.style.objectFit = 'cover';
       videoPlaceholder.appendChild(previewImg);
     }
-  } else if (showVideo) {
+  } else {
     // Show the generated video in the preview (if available)
     const videoInCenter = veo3Container.querySelector('video');
     if (videoInCenter && videoPlaceholder) {
       videoPlaceholder.innerHTML = '';
       const previewVideo = document.createElement('video');
       previewVideo.src = videoInCenter.src;
-      previewVideo.muted = true;
+      previewVideo.muted = !videoAudioToggle.checked; // Use audio toggle state
       previewVideo.loop = true;
       previewVideo.autoplay = true;
       previewVideo.style.width = '100%';
       previewVideo.style.height = '100%';
       previewVideo.style.objectFit = 'cover';
+      previewVideo.id = 'previewVideoElement'; // Add ID for audio control
       videoPlaceholder.appendChild(previewVideo);
     }
-  } else if (showAudio) {
-    // Show audio player if available
-    const generatedAudio = document.querySelector('audio[src*="replicate.delivery"]');
-    if (generatedAudio && videoPlaceholder) {
-      videoPlaceholder.innerHTML = '';
-      const audioContainer = document.createElement('div');
-      audioContainer.style.display = 'flex';
-      audioContainer.style.flexDirection = 'column';
-      audioContainer.style.alignItems = 'center';
-      audioContainer.style.justifyContent = 'center';
-      audioContainer.style.height = '100%';
-      audioContainer.style.padding = '20px';
-      audioContainer.style.background = 'rgba(0,0,0,0.8)';
-      
-      const audioIcon = document.createElement('div');
-      audioIcon.innerHTML = '🎵';
-      audioIcon.style.fontSize = '40px';
-      audioIcon.style.marginBottom = '10px';
-      
-      const previewAudio = document.createElement('audio');
-      previewAudio.src = generatedAudio.src;
-      previewAudio.controls = true;
-      previewAudio.style.width = '90%';
-      
-      audioContainer.appendChild(audioIcon);
-      audioContainer.appendChild(previewAudio);
-      videoPlaceholder.appendChild(audioContainer);
-    }
+  }
+}
+
+function updateVideoAudio() {
+  const previewVideo = document.getElementById('previewVideoElement');
+  if (previewVideo) {
+    previewVideo.muted = !videoAudioToggle.checked;
   }
 }
 
