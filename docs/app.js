@@ -1,6 +1,10 @@
 const BRAND_GREEN = "#c1f732";
 const BRAND_PURPLE = "#c87ef7";
-const IS_LOCAL = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+const IS_LOCAL = (
+  location.hostname === 'localhost' ||
+  location.hostname === '127.0.0.1' ||
+  location.protocol === 'file:'
+);
 const API_BASE = IS_LOCAL ? 'http://localhost:8787' : '';
 
 const CNAE_OPTIONS = [
@@ -251,7 +255,10 @@ async function callOpenAIForPrompts(openaiKey, profile) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ profile: user.profile })
       });
-      if (!r.ok) throw new Error(await r.text());
+      if (!r.ok) {
+        const t = await r.text();
+        throw new Error(`Local prompt error: ${t}`);
+      }
       json = await r.json();
     } else {
       const completion = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -291,7 +298,7 @@ async function callOpenAIForPrompts(openaiKey, profile) {
     return json;
   } catch (e) {
     console.error(e);
-    alert("OpenAI prompt generation failed. Check console.");
+    alert(`OpenAI prompt generation failed: ${e?.message || e}`);
     return null;
   }
 }

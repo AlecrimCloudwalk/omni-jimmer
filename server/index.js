@@ -24,6 +24,7 @@ app.get('/health', (_req, res) => res.json({ ok: true }));
 
 app.post('/api/gpt/prompts', async (req, res) => {
   try {
+    if (!OPENAI_API_KEY) return res.status(500).json({ error: 'missing OPENAI_API_KEY' });
     const profile = req.body?.profile || {};
     const system = 'You are a creative assistant for InfinitePay. Generate concise JSON only. No explanations. Ensure Brazilian Portuguese for text. Choose voice to match gender.';
     const brand = `Brand visual style: cinematic, photorealistic, daylight; neutral palette (90%) with subtle accents: avocado green ${BRAND_GREEN} and soft purple ${BRAND_PURPLE} (about 5% each). Composition: medium shot of subject at work; contextual background referencing the Brazilian city/region when natural; avoid heavy logos.`;
@@ -87,13 +88,14 @@ app.post('/api/gpt/prompts', async (req, res) => {
 
     res.json(json);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'prompt_generation_failed' });
+    console.error('GPT error:', err?.response?.data || err?.message || err);
+    res.status(500).json({ error: 'prompt_generation_failed', detail: err?.response?.data || err?.message });
   }
 });
 
 app.post('/api/replicate/image', async (req, res) => {
   try {
+    if (!REPLICATE_API_TOKEN) return res.status(500).json({ error: 'missing REPLICATE_API_TOKEN' });
     const prompt = req.body?.prompt;
     if (!prompt) return res.status(400).json({ error: 'missing prompt' });
     const input = {
@@ -113,13 +115,14 @@ app.post('/api/replicate/image', async (req, res) => {
     if (!url) return res.status(500).json({ error: 'image_generation_failed' });
     res.json({ url });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'image_generation_failed' });
+    console.error('Image error:', err?.response?.data || err?.message || err);
+    res.status(500).json({ error: 'image_generation_failed', detail: err?.response?.data || err?.message });
   }
 });
 
 app.post('/api/replicate/audio', async (req, res) => {
   try {
+    if (!REPLICATE_API_TOKEN) return res.status(500).json({ error: 'missing REPLICATE_API_TOKEN' });
     const v = req.body?.voice || {};
     const input = {
       text: v.text,
@@ -144,13 +147,14 @@ app.post('/api/replicate/audio', async (req, res) => {
     if (!url) return res.status(500).json({ error: 'audio_generation_failed' });
     res.json({ url });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'audio_generation_failed' });
+    console.error('Audio error:', err?.response?.data || err?.message || err);
+    res.status(500).json({ error: 'audio_generation_failed', detail: err?.response?.data || err?.message });
   }
 });
 
 app.post('/api/replicate/video', async (req, res) => {
   try {
+    if (!REPLICATE_API_TOKEN) return res.status(500).json({ error: 'missing REPLICATE_API_TOKEN' });
     const image = req.body?.imageUrl;
     const audio = req.body?.audioUrl;
     if (!image || !audio) return res.status(400).json({ error: 'missing image or audio' });
@@ -165,8 +169,8 @@ app.post('/api/replicate/video', async (req, res) => {
     if (!url) return res.status(500).json({ error: 'video_generation_failed' });
     res.json({ url });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'video_generation_failed' });
+    console.error('Video error:', err?.response?.data || err?.message || err);
+    res.status(500).json({ error: 'video_generation_failed', detail: err?.response?.data || err?.message });
   }
 });
 
