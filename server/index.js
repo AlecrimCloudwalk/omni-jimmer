@@ -38,7 +38,7 @@ app.post('/api/gpt/prompts', async (req, res) => {
     if (!OPENAI_API_KEY) return res.status(500).json({ error: 'missing OPENAI_API_KEY' });
     const profile = req.body?.profile || {};
     const system = 'You are a creative assistant for InfinitePay. Generate concise JSON only. No explanations. Ensure Brazilian Portuguese for text. Choose voice to match gender.';
-    const brand = `Brand visual style: cinematic, photorealistic, natural daylight; 98% neutral/natural tones with EXTREMELY SUBTLE hints of avocado green ${BRAND_GREEN} or soft purple ${BRAND_PURPLE} (1-2% max, like tiny details on one background element only). Composition: close-up to medium shot focused on the business owner's face and upper body, with shop/regional context softly blurred in background; the person should be the clear main subject.`;
+    const brand = `Brand visual style: cinematic, photorealistic, natural daylight; shot with 25mm lens, shallow depth of field; 98% neutral/natural tones with EXTREMELY SUBTLE hints of avocado green ${BRAND_GREEN} or soft purple ${BRAND_PURPLE} (1-2% max, like tiny details on one background element only). Composition: selfie-style close-up shot of business owner looking directly into camera with confident, friendly expression, holding phone/camera at arm's length; shop/regional context softly blurred in background bokeh.`;
     const user = {
       instruction: 'Create prompts for image and voice targeting the BUSINESS OWNER (lojista) about using JIM AI assistant.',
       constraints: {
@@ -70,6 +70,8 @@ app.post('/api/gpt/prompts', async (req, res) => {
         'Image should show the business owner as the main focus, with regional/local context in background',
         'Audio tone: encouraging, helpful, focused on business growth',
         'Frame the person prominently - they are speaking directly to the camera/user',
+        'IMPORTANT: Character must be looking DIRECTLY into the camera lens, making eye contact with viewer',
+        'Use selfie-style composition with character holding phone/camera, shot with 25mm lens for natural perspective',
       ],
     };
 
