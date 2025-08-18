@@ -279,12 +279,12 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .video-overlay {
   position: absolute;
-  top: calc(50% + 60px);
+  top: calc(50% + 55px);
   left: 50%;
   transform: translate(-50%, -65%);
-  width: 82%;
-  height: 160px;
-  border-radius: 16px;
+  width: 78%;
+  height: 140px;
+  border-radius: 14px;
   overflow: hidden;
   z-index: 20;
 }
@@ -343,7 +343,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .text-overlay p {
   margin: 0;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   color: white;
   line-height: 1.2;
@@ -353,11 +353,11 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
   background: white;
   color: #000;
   border: none;
-  padding: 10px 16px;
-  border-radius: 16px;
+  padding: 8px 14px;
+  border-radius: 14px;
   font-weight: 600;
-  font-size: 14px;
-  margin-left: 16px;
+  font-size: 12px;
+  margin-left: 12px;
 }
 
 
