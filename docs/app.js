@@ -640,8 +640,13 @@ async function generateImage(imagePrompt) {
        if (replicateKey) localStorage.setItem('replicate_api_key', replicateKey);
        if (!replicateKey) throw new Error('Replicate API key required');
        
-       // Use CORS proxy for Replicate API
-       const proxyUrl = 'https://api.allorigins.win/raw?url=';
+       // Use CORS proxy for Replicate API (try multiple proxies for reliability)
+       const proxies = [
+         'https://api.allorigins.win/raw?url=',
+         'https://corsproxy.io/?',
+         'https://cors-anywhere.herokuapp.com/'
+       ];
+       const proxyUrl = proxies[0]; // Start with first proxy
        const replicateUrl = encodeURIComponent('https://api.replicate.com/v1/models/bytedance/seedream-3/predictions');
        
        const r = await fetch(proxyUrl + replicateUrl, {
@@ -721,8 +726,13 @@ async function generateVeo3Video(videoPrompt) {
        if (replicateKey) localStorage.setItem('replicate_api_key', replicateKey);
        if (!replicateKey) throw new Error('Replicate API key required');
        
-       // Use CORS proxy for Replicate API - Veo3 model
-       const proxyUrl = 'https://api.allorigins.win/raw?url=';
+       // Use CORS proxy for Replicate API - Veo3 model (try multiple proxies for reliability)
+       const proxies = [
+         'https://api.allorigins.win/raw?url=',
+         'https://corsproxy.io/?',
+         'https://cors-anywhere.herokuapp.com/'
+       ];
+       const proxyUrl = proxies[0]; // Start with first proxy
        const replicateUrl = encodeURIComponent('https://api.replicate.com/v1/models/tencent/hunyuan-video/predictions');
        
        const body = {
