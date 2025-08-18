@@ -5,6 +5,7 @@ const IS_LOCAL = (
   location.hostname === '127.0.0.1' ||
   location.protocol === 'file:'
 );
+const IS_GITHUB_PAGES = location.hostname.includes('github.io');
 const API_BASE = IS_LOCAL ? 'http://localhost:8787' : '';
 
 const CNAE_OPTIONS = [
@@ -450,7 +451,9 @@ async function generateImage(replicateKey, imagePrompt) {
       const j = await r.json();
       imageUrl = j.url;
     } else {
-      const res = await fetch("https://api.replicate.com/v1/models/bytedance/seedream-3/predictions", {
+             // Use different approach for GitHub Pages
+       const corsProxy = "https://cors-anywhere.herokuapp.com/";
+       const res = await fetch(corsProxy + "https://api.replicate.com/v1/models/bytedance/seedream-3/predictions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -500,7 +503,9 @@ async function generateVeo3Video(replicateKey, videoPrompt) {
       const j = await r.json();
       videoUrl = j.url;
     } else {
-      const res = await fetch("https://api.replicate.com/v1/models/google/veo-3-fast/predictions", {
+             // Use different approach for GitHub Pages
+       const corsProxy = "https://cors-anywhere.herokuapp.com/";
+       const res = await fetch(corsProxy + "https://api.replicate.com/v1/models/google/veo-3-fast/predictions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -540,12 +545,13 @@ async function generateVeo3Video(replicateKey, videoPrompt) {
   }
 }
 
-async function waitForReplicatePrediction(replicateKey, getUrl) {
-  // Poll until status succeeded and return the first output URL or delivery URL
-  for (let i = 0; i < 120; i++) { // up to ~2 minutes
-    const res = await fetch(getUrl, {
-      headers: { "Authorization": `Token ${replicateKey}` }
-    });
+  async function waitForReplicatePrediction(replicateKey, getUrl) {
+    // Poll until status succeeded and return the first output URL or delivery URL
+    const corsProxy = "https://cors-anywhere.herokuapp.com/";
+    for (let i = 0; i < 120; i++) { // up to ~2 minutes
+      const res = await fetch(corsProxy + getUrl, {
+        headers: { "Authorization": `Token ${replicateKey}` }
+      });
     const pred = await res.json();
     if (pred.status === "succeeded") {
       // seedream returns array of URLs; tts/video returns a single delivery URL in output
