@@ -69,6 +69,28 @@ window.hideApiNotice = function() {
   }
 }
 
+window.clearAllKeys = function() {
+  console.log('clearAllKeys called'); // Debug
+  try {
+    localStorage.removeItem('openai_api_key');
+    localStorage.removeItem('replicate_api_key');
+    
+    // Clear the input fields
+    const openaiInput = document.getElementById('openaiKeyInput');
+    const replicateInput = document.getElementById('replicateKeyInput');
+    if (openaiInput) openaiInput.value = '';
+    if (replicateInput) replicateInput.value = '';
+    
+    alert('All API keys cleared! You can now enter new keys.');
+    
+    // Show the notice again if it was hidden
+    showApiNoticeIfNeeded();
+  } catch (e) {
+    console.error('Error in clearAllKeys:', e);
+    alert('Error clearing keys: ' + e.message);
+  }
+}
+
 function checkApiKeysAndHideNotice() {
   const hasOpenAI = localStorage.getItem('openai_api_key');
   const hasReplicate = localStorage.getItem('replicate_api_key');

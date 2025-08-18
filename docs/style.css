@@ -95,10 +95,31 @@ html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); f
   background: #a8e32a;
 }
 
+.notice-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
 .close-notice {
-  display: block;
-  margin: 1rem auto 0;
   padding: 0.75rem 2rem;
+}
+
+.clear-keys-btn {
+  background: #666;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s;
+  font-size: 14px;
+}
+
+.clear-keys-btn:hover {
+  background: #555;
 }
 
 .three-column-container {
