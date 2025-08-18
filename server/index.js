@@ -40,7 +40,7 @@ app.post('/api/gpt/prompts', async (req, res) => {
     const system = 'You are a creative assistant for InfinitePay. Generate concise JSON only. No explanations. Ensure Brazilian Portuguese for text. Choose voice to match gender.';
     const brand = `Brand visual style: cinematic, photorealistic, natural daylight; shot with 25mm lens, shallow depth of field; 98% neutral/natural tones with EXTREMELY SUBTLE hints of avocado green ${BRAND_GREEN} or soft purple ${BRAND_PURPLE} (1-2% max, like tiny details on one background element only). Composition: selfie-style close-up shot of business owner looking directly into camera with confident, friendly expression, holding phone/camera at arm's length; shop/regional context softly blurred in background bokeh.`;
     const user = {
-      instruction: 'Create prompts for image and voice targeting the BUSINESS OWNER (lojista) about using JIM AI assistant.',
+      instruction: 'Create prompts for image and voice targeting the BUSINESS OWNER (lojista) about using Dinn AI assistant.',
       constraints: {
         language: 'pt-BR',
         maxAudioSeconds: 14,
@@ -64,7 +64,7 @@ app.post('/api/gpt/prompts', async (req, res) => {
       rules: [
         'All text must be Brazilian Portuguese',
         'Voice length ~8–12 seconds',
-        'Audio should speak TO the business owner about using JIM (InfinitePay\'s AI assistant) to improve sales, get insights, help with digital payments, etc.',
+        'Audio should speak TO the business owner about using Dinn (InfinitePay\'s AI assistant) to improve sales, get insights, help with digital payments, etc.',
         'HEAVILY emphasize city/region context in both image and script',
         'CRITICAL: The person in the image and the voice MUST be the same gender - if image shows a woman, voice must be female; if image shows a man, voice must be male',
         'Image should show the business owner as the main focus, with regional/local context in background',
@@ -72,6 +72,7 @@ app.post('/api/gpt/prompts', async (req, res) => {
         'Frame the person prominently - they are speaking directly to the camera/user',
         'IMPORTANT: Character must be looking DIRECTLY into the camera lens, making eye contact with viewer',
         'Use selfie-style composition with character holding phone/camera, shot with 25mm lens for natural perspective',
+        'AVOID any text, writing, signs with words, or readable text in the image - focus on visual elements only',
       ],
     };
 

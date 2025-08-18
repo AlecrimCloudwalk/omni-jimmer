@@ -219,7 +219,7 @@ async function callOpenAIForPrompts(openaiKey, profile) {
     const system = `You are a creative assistant for InfinitePay. Generate concise JSON only. No explanations. Ensure Brazilian Portuguese for text. Choose voice to match gender.`;
     const brand = `Brand visual style: cinematic, photorealistic, natural daylight; shot with 25mm lens, shallow depth of field; 98% neutral/natural tones with EXTREMELY SUBTLE hints of avocado green ${BRAND_GREEN} or soft purple ${BRAND_PURPLE} (1-2% max, like tiny details on one background element only). Composition: selfie-style close-up shot of business owner looking directly into camera with confident, friendly expression, holding phone/camera at arm's length; shop/regional context softly blurred in background bokeh.`;
     const user = {
-      instruction: "Create prompts for image and voice targeting the BUSINESS OWNER (lojista) about using JIM AI assistant.",
+      instruction: "Create prompts for image and voice targeting the BUSINESS OWNER (lojista) about using Dinn AI assistant.",
       constraints: {
         language: "pt-BR",
         maxAudioSeconds: 14,
@@ -243,7 +243,7 @@ async function callOpenAIForPrompts(openaiKey, profile) {
       rules: [
         "All text must be Brazilian Portuguese",
         "Voice length ~8–12 seconds",
-        "Audio should speak TO the business owner about using JIM (InfinitePay's AI assistant) to improve sales, get insights, help with digital payments, etc.",
+        "Audio should speak TO the business owner about using Dinn (InfinitePay's AI assistant) to improve sales, get insights, help with digital payments, etc.",
         "HEAVILY emphasize city/region context in both image and script",
         "CRITICAL: The person in the image and the voice MUST be the same gender - if image shows a woman, voice must be female; if image shows a man, voice must be male",
         "Image should show the business owner as the main focus, with regional/local context in background",
@@ -251,6 +251,7 @@ async function callOpenAIForPrompts(openaiKey, profile) {
         "Frame the person prominently - they are speaking directly to the camera/user",
         "IMPORTANT: Character must be looking DIRECTLY into the camera lens, making eye contact with viewer",
         "Use selfie-style composition with character holding phone/camera, shot with 25mm lens for natural perspective",
+        "AVOID any text, writing, signs with words, or readable text in the image - focus on visual elements only",
       ],
     };
 
@@ -354,8 +355,8 @@ async function generateImage(replicateKey, imagePrompt) {
       imageContainer.innerHTML = "";
       imageContainer.appendChild(img);
       const a = document.createElement("a");
-      a.href = imageUrl; a.download = "image.png"; a.textContent = "Download image";
-      a.style.margin = "10px";
+      a.href = imageUrl; a.download = "image.png"; a.textContent = "📥 Download";
+      a.className = "download-btn";
       imageContainer.appendChild(a);
       imageStatus.textContent = "Done.";
     } else {
@@ -415,8 +416,8 @@ async function generateAudio(replicateKey, voice) {
       audioContainer.innerHTML = "";
       audioContainer.appendChild(audio);
       const a = document.createElement("a");
-      a.href = audioUrl; a.download = "audio.mp3"; a.textContent = "Download audio";
-      a.style.margin = "10px";
+      a.href = audioUrl; a.download = "audio.mp3"; a.textContent = "📥 Download";
+      a.className = "download-btn";
       audioContainer.appendChild(a);
       audioStatus.textContent = "Done.";
     } else {
@@ -465,8 +466,8 @@ async function generateVideo(replicateKey, imageUrl, audioUrl) {
       videoContainer.innerHTML = "";
       videoContainer.appendChild(video);
       const a = document.createElement("a");
-      a.href = videoUrl; a.download = "video.mp4"; a.textContent = "Download video";
-      a.style.margin = "10px";
+      a.href = videoUrl; a.download = "video.mp4"; a.textContent = "📥 Download";
+      a.className = "download-btn";
       videoContainer.appendChild(a);
       videoStatus.textContent = "Done.";
     } else {
