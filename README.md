@@ -14,10 +14,19 @@ Minimal GitHub Pages app to generate an image (Seedream-3), audio in pt-BR (Mini
 - Replicate API token
 
 #### Quick start (local)
-1) Open `docs/index.html` in a modern browser
-2) Paste your OpenAI + Replicate keys (optionally “remember” in this browser)
-3) Pick parameters or click “Shuffle” → “Generate”
-4) Watch the pipeline: Image → Audio → Video
+1) Create `.env` in project root with:
+```
+OPENAI_API_KEY=sk-...
+REPLICATE_API_TOKEN=r8_...
+PORT=8787
+```
+2) Install deps and start server:
+```
+npm i
+npm run dev
+```
+3) Open `docs/index.html` in your browser via `file://` or a static server, preferably at `http://localhost` so the frontend uses the local proxy automatically.
+4) Click Shuffle → Generate. Pipeline runs via local proxy to avoid CORS: Image → Audio → Video.
 
 Notes:
 - Keys are used directly from the browser for this POC; do not share publicly.

@@ -1,5 +1,7 @@
 const BRAND_GREEN = "#c1f732";
 const BRAND_PURPLE = "#c87ef7";
+const IS_LOCAL = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+const API_BASE = IS_LOCAL ? 'http://localhost:8787' : '';
 
 const CNAE_OPTIONS = [
   "Padaria",
@@ -235,29 +237,40 @@ async function callOpenAIForPrompts(openaiKey, profile) {
       ],
     };
 
-    const completion = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${openaiKey}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [
-          { role: "system", content: system },
-          { role: "user", content: `Respond ONLY with JSON. No markdown. User Profile and instructions: ${JSON.stringify(user)}` },
-        ],
-        temperature: 0.8,
-        response_format: { type: "json_object" }
-      }),
-    });
-    if (!completion.ok) {
-      const t = await completion.text();
-      throw new Error(`OpenAI error: ${t}`);
+    let json;
+    if (IS_LOCAL) {
+      const r = await fetch(`${API_BASE}/api/gpt/prompts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profile: user.profile })
+      });
+      if (!r.ok) throw new Error(await r.text());
+      json = await r.json();
+    } else {
+      const completion = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${openaiKey}`,
+        },
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          messages: [
+            { role: "system", content: system },
+            { role: "user", content: `Respond ONLY with JSON. No markdown. User Profile and instructions: ${JSON.stringify(user)}` },
+          ],
+          temperature: 0.8,
+          response_format: { type: "json_object" }
+        }),
+      });
+      if (!completion.ok) {
+        const t = await completion.text();
+        throw new Error(`OpenAI error: ${t}`);
+      }
+      const data = await completion.json();
+      const content = data.choices?.[0]?.message?.content || "";
+      json = JSON.parse(content);
     }
-    const data = await completion.json();
-    const content = data.choices?.[0]?.message?.content || "";
-    const json = JSON.parse(content);
 
     // Ensure voice fields
     const defaultVoice = profile.gender === "male" ? "Deep_Voice_Man" : "Friendly_Person";
@@ -289,22 +302,38 @@ async function generateImage(replicateKey, imagePrompt) {
       }
     };
     imageStatus.textContent = "Generating image…";
-    const res = await fetch("https://api.replicate.com/v1/models/bytedance/seedream-3/predictions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Token ${replicateKey}`,
-      },
-      body: JSON.stringify({ input: body.input })
-    });
-    if (!res.ok) throw new Error(await res.text());
-    const pred = await res.json();
-    const imageUrl = await waitForReplicatePrediction(replicateKey, pred.urls.get);
+    let imageUrl;
+    if (IS_LOCAL) {
+      const r = await fetch(`${API_BASE}/api/replicate/image`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: finalPrompt })
+      });
+      if (!r.ok) throw new Error(await r.text());
+      const j = await r.json();
+      imageUrl = j.url;
+    } else {
+      const res = await fetch("https://api.replicate.com/v1/models/bytedance/seedream-3/predictions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Token ${replicateKey}`,
+        },
+        body: JSON.stringify({ input: body.input })
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const pred = await res.json();
+      imageUrl = await waitForReplicatePrediction(replicateKey, pred.urls.get);
+    }
     if (imageUrl) {
       const img = document.createElement("img");
       img.src = imageUrl;
       imageContainer.innerHTML = "";
       imageContainer.appendChild(img);
+      const a = document.createElement("a");
+      a.href = imageUrl; a.download = "image.png"; a.textContent = "Download image";
+      a.style.margin = "10px";
+      imageContainer.appendChild(a);
       imageStatus.textContent = "Done.";
     } else {
       imageStatus.textContent = "Image generation failed.";
@@ -320,36 +349,52 @@ async function generateImage(replicateKey, imagePrompt) {
 async function generateAudio(replicateKey, voice) {
   try {
     audioStatus.textContent = "Generating audio…";
-    const res = await fetch("https://api.replicate.com/v1/models/minimax/speech-02-hd/predictions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Token ${replicateKey}`,
-      },
-      body: JSON.stringify({
-        input: {
-          text: voice.text,
-          voice_id: voice.voice_id,
-          emotion: voice.emotion || "happy",
-          speed: voice.speed || 1,
-          pitch: voice.pitch || 0,
-          english_normalization: false,
-          sample_rate: 32000,
-          bitrate: 128000,
-          channel: "mono",
-          language_boost: "Portuguese"
-        }
-      })
-    });
-    if (!res.ok) throw new Error(await res.text());
-    const pred = await res.json();
-    const audioUrl = await waitForReplicatePrediction(replicateKey, pred.urls.get);
+    let audioUrl;
+    if (IS_LOCAL) {
+      const r = await fetch(`${API_BASE}/api/replicate/audio`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ voice })
+      });
+      if (!r.ok) throw new Error(await r.text());
+      const j = await r.json();
+      audioUrl = j.url;
+    } else {
+      const res = await fetch("https://api.replicate.com/v1/models/minimax/speech-02-hd/predictions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Token ${replicateKey}`,
+        },
+        body: JSON.stringify({
+          input: {
+            text: voice.text,
+            voice_id: voice.voice_id,
+            emotion: voice.emotion || "happy",
+            speed: voice.speed || 1,
+            pitch: voice.pitch || 0,
+            english_normalization: false,
+            sample_rate: 32000,
+            bitrate: 128000,
+            channel: "mono",
+            language_boost: "Portuguese"
+          }
+        })
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const pred = await res.json();
+      audioUrl = await waitForReplicatePrediction(replicateKey, pred.urls.get);
+    }
     if (audioUrl) {
       const audio = document.createElement("audio");
       audio.controls = true;
       audio.src = audioUrl;
       audioContainer.innerHTML = "";
       audioContainer.appendChild(audio);
+      const a = document.createElement("a");
+      a.href = audioUrl; a.download = "audio.mp3"; a.textContent = "Download audio";
+      a.style.margin = "10px";
+      audioContainer.appendChild(a);
       audioStatus.textContent = "Done.";
     } else {
       audioStatus.textContent = "Audio generation failed.";
@@ -365,25 +410,41 @@ async function generateAudio(replicateKey, voice) {
 async function generateVideo(replicateKey, imageUrl, audioUrl) {
   try {
     videoStatus.textContent = "Generating video…";
-    const res = await fetch("https://api.replicate.com/v1/models/bytedance/omni-human/predictions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Token ${replicateKey}`,
-      },
-      body: JSON.stringify({
-        input: { image: imageUrl, audio: audioUrl }
-      })
-    });
-    if (!res.ok) throw new Error(await res.text());
-    const pred = await res.json();
-    const videoUrl = await waitForReplicatePrediction(replicateKey, pred.urls.get);
+    let videoUrl;
+    if (IS_LOCAL) {
+      const r = await fetch(`${API_BASE}/api/replicate/video`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageUrl, audioUrl })
+      });
+      if (!r.ok) throw new Error(await r.text());
+      const j = await r.json();
+      videoUrl = j.url;
+    } else {
+      const res = await fetch("https://api.replicate.com/v1/models/bytedance/omni-human/predictions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Token ${replicateKey}`,
+        },
+        body: JSON.stringify({
+          input: { image: imageUrl, audio: audioUrl }
+        })
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const pred = await res.json();
+      videoUrl = await waitForReplicatePrediction(replicateKey, pred.urls.get);
+    }
     if (videoUrl) {
       const video = document.createElement("video");
       video.controls = true;
       video.src = videoUrl;
       videoContainer.innerHTML = "";
       videoContainer.appendChild(video);
+      const a = document.createElement("a");
+      a.href = videoUrl; a.download = "video.mp4"; a.textContent = "Download video";
+      a.style.margin = "10px";
+      videoContainer.appendChild(a);
       videoStatus.textContent = "Done.";
     } else {
       videoStatus.textContent = "Video generation failed.";
