@@ -390,7 +390,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 .content-overlay {
   position: relative;
   width: 100%;
-  padding: 12px;
+  padding: 12px 12px 20px 12px;
   display: flex;
   justify-content: space-between;
   align-items: end;
@@ -425,9 +425,9 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .carousel-indicators {
   position: absolute;
-  bottom: 8px;
-  left: 16px;
-  right: 16px;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
   display: flex;
   z-index: 10;
   justify-content: space-between;
@@ -436,11 +436,11 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .indicator {
   flex: 1;
-  height: 3px;
+  height: 4px;
   background: rgba(255, 255, 255, 0.4);
   border-radius: 2px;
   transition: all 0.3s ease;
-  margin: 0 1px;
+  margin: 0 0.5px;
 }
 
 .indicator.active {
