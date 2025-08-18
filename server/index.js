@@ -1,6 +1,17 @@
 'use strict';
 
-require('dotenv').config();
+const path = require('path');
+let dotenvResult = require('dotenv').config();
+if (dotenvResult.error) {
+  // Fallback: explicitly try project root relative to this file
+  const altPath = path.resolve(__dirname, '../.env');
+  dotenvResult = require('dotenv').config({ path: altPath });
+  if (dotenvResult.error) {
+    console.warn('WARN: .env not found via default or fallback paths.');
+  } else {
+    console.log(`Loaded .env from ${altPath}`);
+  }
+}
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
