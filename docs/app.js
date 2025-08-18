@@ -64,6 +64,9 @@ const videoStatus = document.getElementById("videoStatus");
 const imageContainer = document.getElementById("imageContainer");
 const audioContainer = document.getElementById("audioContainer");
 const videoContainer = document.getElementById("videoContainer");
+const imagePromptEl = document.getElementById("imagePrompt");
+const audioPromptEl = document.getElementById("audioPrompt");
+const videoPromptEl = document.getElementById("videoPrompt");
 
 init();
 
@@ -190,6 +193,12 @@ function clearOutputs() {
   imageContainer.innerHTML = "";
   audioContainer.innerHTML = "";
   videoContainer.innerHTML = "";
+  imagePromptEl.innerHTML = "";
+  audioPromptEl.innerHTML = "";
+  videoPromptEl.innerHTML = "";
+  imagePromptEl.classList.remove("show");
+  audioPromptEl.classList.remove("show");
+  videoPromptEl.classList.remove("show");
   imageStatus.textContent = "Generating image…";
   audioStatus.textContent = "Waiting…";
   videoStatus.textContent = "Waiting…";
@@ -217,7 +226,7 @@ function buildUserProfile() {
 async function callOpenAIForPrompts(openaiKey, profile) {
   try {
     const system = `You are a creative assistant for InfinitePay. Generate concise JSON only. No explanations. Ensure Brazilian Portuguese for text. Choose voice to match gender.`;
-    const brand = `Brand visual style: cinematic, photorealistic, natural daylight; shot with 25mm lens, shallow depth of field; 98% neutral/natural tones with EXTREMELY SUBTLE hints of avocado green ${BRAND_GREEN} or soft purple ${BRAND_PURPLE} (1-2% max, like tiny details on one background element only). Composition: selfie-style close-up shot of business owner looking directly into camera with confident, friendly expression, holding phone/camera at arm's length; shop/regional context softly blurred in background bokeh.`;
+    const brand = `Brand visual style: cinematic, photorealistic, natural daylight; shot with 25mm lens, shallow depth of field; 98% neutral/natural tones with EXTREMELY SUBTLE hints of avocado green ${BRAND_GREEN} or soft purple ${BRAND_PURPLE} (1-2% max, like tiny details on one background element only). Composition: selfie-style close-up shot of business owner looking directly into camera with confident, friendly expression, holding phone/camera at arm's length; MANDATORY: background must clearly show the specific Brazilian city/region through recognizable landmarks, architecture, local flora, or cultural elements typical of that location.`;
     const user = {
       instruction: "Create prompts for image and voice targeting the BUSINESS OWNER (lojista) about using Dinn AI assistant.",
       constraints: {
@@ -244,9 +253,11 @@ async function callOpenAIForPrompts(openaiKey, profile) {
         "All text must be Brazilian Portuguese",
         "Voice length ~8–12 seconds",
         "Audio should speak TO the business owner about using Dinn (InfinitePay's AI assistant) to improve sales, get insights, help with digital payments, etc.",
-        "HEAVILY emphasize city/region context in both image and script",
+        "CRITICAL: HEAVILY emphasize the specific city/region in both image and script - make it OBVIOUS which Brazilian city this is",
         "CRITICAL: The person in the image and the voice MUST be the same gender - if image shows a woman, voice must be female; if image shows a man, voice must be male",
-        "Image should show the business owner as the main focus, with regional/local context in background",
+        "Image MUST show clear regional identifiers: specific landmarks (Cristo Redentor for Rio, Elevador Lacerda for Salvador, etc.), typical architecture (colonial Bahian, modern Brasília, etc.), local vegetation (palm trees for coastal, cerrado for central, etc.), or characteristic urban elements",
+        "Person should reflect regional diversity - skin tone, facial features, and style typical of that Brazilian region",
+        "Include city-specific references in the audio script - mention local landmarks, neighborhoods, regional business culture, or local expressions",
         "Audio tone: encouraging, helpful, focused on business growth",
         "Frame the person prominently - they are speaking directly to the camera/user",
         "IMPORTANT: Character must be looking DIRECTLY into the camera lens, making eye contact with viewer",
@@ -315,7 +326,12 @@ async function callOpenAIForPrompts(openaiKey, profile) {
 
 async function generateImage(replicateKey, imagePrompt) {
   try {
-    const finalPrompt = `${imagePrompt}\n\nEstilo da marca: fotografia cinematográfica diurna, lente 25mm, profundidade de campo rasa, 98% tons neutros/naturais, com detalhes EXTREMAMENTE sutis em verde abacate ou roxo suave (1-2% no máximo, apenas em um elemento no fundo). Composição estilo selfie: pessoa olhando DIRETAMENTE para a câmera, segurando telefone/câmera, contexto regional com bokeh suave ao fundo.`;
+    const finalPrompt = `${imagePrompt}\n\nEstilo da marca: fotografia cinematográfica diurna, lente 25mm, profundidade de campo rasa, 98% tons neutros/naturais, com detalhes EXTREMAMENTE sutis em verde abacate ou roxo suave (1-2% no máximo, apenas em um elemento no fundo). Composição estilo selfie: pessoa olhando DIRETAMENTE para a câmera, segurando telefone/câmera, com elementos CLARAMENTE identificáveis da cidade/região brasileira específica ao fundo (marcos, arquitetura, vegetação típica). A pessoa deve refletir a diversidade étnica e estilo da região.`;
+    
+    // Display the prompt
+    imagePromptEl.textContent = `Image Prompt:\n${finalPrompt}`;
+    imagePromptEl.classList.add("show");
+    
     const body = {
       version: "bytedance/seedream-3",
       input: {
@@ -372,6 +388,10 @@ async function generateImage(replicateKey, imagePrompt) {
 
 async function generateAudio(replicateKey, voice) {
   try {
+    // Display the audio prompt
+    audioPromptEl.textContent = `Audio Script:\n${voice.text}\n\nVoice Settings:\n- Voice ID: ${voice.voice_id}\n- Emotion: ${voice.emotion}\n- Speed: ${voice.speed}\n- Pitch: ${voice.pitch}`;
+    audioPromptEl.classList.add("show");
+    
     audioStatus.textContent = "Generating audio…";
     let audioUrl;
     if (IS_LOCAL) {
@@ -433,6 +453,10 @@ async function generateAudio(replicateKey, voice) {
 
 async function generateVideo(replicateKey, imageUrl, audioUrl) {
   try {
+    // Display the video prompt
+    videoPromptEl.textContent = `Video Generation:\nCombining image and audio using OmniHuman\n\nInputs:\n- Image: ${imageUrl}\n- Audio: ${audioUrl}`;
+    videoPromptEl.classList.add("show");
+    
     videoStatus.textContent = "Generating video…";
     let videoUrl;
     if (IS_LOCAL) {

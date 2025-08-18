@@ -51,6 +51,23 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 }
 .download-btn:hover { transform: translateY(-1px); opacity: 0.9; }
 
+.prompt-display { 
+  background: #0c0d0e; 
+  border: 1px solid #1a1b1d; 
+  border-radius: 6px; 
+  padding: 8px 10px; 
+  margin: 8px 0; 
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace; 
+  font-size: 11px; 
+  color: var(--muted); 
+  white-space: pre-wrap; 
+  word-break: break-word; 
+  max-height: 120px; 
+  overflow-y: auto; 
+  display: none;
+}
+.prompt-display.show { display: block; }
+
 .footer { padding: 16px 24px; color: var(--muted); border-top: 1px solid #232427; }
 
 @media (max-width: 980px) {
