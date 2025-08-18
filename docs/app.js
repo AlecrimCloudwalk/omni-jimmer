@@ -70,11 +70,11 @@ const CNAE_OPTIONS = [
 ];
 
 const REGIONS = {
-  "Sudeste": ["São Paulo", "Rio de Janeiro", "Belo Horizonte", "Campinas"],
-  "Sul": ["Curitiba", "Porto Alegre", "Florianópolis"],
-  "Nordeste": ["Salvador", "Recife", "Fortaleza"],
-  "Centro-Oeste": ["Brasília", "Goiânia", "Cuiabá"],
-  "Norte": ["Manaus", "Belém"],
+  "Sudeste": ["São Paulo", "Rio de Janeiro", "Belo Horizonte", "Campinas", "Santos", "Ribeirão Preto", "Sorocaba", "Niterói", "Juiz de Fora", "Uberlândia", "Contagem", "São Bernardo do Campo", "Santo André", "Osasco", "Guarulhos"],
+  "Sul": ["Curitiba", "Porto Alegre", "Florianópolis", "Londrina", "Maringá", "Pelotas", "Caxias do Sul", "Joinville", "Blumenau", "Ponta Grossa", "Cascavel", "Foz do Iguaçu"],
+  "Nordeste": ["Salvador", "Recife", "Fortaleza", "João Pessoa", "Natal", "Maceió", "Aracaju", "São Luís", "Teresina", "Feira de Santana", "Caruaru", "Mossoró", "Vitória da Conquista", "Campina Grande", "Juazeiro do Norte"],
+  "Centro-Oeste": ["Brasília", "Goiânia", "Cuiabá", "Campo Grande", "Anápolis", "Rondonópolis", "Várzea Grande", "Aparecida de Goiânia", "Dourados"],
+  "Norte": ["Manaus", "Belém", "Porto Velho", "Macapá", "Rio Branco", "Boa Vista", "Palmas", "Santarém", "Ananindeua", "Marabá"],
 };
 
 const ETHNICITIES = [
@@ -173,6 +173,20 @@ function getRandomFromArray(array) {
 
 function getRandomEthnicity() {
   return getRandomFromArray(ETHNICITIES);
+}
+
+function getRandomClothingColor() {
+  const random = Math.random();
+  if (random < 0.8) {
+    // 80% - preto ou branco
+    return Math.random() < 0.5 ? "roupa preta" : "roupa branca";
+  } else if (random < 0.9) {
+    // 10% - roxo da marca
+    return "roupa roxa (#c87ef7)";
+  } else {
+    // 10% - verde da marca  
+    return "roupa verde (#c1f732)";
+  }
 }
 
 function updatePreviewMode() {
@@ -375,6 +389,18 @@ function updateOverlayText(overlayText, buttonText) {
   if (ctaButton && buttonText) {
     ctaButton.textContent = buttonText;
   }
+  
+  // Update the display boxes in center column
+  const overlayTextDisplay = document.getElementById('overlayTextDisplay');
+  const buttonTextDisplay = document.getElementById('buttonTextDisplay');
+  
+  if (overlayTextDisplay && overlayText) {
+    overlayTextDisplay.innerHTML = overlayText.replace(/\n/g, '<br>');
+  }
+  
+  if (buttonTextDisplay && buttonText) {
+    buttonTextDisplay.textContent = buttonText;
+  }
 }
 
 function buildUserProfile() {
@@ -400,6 +426,7 @@ function buildUserProfile() {
 async function callOpenAIForPrompts(profile) {
   try {
     const randomEthnicity = getRandomEthnicity();
+    const randomClothing = getRandomClothingColor();
     
     const system = `Você é um roteirista e especialista em criação de prompts descritivos para geração de imagens e vídeos realistas em estilo POV (primeira pessoa) e selfie vlog com ultra realismo, 4K, efeitos sonoros integrados e coerência narrativa.
 
@@ -438,12 +465,12 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
         "",
         "ESTRUTURA PARA IMAGE_PROMPT:",
         "1. HORÁRIO + AMBIENTAÇÃO: '[horário do dia], interior/exterior do local baseado no CNAE, descrição cinematográfica'",
-        "2. PERSONAGEM: 'Uma mulher/Um homem brasileiro(a) de [idade] anos, [etnia], [cidade/região], [aparência detalhada].'",
+        `2. PERSONAGEM: 'Uma mulher/Um homem brasileiro(a) de [idade] anos, [etnia], [cidade/região], [aparência detalhada], ${randomClothing}.'`,
         "3. CÂMERA: 'Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível.'",
         "",
         "ESTRUTURA PARA VIDEO_PROMPT:",  
         "1. HORÁRIO + AMBIENTAÇÃO: '[horário do dia], mesmo ambiente da imagem'",
-        "2. PERSONAGEM: 'Uma mulher/Um homem brasileiro(a) de [idade] anos, [etnia], [cidade/região], [aparência detalhada].'",
+        `2. PERSONAGEM: 'Uma mulher/Um homem brasileiro(a) de [idade] anos, [etnia], [cidade/região], [aparência detalhada], ${randomClothing}.'`,
         "3. CÂMERA: 'Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.'",
         `4. FALA: 'fala da pessoa: "Oi! Aqui em [cidade], ${profile.productCallout || 'o Dinn'} está revolucionando..."'`,
         "",
@@ -492,6 +519,13 @@ fala da pessoa: "Oi! Aqui em ${city}, ${product} está ajudando empresários a r
     }
     if (!json.button_text) {
       json.button_text = "Começar a usar";
+    }
+    
+    // Apply pronunciation improvements to video_prompt only
+    if (json.video_prompt) {
+      json.video_prompt = json.video_prompt
+        .replace(/\bJIM\b/g, 'Din')
+        .replace(/\bInfinitePay\b/g, 'Infinitipêi');
     }
     
     // Set default voice metadata  

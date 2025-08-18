@@ -445,6 +445,52 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
   background: rgba(255, 255, 255, 0.9);
 }
 
+.generated-texts {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  border: 1px solid #2a2b2f;
+}
+
+.generated-texts h3 {
+  margin: 0 0 16px;
+  font-size: 16px;
+  color: var(--text);
+}
+
+.text-results {
+  display: grid;
+  gap: 12px;
+}
+
+.overlay-text-result,
+.button-text-result {
+  background: #0f1114;
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid #232427;
+}
+
+.overlay-text-result label,
+.button-text-result label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.overlay-text-result div,
+.button-text-result div {
+  font-size: 14px;
+  color: var(--text);
+  font-weight: 500;
+  min-height: 20px;
+}
+
 
 
 /* Simplified - removed unused notification and bottom action styles */
