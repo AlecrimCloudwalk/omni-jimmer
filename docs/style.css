@@ -261,10 +261,10 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .video-overlay {
   position: absolute;
-  top: 50%;
+  top: calc(50% + 70px);
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 85%;
+  width: 560px;
   height: 180px;
   border-radius: 16px;
   overflow: hidden;
@@ -325,7 +325,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .text-overlay p {
   margin: 0;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   color: white;
   line-height: 1.2;
@@ -338,7 +338,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
   padding: 10px 16px;
   border-radius: 16px;
   font-weight: 600;
-  font-size: 13px;
+  font-size: 14px;
   margin-left: 16px;
 }
 
