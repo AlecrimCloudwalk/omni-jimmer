@@ -295,6 +295,9 @@ async function callOpenAIForPrompts(openaiKey, profile) {
     json.voice_metadata.pitch = json.voice_metadata.pitch || 0;
     json.voice_metadata.language_boost = "Portuguese";
     json.voice_metadata.english_normalization = false;
+    
+    // Debug log to see what OpenAI returned
+    console.log('OpenAI returned voice_metadata:', json.voice_metadata);
     return json;
   } catch (e) {
     console.error(e);

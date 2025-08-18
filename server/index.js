@@ -135,9 +135,12 @@ app.post('/api/replicate/audio', async (req, res) => {
   try {
     if (!REPLICATE_API_TOKEN) return res.status(500).json({ error: 'missing REPLICATE_API_TOKEN' });
     const v = req.body?.voice || {};
+    const validVoices = ['Wise_Woman', 'Friendly_Person', 'Inspirational_girl', 'Deep_Voice_Man', 'Calm_Woman', 'Casual_Guy', 'Lively_Girl', 'Patient_Man', 'Young_Knight', 'Determined_Man', 'Lovely_Girl', 'Decent_Boy', 'Imposing_Manner', 'Elegant_Man', 'Abbess', 'Sweet_Girl_2', 'Exuberant_Girl'];
+    const voiceId = validVoices.includes(v.voice_id) ? v.voice_id : 'Friendly_Person';
+    
     const input = {
       text: v.text,
-      voice_id: v.voice_id || 'Friendly_Person',
+      voice_id: voiceId,
       emotion: ['auto', 'neutral', 'happy', 'sad', 'angry', 'fearful', 'disgusted', 'surprised'].includes(v.emotion) ? v.emotion : 'happy',
       speed: Number(v.speed) || 1,
       pitch: parseInt(v.pitch) || 0,
