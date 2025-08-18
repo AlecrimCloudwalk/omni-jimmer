@@ -16,27 +16,57 @@ const GITHUB_PAGES_MODE = IS_GITHUB_PAGES || (!IS_LOCAL && !IS_VERCEL);
 
 // API Key Management Functions - Make them globally accessible
 window.saveOpenAIKey = function() {
-  const key = document.getElementById('openaiKeyInput').value.trim();
-  if (key) {
-    localStorage.setItem('openai_api_key', key);
-    alert('OpenAI API key saved!');
-    document.getElementById('openaiKeyInput').value = '';
-    checkApiKeysAndHideNotice();
+  console.log('saveOpenAIKey called'); // Debug
+  try {
+    const input = document.getElementById('openaiKeyInput');
+    console.log('Input element:', input); // Debug
+    const key = input ? input.value.trim() : '';
+    console.log('Key length:', key.length); // Debug
+    if (key) {
+      localStorage.setItem('openai_api_key', key);
+      alert('OpenAI API key saved!');
+      input.value = '';
+      checkApiKeysAndHideNotice();
+    } else {
+      alert('Please enter a valid OpenAI API key');
+    }
+  } catch (e) {
+    console.error('Error in saveOpenAIKey:', e);
+    alert('Error saving API key: ' + e.message);
   }
 }
 
 window.saveReplicateKey = function() {
-  const key = document.getElementById('replicateKeyInput').value.trim();
-  if (key) {
-    localStorage.setItem('replicate_api_key', key);
-    alert('Replicate API key saved!');
-    document.getElementById('replicateKeyInput').value = '';
-    checkApiKeysAndHideNotice();
+  console.log('saveReplicateKey called'); // Debug
+  try {
+    const input = document.getElementById('replicateKeyInput');
+    console.log('Input element:', input); // Debug
+    const key = input ? input.value.trim() : '';
+    console.log('Key length:', key.length); // Debug
+    if (key) {
+      localStorage.setItem('replicate_api_key', key);
+      alert('Replicate API key saved!');
+      input.value = '';
+      checkApiKeysAndHideNotice();
+    } else {
+      alert('Please enter a valid Replicate API key');
+    }
+  } catch (e) {
+    console.error('Error in saveReplicateKey:', e);
+    alert('Error saving API key: ' + e.message);
   }
 }
 
 window.hideApiNotice = function() {
-  document.getElementById('apiKeyNotice').style.display = 'none';
+  console.log('hideApiNotice called'); // Debug
+  try {
+    const notice = document.getElementById('apiKeyNotice');
+    if (notice) {
+      notice.style.display = 'none';
+    }
+  } catch (e) {
+    console.error('Error in hideApiNotice:', e);
+  }
 }
 
 function checkApiKeysAndHideNotice() {
@@ -555,7 +585,7 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
         },
         body: JSON.stringify({
           model: 'gpt-4o-mini',
-          messages: [{ role: 'user', content: promptTemplate.rules.join('\n') }],
+          messages: [{ role: 'user', content: user.rules.join('\n') }],
           temperature: 0.8
         })
       });
