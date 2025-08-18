@@ -111,6 +111,34 @@ html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); f
   color: var(--text);
 }
 
+.product-callout {
+  margin: 16px 0;
+}
+
+.product-callout label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.product-callout input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  background: var(--input-bg);
+  color: var(--text);
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+}
+
+.product-callout input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
 .action-buttons {
   display: flex;
   gap: 12px;

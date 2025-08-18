@@ -87,6 +87,7 @@ const salesCountEl = document.getElementById("salesCount");
 const onlineShareEl = document.getElementById("onlineShare");
 const storefrontEl = document.getElementById("storefront");
 const signatureItemEl = document.getElementById("signatureItem");
+const productCalloutEl = document.getElementById("productCallout");
 
 const shuffleBtn = document.getElementById("shuffleBtn");
 const generateBtn = document.getElementById("generateBtn");
@@ -332,6 +333,7 @@ function buildUserProfile() {
     onlineShare: Number(onlineShareEl.value || 0),
     storefront: storefrontEl.value,
     signatureItem: signatureItemEl.value.trim(),
+    productCallout: productCalloutEl.value.trim() || "JIM assistente virtual no app",
   };
 }
 
@@ -383,12 +385,12 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
         "1. HORÁRIO + AMBIENTAÇÃO: '[horário do dia], mesmo ambiente da imagem'",
         "2. PERSONAGEM: 'Uma mulher/Um homem brasileiro(a) de [idade] anos, [etnia], [cidade/região], [aparência detalhada].'",
         "3. CÂMERA: 'Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.'",
-        "4. FALA: 'fala da pessoa: \"Oi! Aqui em [cidade], o Dinn está revolucionando...\"'",
+        `4. FALA: 'fala da pessoa: "Oi! Aqui em [cidade], ${profile.productCallout || 'o Dinn'} está revolucionando..."'`,
         "",
         "Exemplo de estrutura:",
         "IMAGE: 'Meio-dia ensolarado, exterior de uma loja de roupas em Salvador, cercada por clientes e com vitrines exibindo vestidos leves e coloridos, sem letreiros visíveis. Uma mulher brasileira de 35 anos, parda, pele morena, Salvador BA, cabelos castanhos escuros e olhos castanhos, vestindo um vestido florido. Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível.'",
-        "VIDEO: 'Oito horas da noite, interior de uma loja brasileira aconchegante, com produtos organizados e ambiente acolhedor, sem letreiros visíveis. Uma mulher brasileira de 30 anos, negra, pele escura, São Paulo SP, cabelos crespos pretos e olhos castanhos. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.\\n\\nfala da pessoa: \"Oi! Aqui em São Paulo, o Dinn está revolucionando os negócios!\"'",
-        "OUTDOOR: 'Meio-dia ensolarado, em frente ao Cristo Redentor no Rio de Janeiro, movimento de turistas ao fundo. Um homem brasileiro de 40 anos, moreno, pele bronzeada, Rio de Janeiro RJ, personal trainer, roupas esportivas. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.\\n\\nfala da pessoa: \"Oi! Aqui no Rio, o Dinn está ajudando profissionais como eu!\"'",
+        `VIDEO: 'Oito horas da noite, interior de uma loja brasileira aconchegante, com produtos organizados e ambiente acolhedor, sem letreiros visíveis. Uma mulher brasileira de 30 anos, negra, pele escura, São Paulo SP, cabelos crespos pretos e olhos castanhos. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.\\n\\nfala da pessoa: "Oi! Aqui em São Paulo, ${profile.productCallout || 'o Dinn'} está revolucionando os negócios!"'`,
+        `OUTDOOR: 'Meio-dia ensolarado, em frente ao Cristo Redentor no Rio de Janeiro, movimento de turistas ao fundo. Um homem brasileiro de 40 anos, moreno, pele bronzeada, Rio de Janeiro RJ, personal trainer, roupas esportivas. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.\\n\\nfala da pessoa: "Oi! Aqui no Rio, ${profile.productCallout || 'o Dinn'} está ajudando profissionais como eu!"'`,
         "",
         "RETORNE JSON com 'image_prompt', 'video_prompt', 'overlay_text' (máximo 15 chars) e 'button_text' (máximo 12 chars) seguindo essas estruturas exatas.",
         "",
@@ -418,9 +420,10 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
     
     if (!json.video_prompt) {
       const city = profile.city || 'sua cidade';
+      const product = profile.productCallout || 'o Dinn';
       json.video_prompt = `Meio da tarde, interior de uma loja brasileira moderna, iluminação natural, ao fundo produtos e clientes, sem letreiros visíveis. Uma pessoa brasileira de aparência simpática, ${randomEthnicity}, ${city}. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.
 
-fala da pessoa: "Oi! Aqui em ${city}, o Dinn está ajudando empresários a revolucionar seus negócios!"`;
+fala da pessoa: "Oi! Aqui em ${city}, ${product} está ajudando empresários a revolucionar seus negócios!"`;
     }
     
     // Add default overlay and button text if not provided
@@ -433,7 +436,7 @@ fala da pessoa: "Oi! Aqui em ${city}, o Dinn está ajudando empresários a revol
     
     // Set default voice metadata  
     json.voice_metadata = {
-      text: "Com o Dinn, consigo entender melhor as vendas e facilitar os pagamentos digitais para os meus clientes!",
+      text: `Com ${profile.productCallout || 'o Dinn'}, consigo entender melhor as vendas e facilitar os pagamentos digitais para os meus clientes!`,
       voice_id: 'Wise_Woman',
       emotion: 'happy',
       speed: 1.5,
