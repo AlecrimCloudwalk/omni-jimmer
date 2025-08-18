@@ -1,4 +1,4 @@
-const axios = require('axios');
+import axios from 'axios';
 
 async function waitForReplicate(getUrl, replicateToken) {
   for (let i = 0; i < 120; i++) {

@@ -1,4 +1,4 @@
-const axios = require('axios');
+import axios from 'axios';
 
 const ETHNICITIES = [
   'parda, pele morena, traços mistos',
@@ -33,11 +33,15 @@ export default async function handler(req, res) {
 
   try {
     const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-    if (!OPENAI_API_KEY) return res.status(500).json({ error: 'missing OPENAI_API_KEY' });
+    if (!OPENAI_API_KEY) {
+      console.error('OPENAI_API_KEY not found in environment');
+      return res.status(500).json({ error: 'missing OPENAI_API_KEY' });
+    }
     
     const profile = req.body?.profile || {};
     const randomEthnicity = getRandomEthnicity();
     
+    console.log('Processing request with profile:', JSON.stringify(profile, null, 2));
     console.log('Random ethnicity selected:', randomEthnicity);
     
     const system = `Você é um roteirista e especialista em criação de prompts descritivos para geração de imagens e vídeos realistas em estilo POV (primeira pessoa) e selfie vlog com ultra realismo, 4K, efeitos sonoros integrados e coerência narrativa.
@@ -84,6 +88,7 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
       ],
     };
 
+    console.log('Making OpenAI API call...');
     const r = await axios.post('https://api.openai.com/v1/chat/completions', {
       model: 'gpt-4o-mini',
       messages: [
@@ -96,11 +101,14 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${OPENAI_API_KEY}`,
-      }
+      },
+      timeout: 30000 // 30 second timeout
     });
 
+    console.log('OpenAI API call successful');
     const data = r.data;
     const content = data.choices?.[0]?.message?.content || '{}';
+    console.log('OpenAI response content:', content);
     const json = JSON.parse(content);
 
     // Ensure we have both prompts with correct structure
