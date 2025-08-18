@@ -226,7 +226,7 @@ function buildUserProfile() {
 async function callOpenAIForPrompts(openaiKey, profile) {
   try {
     const system = `You are a creative assistant for InfinitePay. Generate concise JSON only. No explanations. Ensure Brazilian Portuguese for text. Choose voice to match gender.`;
-    const brand = `Brand visual style: cinematic, photorealistic, natural daylight; shot with 25mm lens, shallow depth of field; 98% neutral/natural tones with EXTREMELY SUBTLE hints of avocado green ${BRAND_GREEN} or soft purple ${BRAND_PURPLE} (1-2% max, like tiny details on one background element only). Composition: selfie-style close-up shot of business owner looking directly into camera with confident, friendly expression, holding phone/camera at arm's length; MANDATORY: background must clearly show the specific Brazilian city/region through recognizable landmarks, architecture, local flora, or cultural elements typical of that location.`;
+    const brand = `Brand visual style: cinematic, photorealistic, natural daylight; shot with 25mm lens, shallow depth of field; 98% neutral/natural tones with EXTREMELY SUBTLE hints of avocado green ${BRAND_GREEN} or soft purple ${BRAND_PURPLE} (1-2% max, like tiny details on one background element only). Composition: medium close-up shot of business owner speaking directly to the camera/viewer, NOT taking a selfie, NOT holding phone/camera, hands should be visible and natural (gesturing or resting); MANDATORY: background must clearly show the specific Brazilian city/region through recognizable landmarks, architecture, local flora, or cultural elements typical of that location.`;
     const user = {
       instruction: "Create prompts for image and voice targeting the BUSINESS OWNER (lojista) about using Dinn AI assistant.",
       constraints: {
@@ -261,7 +261,8 @@ async function callOpenAIForPrompts(openaiKey, profile) {
         "Audio tone: encouraging, helpful, focused on business growth",
         "Frame the person prominently - they are speaking directly to the camera/user",
         "IMPORTANT: Character must be looking DIRECTLY into the camera lens, making eye contact with viewer",
-        "Use selfie-style composition with character holding phone/camera, shot with 25mm lens for natural perspective",
+        "CRITICAL: Character should NOT be taking a selfie or holding phone/camera - they are speaking TO the camera/viewer directly",
+        "Composition: medium close-up, 25mm lens, hands visible and natural (gesturing or resting), person addressing the viewer",
         "AVOID any text, writing, signs with words, or readable text in the image - focus on visual elements only",
       ],
     };
@@ -304,15 +305,23 @@ async function callOpenAIForPrompts(openaiKey, profile) {
       json = JSON.parse(content);
     }
 
-    // Ensure voice fields
-    const defaultVoice = profile.gender === "male" ? "Deep_Voice_Man" : "Friendly_Person";
+    // Ensure voice fields and gender consistency
+    const detectedGender = json.person?.gender || profile.gender || "";
+    const defaultVoice = detectedGender === "male" ? "Deep_Voice_Man" : "Friendly_Person";
     json.voice_metadata = json.voice_metadata || {};
     json.voice_metadata.voice_id = json.voice_metadata.voice_id || defaultVoice;
     json.voice_metadata.emotion = json.voice_metadata.emotion || "happy";
-    json.voice_metadata.speed = json.voice_metadata.speed || 1.0;
+    json.voice_metadata.speed = json.voice_metadata.speed || 1.3; // Faster speech
     json.voice_metadata.pitch = json.voice_metadata.pitch || 0;
     json.voice_metadata.language_boost = "Portuguese";
     json.voice_metadata.english_normalization = false;
+    
+    // Force gender consistency
+    if (detectedGender === "female" && !json.voice_metadata.voice_id.includes("Woman") && !json.voice_metadata.voice_id.includes("Girl")) {
+      json.voice_metadata.voice_id = "Friendly_Person"; // Female voice
+    } else if (detectedGender === "male" && !json.voice_metadata.voice_id.includes("Man") && !json.voice_metadata.voice_id.includes("Guy")) {
+      json.voice_metadata.voice_id = "Deep_Voice_Man"; // Male voice
+    }
     
     // Debug log to see what OpenAI returned
     console.log('OpenAI returned voice_metadata:', json.voice_metadata);
@@ -326,7 +335,7 @@ async function callOpenAIForPrompts(openaiKey, profile) {
 
 async function generateImage(replicateKey, imagePrompt) {
   try {
-    const finalPrompt = `${imagePrompt}\n\nEstilo da marca: fotografia cinematográfica diurna, lente 25mm, profundidade de campo rasa, 98% tons neutros/naturais, com detalhes EXTREMAMENTE sutis em verde abacate ou roxo suave (1-2% no máximo, apenas em um elemento no fundo). Composição estilo selfie: pessoa olhando DIRETAMENTE para a câmera, segurando telefone/câmera, com elementos CLARAMENTE identificáveis da cidade/região brasileira específica ao fundo (marcos, arquitetura, vegetação típica). A pessoa deve refletir a diversidade étnica e estilo da região.`;
+    const finalPrompt = `${imagePrompt}\n\nEstilo da marca: fotografia cinematográfica diurna, lente 25mm, profundidade de campo rasa, 98% tons neutros/naturais, com detalhes EXTREMAMENTE sutis em verde abacate ou roxo suave (1-2% no máximo, apenas em um elemento no fundo). Composição: pessoa falando DIRETAMENTE para a câmera/espectador, NÃO tirando selfie, NÃO segurando telefone, mãos naturais visíveis, com elementos CLARAMENTE identificáveis da cidade/região brasileira específica ao fundo (marcos, arquitetura, vegetação típica). A pessoa deve refletir a diversidade étnica e estilo da região.`;
     
     // Display the prompt
     imagePromptEl.textContent = `Image Prompt:\n${finalPrompt}`;
