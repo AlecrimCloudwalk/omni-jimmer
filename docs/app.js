@@ -217,9 +217,9 @@ function buildUserProfile() {
 async function callOpenAIForPrompts(openaiKey, profile) {
   try {
     const system = `You are a creative assistant for InfinitePay. Generate concise JSON only. No explanations. Ensure Brazilian Portuguese for text. Choose voice to match gender.`;
-    const brand = `Brand visual style: cinematic, photorealistic, daylight; neutral palette (90%) with subtle accents: avocado green ${BRAND_GREEN} and soft purple ${BRAND_PURPLE} (about 5% each). Composition: medium shot of subject at work; contextual background referencing the Brazilian city/region when natural; avoid heavy logos.`;
+    const brand = `Brand visual style: cinematic, photorealistic, natural daylight; predominantly neutral/natural tones (95%) with VERY SUBTLE hints of avocado green ${BRAND_GREEN} or soft purple ${BRAND_PURPLE} (2-3% max, like small details in signage, packaging, or decor). Composition: medium shot of business owner at work in their actual location; emphasize regional/city context in background elements, architecture, local landmarks, or cultural details.`;
     const user = {
-      instruction: "Create prompts for image and voice in JSON.",
+      instruction: "Create prompts for image and voice targeting the BUSINESS OWNER (lojista) about using JIM AI assistant.",
       constraints: {
         language: "pt-BR",
         maxAudioSeconds: 14,
@@ -243,8 +243,11 @@ async function callOpenAIForPrompts(openaiKey, profile) {
       rules: [
         "All text must be Brazilian Portuguese",
         "Voice length ~8–12 seconds",
-        "Reference city/region naturally",
+        "Audio should speak TO the business owner about using JIM (InfinitePay's AI assistant) to improve sales, get insights, help with digital payments, etc.",
+        "HEAVILY emphasize city/region context in both image and script",
         "Match voice gender to person",
+        "Image should show the business owner in their regional/local context",
+        "Audio tone: encouraging, helpful, focused on business growth",
       ],
     };
 
@@ -308,7 +311,7 @@ async function callOpenAIForPrompts(openaiKey, profile) {
 
 async function generateImage(replicateKey, imagePrompt) {
   try {
-    const finalPrompt = `${imagePrompt}\n\nEstilo da marca: fotografia cinematográfica diurna, tons neutros/naturais (90%), acentos sutis em verde abacate ${BRAND_GREEN} e roxo suave ${BRAND_PURPLE} (~5% cada), retratando o dia a dia do cliente.`;
+    const finalPrompt = `${imagePrompt}\n\nEstilo da marca: fotografia cinematográfica diurna, tons neutros/naturais predominantes (95%), com apenas pequenos detalhes sutis em verde abacate ou roxo suave (2-3% no máximo), enfatizando o contexto regional/local do negócio.`;
     const body = {
       version: "bytedance/seedream-3",
       input: {
