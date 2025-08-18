@@ -38,7 +38,7 @@ app.post('/api/gpt/prompts', async (req, res) => {
     if (!OPENAI_API_KEY) return res.status(500).json({ error: 'missing OPENAI_API_KEY' });
     const profile = req.body?.profile || {};
     const system = 'You are a creative assistant for InfinitePay. Generate concise JSON only. No explanations. Ensure Brazilian Portuguese for text. Choose voice to match gender.';
-    const brand = `Brand visual style: cinematic, photorealistic, natural daylight; shot with 25mm lens, shallow depth of field; 98% neutral/natural tones with EXTREMELY SUBTLE hints of avocado green ${BRAND_GREEN} or soft purple ${BRAND_PURPLE} (1-2% max, like tiny details on one background element only). Composition: medium close-up shot of business owner speaking directly to the camera/viewer, NOT taking a selfie, NOT holding phone/camera, hands should be visible and natural (gesturing or resting); MANDATORY: background must clearly show the specific Brazilian city/region through recognizable landmarks, architecture, local flora, or cultural elements typical of that location.`;
+    const brand = `Brand visual style: cinematic, photorealistic, natural daylight; shot with mobile phone camera POV, 25mm lens equivalent, shallow depth of field; 100% neutral and natural tones only. Composition: POV from mobile phone camera - business owner holding phone at arm's length speaking directly into the camera lens, medium close-up shot from phone perspective; MANDATORY: background must clearly show the specific Brazilian city/region through recognizable landmarks, architecture, local flora, or cultural elements typical of that location.`;
     const user = {
       instruction: 'Create prompts for image and voice targeting the BUSINESS OWNER (lojista) about using Dinn AI assistant.',
       constraints: {
@@ -71,8 +71,9 @@ app.post('/api/gpt/prompts', async (req, res) => {
         'Audio tone: encouraging, helpful, focused on business growth',
         'Frame the person prominently - they are speaking directly to the camera/user',
         'IMPORTANT: Character must be looking DIRECTLY into the camera lens, making eye contact with viewer',
-        'CRITICAL: Character should NOT be taking a selfie or holding phone/camera - they are speaking TO the camera/viewer directly',
-        'Composition: medium close-up, 25mm lens, hands visible and natural (gesturing or resting), person addressing the viewer',
+        'CRITICAL: POV shot from mobile phone camera perspective - person holding phone at arm\'s length speaking into the camera',
+        'CRITICAL: DO NOT include any specific business names, store names, or person names in the image prompt',
+        'Composition: mobile phone POV, 25mm equivalent lens, person looking directly at phone camera lens',
         'AVOID any text, writing, signs with words, or readable text in the image - focus on visual elements only',
       ],
     };
@@ -95,23 +96,26 @@ app.post('/api/gpt/prompts', async (req, res) => {
     const content = data.choices?.[0]?.message?.content || '{}';
     const json = JSON.parse(content);
 
-    // defaults with gender consistency and faster speech
+    // STRICT gender consistency and faster speech
     const detectedGender = json.person?.gender || profile.gender || '';
-    const defaultVoice = detectedGender === 'male' ? 'Deep_Voice_Man' : 'Friendly_Person';
+    let voiceId;
+    
+    // FORCE strict gender matching
+    if (detectedGender === 'female' || detectedGender.includes('female') || detectedGender.includes('woman')) {
+      voiceId = 'Friendly_Person'; // Always female voice for female characters
+    } else if (detectedGender === 'male' || detectedGender.includes('male') || detectedGender.includes('man')) {
+      voiceId = 'Deep_Voice_Man'; // Always male voice for male characters
+    } else {
+      voiceId = 'Friendly_Person'; // Default to female
+    }
+    
     json.voice_metadata = json.voice_metadata || {};
-    json.voice_metadata.voice_id = json.voice_metadata.voice_id || defaultVoice;
+    json.voice_metadata.voice_id = voiceId; // Override whatever OpenAI suggested
     json.voice_metadata.emotion = json.voice_metadata.emotion || 'happy';
     json.voice_metadata.speed = json.voice_metadata.speed || 1.3; // Faster speech
     json.voice_metadata.pitch = json.voice_metadata.pitch || 0;
     json.voice_metadata.language_boost = 'Portuguese';
     json.voice_metadata.english_normalization = false;
-    
-    // Force gender consistency
-    if (detectedGender === 'female' && !json.voice_metadata.voice_id.includes('Woman') && !json.voice_metadata.voice_id.includes('Girl')) {
-      json.voice_metadata.voice_id = 'Friendly_Person'; // Female voice
-    } else if (detectedGender === 'male' && !json.voice_metadata.voice_id.includes('Man') && !json.voice_metadata.voice_id.includes('Guy')) {
-      json.voice_metadata.voice_id = 'Deep_Voice_Man'; // Male voice
-    }
 
     res.json(json);
   } catch (err) {
