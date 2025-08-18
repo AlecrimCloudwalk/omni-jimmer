@@ -6,9 +6,46 @@ const IS_LOCAL = (
   location.protocol === 'file:'
 );
 const IS_VERCEL = location.hostname.includes('vercel.app');
+const IS_GITHUB_PAGES = location.hostname.includes('github.io');
 
-// API endpoints - prefer Vercel, fallback to local
+// API endpoints - detect deployment platform
 const API_BASE = IS_LOCAL ? 'http://localhost:8787' : '/api';
+
+// For GitHub Pages, we'll use direct API calls
+const GITHUB_PAGES_MODE = IS_GITHUB_PAGES || (!IS_LOCAL && !IS_VERCEL);
+
+// API Key Management Functions
+function saveOpenAIKey() {
+  const key = document.getElementById('openaiKeyInput').value.trim();
+  if (key) {
+    localStorage.setItem('openai_api_key', key);
+    alert('OpenAI API key saved!');
+    document.getElementById('openaiKeyInput').value = '';
+  }
+}
+
+function saveReplicateKey() {
+  const key = document.getElementById('replicateKeyInput').value.trim();
+  if (key) {
+    localStorage.setItem('replicate_api_key', key);
+    alert('Replicate API key saved!');
+    document.getElementById('replicateKeyInput').value = '';
+  }
+}
+
+function hideApiNotice() {
+  document.getElementById('apiKeyNotice').style.display = 'none';
+}
+
+function showApiNoticeIfNeeded() {
+  if (GITHUB_PAGES_MODE) {
+    const hasOpenAI = localStorage.getItem('openai_api_key');
+    const hasReplicate = localStorage.getItem('replicate_api_key');
+    if (!hasOpenAI || !hasReplicate) {
+      document.getElementById('apiKeyNotice').style.display = 'block';
+    }
+  }
+}
 
 const CNAE_OPTIONS = [
   "5611-2/01 - Restaurante",
@@ -255,6 +292,7 @@ function animateCarousel() {
 // Iniciar animação quando a página carregar
 document.addEventListener('DOMContentLoaded', () => {
   setTimeout(animateCarousel, 1000); // Inicia após 1 segundo
+  showApiNoticeIfNeeded(); // Show API key notice if on GitHub Pages
 });
 
 async function onShuffle() {
@@ -383,9 +421,7 @@ function updateOverlayText(overlayText, buttonText) {
   const ctaButton = document.querySelector('.cta-button');
   
   if (textOverlay && overlayText) {
-    // Clean up any literal \n and replace with HTML line breaks
-    const cleanText = overlayText.replace(/\\n/g, '\n').replace(/\n/g, '<br>');
-    textOverlay.innerHTML = cleanText;
+    textOverlay.textContent = overlayText;
   }
   
   if (ctaButton && buttonText) {
@@ -397,9 +433,7 @@ function updateOverlayText(overlayText, buttonText) {
   const buttonTextDisplay = document.getElementById('buttonTextDisplay');
   
   if (overlayTextDisplay && overlayText) {
-    // Clean up any literal \n and replace with HTML line breaks
-    const cleanText = overlayText.replace(/\\n/g, '\n').replace(/\n/g, '<br>');
-    overlayTextDisplay.innerHTML = cleanText;
+    overlayTextDisplay.textContent = overlayText;
   }
   
   if (buttonTextDisplay && buttonText) {
@@ -491,17 +525,46 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
     };
 
     let json;
-    const endpoint = `${API_BASE}/gpt/prompts`;
-    const r = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ profile: profile })
-    });
-    if (!r.ok) {
-      const t = await r.text();
-      throw new Error(`Prompt generation error: ${t}`);
+    
+    if (GITHUB_PAGES_MODE) {
+      // Direct OpenAI API call for GitHub Pages
+      const openaiKey = localStorage.getItem('openai_api_key') || prompt('Enter your OpenAI API key:');
+      if (openaiKey) localStorage.setItem('openai_api_key', openaiKey);
+      if (!openaiKey) throw new Error('OpenAI API key required');
+      
+      const r = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openaiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [{ role: 'user', content: promptTemplate.join('\n') }],
+          temperature: 0.8
+        })
+      });
+      if (!r.ok) throw new Error(`OpenAI API error: ${await r.text()}`);
+      const openaiResponse = await r.json();
+      try {
+        json = JSON.parse(openaiResponse.choices[0].message.content);
+      } catch (e) {
+        throw new Error('Failed to parse OpenAI response as JSON');
+      }
+    } else {
+      // Use serverless function (Vercel/local)
+      const endpoint = `${API_BASE}/gpt/prompts`;
+      const r = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profile: profile })
+      });
+      if (!r.ok) {
+        const t = await r.text();
+        throw new Error(`Prompt generation error: ${t}`);
+      }
+      json = await r.json();
     }
-    json = await r.json();
 
     // Ensure we have both prompts with correct structure
     if (!json.image_prompt) {
@@ -525,23 +588,11 @@ fala da pessoa: "Oi! Aqui em ${city}, ${product} está ajudando empresários a r
       json.button_text = "Começar a usar";
     }
     
-    // Apply pronunciation improvements to video_prompt only (not overlay_text or button_text)
+    // Apply pronunciation improvements to video_prompt only
     if (json.video_prompt) {
       json.video_prompt = json.video_prompt
         .replace(/\bJIM\b/g, 'Din')
         .replace(/\bInfinitePay\b/g, 'Infinitipêi');
-    }
-    
-    // Keep JIM in overlay_text and button_text for consistency with brand
-    if (json.overlay_text) {
-      json.overlay_text = json.overlay_text
-        .replace(/\bDinn\b/g, 'JIM')
-        .replace(/\bDin\b/g, 'JIM');
-    }
-    if (json.button_text) {
-      json.button_text = json.button_text
-        .replace(/\bDinn\b/g, 'JIM')
-        .replace(/\bDin\b/g, 'JIM');
     }
     
     // Set default voice metadata  
@@ -581,15 +632,57 @@ async function generateImage(imagePrompt) {
       }
     };
          // Status is already set by caller function
-     const endpoint = `${API_BASE}/replicate/image`;
-     const r = await fetch(endpoint, {
-       method: 'POST',
-       headers: { 'Content-Type': 'application/json' },
-       body: JSON.stringify({ prompt: finalPrompt })
-     });
-     if (!r.ok) throw new Error(await r.text());
-     const j = await r.json();
-     const imageUrl = j.url;
+     
+     let imageUrl;
+     if (GITHUB_PAGES_MODE) {
+       // Direct Replicate API call with CORS proxy for GitHub Pages
+       const replicateKey = localStorage.getItem('replicate_api_key') || prompt('Enter your Replicate API key:');
+       if (replicateKey) localStorage.setItem('replicate_api_key', replicateKey);
+       if (!replicateKey) throw new Error('Replicate API key required');
+       
+       // Use CORS proxy for Replicate API
+       const proxyUrl = 'https://api.allorigins.win/raw?url=';
+       const replicateUrl = encodeURIComponent('https://api.replicate.com/v1/models/bytedance/seedream-3/predictions');
+       
+       const r = await fetch(proxyUrl + replicateUrl, {
+         method: 'POST',
+         headers: {
+           'Authorization': `Bearer ${replicateKey}`,
+           'Content-Type': 'application/json'
+         },
+         body: JSON.stringify(body)
+       });
+       if (!r.ok) throw new Error(await r.text());
+       const prediction = await r.json();
+       
+       // Poll for completion
+       let result = prediction;
+       while (result.status === 'starting' || result.status === 'processing') {
+         await new Promise(resolve => setTimeout(resolve, 2000));
+         const pollUrl = proxyUrl + encodeURIComponent(result.urls.get);
+         const pollR = await fetch(pollUrl, {
+           headers: { 'Authorization': `Bearer ${replicateKey}` }
+         });
+         result = await pollR.json();
+       }
+       
+       if (result.status === 'succeeded') {
+         imageUrl = result.output[0];
+       } else {
+         throw new Error('Image generation failed');
+       }
+     } else {
+       // Use serverless function (Vercel/local)
+       const endpoint = `${API_BASE}/replicate/image`;
+       const r = await fetch(endpoint, {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ prompt: finalPrompt })
+       });
+       if (!r.ok) throw new Error(await r.text());
+       const j = await r.json();
+       imageUrl = j.url;
+     }
     if (imageUrl) {
       const img = document.createElement("img");
       img.src = imageUrl;
@@ -620,15 +713,66 @@ async function generateVeo3Video(videoPrompt) {
   try {
     // Prompt is already displayed by displayPrompts() function
          // Status is already set by caller function
-     const endpoint = `${API_BASE}/replicate/veo3`;
-     const r = await fetch(endpoint, {
-       method: 'POST',
-       headers: { 'Content-Type': 'application/json' },
-       body: JSON.stringify({ prompt: videoPrompt })
-     });
-     if (!r.ok) throw new Error(await r.text());
-     const j = await r.json();
-     const videoUrl = j.url;
+     
+     let videoUrl;
+     if (GITHUB_PAGES_MODE) {
+       // Direct Replicate API call with CORS proxy for GitHub Pages
+       const replicateKey = localStorage.getItem('replicate_api_key') || prompt('Enter your Replicate API key:');
+       if (replicateKey) localStorage.setItem('replicate_api_key', replicateKey);
+       if (!replicateKey) throw new Error('Replicate API key required');
+       
+       // Use CORS proxy for Replicate API - Veo3 model
+       const proxyUrl = 'https://api.allorigins.win/raw?url=';
+       const replicateUrl = encodeURIComponent('https://api.replicate.com/v1/models/tencent/hunyuan-video/predictions');
+       
+       const body = {
+         input: {
+           prompt: videoPrompt,
+           seed: Math.floor(Math.random() * 1000000),
+           video_length: "2s",
+           flow_shift: 7
+         }
+       };
+       
+       const r = await fetch(proxyUrl + replicateUrl, {
+         method: 'POST',
+         headers: {
+           'Authorization': `Bearer ${replicateKey}`,
+           'Content-Type': 'application/json'
+         },
+         body: JSON.stringify(body)
+       });
+       if (!r.ok) throw new Error(await r.text());
+       const prediction = await r.json();
+       
+       // Poll for completion
+       let result = prediction;
+       while (result.status === 'starting' || result.status === 'processing') {
+         await new Promise(resolve => setTimeout(resolve, 5000)); // Longer wait for video
+         const pollUrl = proxyUrl + encodeURIComponent(result.urls.get);
+         const pollR = await fetch(pollUrl, {
+           headers: { 'Authorization': `Bearer ${replicateKey}` }
+         });
+         result = await pollR.json();
+       }
+       
+       if (result.status === 'succeeded') {
+         videoUrl = result.output;
+       } else {
+         throw new Error('Video generation failed');
+       }
+     } else {
+       // Use serverless function (Vercel/local)
+       const endpoint = `${API_BASE}/replicate/veo3`;
+       const r = await fetch(endpoint, {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ prompt: videoPrompt })
+       });
+       if (!r.ok) throw new Error(await r.text());
+       const j = await r.json();
+       videoUrl = j.url;
+     }
     if (videoUrl && veo3Container) {
       const video = document.createElement("video");
       video.controls = true;

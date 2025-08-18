@@ -390,7 +390,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 .content-overlay {
   position: relative;
   width: 100%;
-  padding: 12px 12px 20px 12px;
+  padding: 20px;
   display: flex;
   justify-content: space-between;
   align-items: end;
@@ -406,6 +406,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
   font-weight: 600;
   color: white;
   line-height: 1.1;
+  white-space: pre-line;
   overflow: hidden;
 }
 
@@ -413,7 +414,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
   background: white;
   color: #000;
   border: none;
-  padding: 3px 6px;
+  padding: 4px 8px;
   border-radius: 10px;
   font-weight: 600;
   font-size: 11px;
@@ -425,9 +426,9 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .carousel-indicators {
   position: absolute;
-  bottom: 12px;
-  left: 12px;
-  right: 12px;
+  bottom: 8px;
+  left: 16px;
+  right: 16px;
   display: flex;
   z-index: 10;
   justify-content: space-between;
@@ -436,11 +437,11 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .indicator {
   flex: 1;
-  height: 4px;
+  height: 3px;
   background: rgba(255, 255, 255, 0.4);
   border-radius: 2px;
   transition: all 0.3s ease;
-  margin: 0 0.5px;
+  margin: 0 1px;
 }
 
 .indicator.active {
@@ -494,7 +495,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 }
 
 .overlay-text-result div {
-  line-height: 1.3;
+  white-space: pre-line;
 }
 
 .button-text-result div {
