@@ -1,0 +1,74 @@
+[
+  {
+    "businessName": "Padaria Pão Quentinho",
+    "ownerName": "Maria Silva",
+    "cnae": "Padaria",
+    "region": "Sudeste",
+    "city": "São Paulo",
+    "gender": "female",
+    "tpv": 65000,
+    "avgTicket": 22,
+    "salesCount": 2950,
+    "onlineShare": 12,
+    "storefront": "street",
+    "signatureItem": "Pão francês artesanal"
+  },
+  {
+    "businessName": "Auto Center Borges",
+    "ownerName": "Carlos Borges",
+    "cnae": "Oficina Mecânica",
+    "region": "Sul",
+    "city": "Curitiba",
+    "gender": "male",
+    "tpv": 90000,
+    "avgTicket": 380,
+    "salesCount": 720,
+    "onlineShare": 8,
+    "storefront": "street",
+    "signatureItem": "Troca de óleo e revisão rápida"
+  },
+  {
+    "businessName": "Bela Moda Boutique",
+    "ownerName": "Ana Paula",
+    "cnae": "Loja de Roupas",
+    "region": "Nordeste",
+    "city": "Salvador",
+    "gender": "female",
+    "tpv": 48000,
+    "avgTicket": 160,
+    "salesCount": 900,
+    "onlineShare": 35,
+    "storefront": "mall",
+    "signatureItem": "Vestidos leves e coloridos"
+  },
+  {
+    "businessName": "Clínica Sorriso Norte",
+    "ownerName": "Dr. Renato",
+    "cnae": "Clínica Odontológica",
+    "region": "Norte",
+    "city": "Manaus",
+    "gender": "male",
+    "tpv": 120000,
+    "avgTicket": 420,
+    "salesCount": 980,
+    "onlineShare": 18,
+    "storefront": "street",
+    "signatureItem": "Clareamento e manutenção preventiva"
+  },
+  {
+    "businessName": "Pet Amigo",
+    "ownerName": "Juliana Rocha",
+    "cnae": "Pet Shop",
+    "region": "Centro-Oeste",
+    "city": "Brasília",
+    "gender": "female",
+    "tpv": 55000,
+    "avgTicket": 95,
+    "salesCount": 1160,
+    "onlineShare": 28,
+    "storefront": "market",
+    "signatureItem": "Banho e tosa premium"
+  }
+]
+
+

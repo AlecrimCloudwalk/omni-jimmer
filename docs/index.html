@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>InfinitePay — Customer Story Generator (POC)</title>
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="preconnect" href="https://api.openai.com" crossorigin>
+  <link rel="preconnect" href="https://api.replicate.com" crossorigin>
+  <meta name="description" content="POC: Generate image, audio (pt-BR), and video for Brazilian SMBs using OpenAI and Replicate." />
+</head>
+<body>
+  <header class="header">
+    <h1>InfinitePay — Customer Story Generator (POC)</h1>
+    <p class="sub">UI in English. Generated content in Brazilian Portuguese.</p>
+  </header>
+
+  <main class="container">
+    <section class="controls">
+      <div class="card">
+        <h2>API Keys</h2>
+        <label>
+          OpenAI API Key
+          <input id="openaiKey" type="password" placeholder="sk-..." autocomplete="off" />
+        </label>
+        <label>
+          Replicate API Token
+          <input id="replicateKey" type="password" placeholder="r8_..." autocomplete="off" />
+        </label>
+        <label class="row">
+          <input id="rememberKeys" type="checkbox" />
+          <span>Store keys in this browser (localStorage)</span>
+        </label>
+        <div class="warn">For POC testing only. Keys are used client-side.</div>
+      </div>
+
+      <div class="card">
+        <h2>Customer Profile</h2>
+        <div class="grid-2">
+          <label>
+            Business name
+            <input id="businessName" type="text" placeholder="Padaria Pão Quentinho" />
+          </label>
+          <label>
+            Owner name
+            <input id="ownerName" type="text" placeholder="Maria Silva" />
+          </label>
+          <label>
+            CNAE / Segment
+            <select id="cnae"></select>
+          </label>
+          <label>
+            Region
+            <select id="region"></select>
+          </label>
+          <label>
+            City
+            <select id="city"></select>
+          </label>
+          <label>
+            Gender (optional)
+            <select id="gender">
+              <option value="">Auto (by CNAE)</option>
+              <option value="female">Female</option>
+              <option value="male">Male</option>
+            </select>
+          </label>
+          <label>
+            Monthly TPV (R$)
+            <input id="tpv" type="number" min="0" step="100" placeholder="45000" />
+          </label>
+          <label>
+            Average Ticket (R$)
+            <input id="avgTicket" type="number" min="0" step="5" placeholder="38" />
+          </label>
+          <label>
+            Monthly Sales Count
+            <input id="salesCount" type="number" min="0" step="10" placeholder="1200" />
+          </label>
+          <label>
+            Online Share (%)
+            <input id="onlineShare" type="number" min="0" max="100" step="1" placeholder="20" />
+          </label>
+          <label>
+            Storefront style
+            <select id="storefront">
+              <option value="street">Street</option>
+              <option value="market">Market</option>
+              <option value="mall">Mall</option>
+              <option value="home">Home</option>
+            </select>
+          </label>
+          <label>
+            Signature product/service
+            <input id="signatureItem" type="text" placeholder="Pão francês artesanal" />
+          </label>
+        </div>
+
+        <div class="actions">
+          <button id="shuffleBtn" type="button">Shuffle</button>
+          <button id="generateBtn" type="button" class="primary">Generate</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="output">
+      <div class="step">
+        <h3>1) Image</h3>
+        <div id="imageStatus" class="status">Waiting…</div>
+        <div id="imageContainer" class="media"></div>
+      </div>
+      <div class="step">
+        <h3>2) Audio</h3>
+        <div id="audioStatus" class="status">Waiting…</div>
+        <div id="audioContainer" class="media"></div>
+      </div>
+      <div class="step">
+        <h3>3) Video</h3>
+        <div id="videoStatus" class="status">Waiting…</div>
+        <div id="videoContainer" class="media"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <small>Models: Seedream-3 (image), Minimax Speech-02-HD (TTS), OmniHuman (video). Content: pt-BR. UI: English.</small>
+  </footer>
+
+  <script src="./app.js" type="module"></script>
+</body>
+</html>
+
+
