@@ -423,6 +423,28 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
   margin-left: 10px;
 }
 
+.carousel-indicators {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  z-index: 10;
+}
+
+.indicator {
+  width: 20px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.indicator.active {
+  background: rgba(255, 255, 255, 0.9);
+}
+
 
 
 /* Simplified - removed unused notification and bottom action styles */

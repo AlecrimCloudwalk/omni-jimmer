@@ -40,7 +40,33 @@ const CNAE_OPTIONS = [
   "0162-8/01 - Floricultura",
   "4632-0/01 - Atacadista",
   "9001-9/99 - Academia de Dança",
-  "8650-0/02 - Consultório Veterinário"
+  "8650-0/02 - Consultório Veterinário",
+  "4789-0/02 - Loja de Artesanato",
+  "5620-1/04 - Açaíteria",
+  "4789-0/03 - Loja de Perfumes",
+  "5611-2/03 - Pizzaria",
+  "4757-1/00 - Loja de Livros",
+  "4772-5/00 - Loja de Suplementos",
+  "8630-5/03 - Fisioterapia",
+  "9602-5/03 - Manicure/Pedicure",
+  "4789-0/04 - Loja de Presentes",
+  "5611-2/04 - Sorveteria",
+  "4713-0/03 - Loja de Bolsas",
+  "4789-0/06 - Joalheria",
+  "5620-1/05 - Hamburgueria",
+  "4744-0/02 - Loja de Tintas",
+  "9329-8/01 - Academia de Ginástica",
+  "4789-0/07 - Loja de Móveis",
+  "5611-2/05 - Confeitaria",
+  "4637-1/01 - Distribuidora de Doces",
+  "4789-0/08 - Loja de Decoração",
+  "8511-2/00 - Escola Particular",
+  "9602-5/04 - Estética e Cosméticos",
+  "4789-0/09 - Loja de Informática",
+  "5620-1/06 - Tapiocaria",
+  "4713-0/04 - Loja de Acessórios",
+  "9319-1/99 - Crossfit",
+  "4789-0/10 - Loja de Brinquedos"
 ];
 
 const REGIONS = {
@@ -192,6 +218,30 @@ function updateVideoAudio() {
     previewVideo.muted = !videoAudioToggle.checked;
   }
 }
+
+// Simular animação do carrossel
+function animateCarousel() {
+  const indicators = document.querySelectorAll('.indicator');
+  if (indicators.length === 0) return;
+  
+  let currentIndex = 0;
+  
+  setInterval(() => {
+    // Remove active de todos
+    indicators.forEach(indicator => indicator.classList.remove('active'));
+    
+    // Adiciona active no atual
+    indicators[currentIndex].classList.add('active');
+    
+    // Próximo índice
+    currentIndex = (currentIndex + 1) % indicators.length;
+  }, 2000); // Muda a cada 2 segundos
+}
+
+// Iniciar animação quando a página carregar
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(animateCarousel, 1000); // Inicia após 1 segundo
+});
 
 async function onShuffle() {
   try {
@@ -404,8 +454,8 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
         "",
         "RETORNE JSON com 'image_prompt', 'video_prompt', 'overlay_text' (máximo 15 chars) e 'button_text' (máximo 12 chars) seguindo essas estruturas exatas.",
         "",
-        "OVERLAY_TEXT: OBRIGATÓRIO 2 linhas exatas separadas por \\n (ex: 'Tap to Pay\\nno iPhone', 'Pix Rápido\\nAgora', 'Vendas+\\nOnline').",
-        "BUTTON_TEXT: Texto do botão call-to-action (ex: 'Começar', 'Usar agora', 'Testar').",
+        "OVERLAY_TEXT: OBRIGATÓRIO 2 linhas exatas separadas por \\n. Exemplos: 'Pagamento de contas\\ne boletos', 'Indique a InfinitePay\\ne ganhe R$ 50', 'Gestão de Cobrança\\ninteligente', 'Emitir boletos\\ngratuitamente', 'Transforme seu celular\\nem uma maquininha', 'Cartão virtual gratuito\\ne sem anuidade'.",
+        "BUTTON_TEXT: Texto do botão call-to-action. Exemplos: 'Pagar contas', 'Indicar agora', 'Começar a usar', 'Saber mais'.",
       ],
     };
 
