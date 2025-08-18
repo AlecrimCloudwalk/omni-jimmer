@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>InfinitePay — Customer Story Generator (POC)</title>
+  <title>Omni-jimmer</title>
   <link rel="stylesheet" href="./style.css" />
   <link rel="preconnect" href="https://api.openai.com" crossorigin>
   <link rel="preconnect" href="https://api.replicate.com" crossorigin>
@@ -19,6 +19,20 @@
     <!-- LEFT COLUMN: Controls -->
     <section class="left-column">
       <div class="card">
+        <div class="generation-options">
+          <label>
+            <input id="enableImage" type="checkbox" checked> Generate Image
+          </label>
+          <label>
+            <input id="enableVeo3" type="checkbox" checked> Generate Veo3 Video
+          </label>
+        </div>
+
+        <div class="actions">
+          <button id="shuffleBtn" type="button">Shuffle</button>
+          <button id="generateBtn" type="button" class="primary">Generate</button>
+        </div>
+
         <h2>Customer Profile</h2>
         <div class="form-grid">
           <label>
@@ -79,20 +93,6 @@
             <input id="signatureItem" type="text" placeholder="Pão francês artesanal" />
           </label>
         </div>
-
-        <div class="generation-options">
-          <label>
-            <input id="enableImage" type="checkbox" checked> Generate Image
-          </label>
-          <label>
-            <input id="enableVeo3" type="checkbox" checked> Generate Veo3 Video
-          </label>
-        </div>
-
-        <div class="actions">
-          <button id="shuffleBtn" type="button">Shuffle</button>
-          <button id="generateBtn" type="button" class="primary">Generate</button>
-        </div>
       </div>
     </section>
 
@@ -116,6 +116,16 @@
     <section class="right-column">
       <div class="app-preview">
         <h3>App Preview</h3>
+        <div class="preview-controls">
+          <label class="preview-switch">
+            <input type="radio" name="previewMode" value="image" id="previewImage" checked>
+            <span>Show Image</span>
+          </label>
+          <label class="preview-switch">
+            <input type="radio" name="previewMode" value="video" id="previewVideo">
+            <span>Show Video</span>
+          </label>
+        </div>
         <div class="phone-mockup">
           <!-- Video Component Overlay -->
           <div class="video-overlay" id="videoOverlay">
@@ -131,6 +141,15 @@
                   </div>
                   <button class="cta-button">Começar a usar</button>
                 </div>
+              </div>
+            </div>
+            <!-- Call to Action Prompts -->
+            <div class="cta-prompts">
+              <div class="cta-arrow">↑</div>
+              <div class="cta-text">
+                <span class="cta-line">Tente agora!</span>
+                <span class="cta-line">Só clicar aqui</span>
+                <span class="cta-line">Use o Jim! ✨</span>
               </div>
             </div>
           </div>

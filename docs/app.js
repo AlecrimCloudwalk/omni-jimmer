@@ -100,6 +100,8 @@ const veo3Container = document.getElementById("veo3Container");
 const videoOverlay = document.getElementById("videoOverlay");
 const imagePromptEl = document.getElementById("imagePrompt");
 const veo3PromptEl = document.getElementById("veo3Prompt");
+const previewImageRadio = document.getElementById("previewImage");
+const previewVideoRadio = document.getElementById("previewVideo");
 
 init();
 
@@ -120,6 +122,10 @@ function init() {
   shuffleBtn.addEventListener("click", onShuffle);
   generateBtn.addEventListener("click", onGenerate);
 
+  // Preview mode switching
+  previewImageRadio.addEventListener("change", updatePreviewMode);
+  previewVideoRadio.addEventListener("change", updatePreviewMode);
+
   // No API card hiding needed since it's removed from HTML
 }
 
@@ -138,6 +144,42 @@ function getRandomFromArray(array) {
 
 function getRandomEthnicity() {
   return getRandomFromArray(ETHNICITIES);
+}
+
+function updatePreviewMode() {
+  if (!videoOverlay) return;
+  
+  const showImage = previewImageRadio.checked;
+  const videoPlaceholder = videoOverlay.querySelector('.video-placeholder');
+  
+  if (showImage) {
+    // Show the generated image in the preview
+    const imageInCenter = imageContainer.querySelector('img');
+    if (imageInCenter && videoPlaceholder) {
+      videoPlaceholder.innerHTML = '';
+      const previewImg = document.createElement('img');
+      previewImg.src = imageInCenter.src;
+      previewImg.style.width = '100%';
+      previewImg.style.height = '100%';
+      previewImg.style.objectFit = 'cover';
+      videoPlaceholder.appendChild(previewImg);
+    }
+  } else {
+    // Show the generated video in the preview (if available)
+    const videoInCenter = veo3Container.querySelector('video');
+    if (videoInCenter && videoPlaceholder) {
+      videoPlaceholder.innerHTML = '';
+      const previewVideo = document.createElement('video');
+      previewVideo.src = videoInCenter.src;
+      previewVideo.muted = true;
+      previewVideo.loop = true;
+      previewVideo.autoplay = true;
+      previewVideo.style.width = '100%';
+      previewVideo.style.height = '100%';
+      previewVideo.style.objectFit = 'cover';
+      videoPlaceholder.appendChild(previewVideo);
+    }
+  }
 }
 
 async function onShuffle() {
@@ -407,6 +449,9 @@ async function generateImage(imagePrompt) {
       a.className = "download-btn";
       imageContainer.appendChild(a);
       imageStatus.textContent = "Done.";
+      
+      // Update preview if showing image
+      updatePreviewMode();
     } else {
       imageStatus.textContent = "Image generation failed.";
     }
@@ -444,22 +489,8 @@ async function generateVeo3Video(videoPrompt) {
       a.className = "download-btn";
       veo3Container.appendChild(a);
       
-      // Also update the phone mockup video overlay
-      if (videoOverlay) {
-        const videoPlaceholder = videoOverlay.querySelector('.video-placeholder');
-        if (videoPlaceholder) {
-          videoPlaceholder.innerHTML = '';
-          const overlayVideo = document.createElement("video");
-          overlayVideo.src = videoUrl;
-          overlayVideo.muted = true;
-          overlayVideo.loop = true;
-          overlayVideo.autoplay = true;
-          overlayVideo.style.width = "100%";
-          overlayVideo.style.height = "100%";
-          overlayVideo.style.objectFit = "cover";
-          videoPlaceholder.appendChild(overlayVideo);
-        }
-      }
+      // Update preview based on current mode
+      updatePreviewMode();
       
       if (veo3Status) veo3Status.textContent = "Done.";
     } else {

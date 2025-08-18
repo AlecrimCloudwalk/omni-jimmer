@@ -102,6 +102,32 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
   font-size: 16px;
 }
 
+.preview-controls {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.preview-switch {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.preview-switch input[type="radio"] {
+  margin: 0;
+  accent-color: var(--green);
+}
+
+.preview-switch input[type="radio"]:checked + span {
+  color: var(--text);
+  font-weight: 600;
+}
+
 .phone-mockup {
   position: relative;
   width: 320px;
@@ -198,6 +224,49 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
   font-weight: 600;
   font-size: 13px;
   margin-left: 16px;
+}
+
+.cta-prompts {
+  position: absolute;
+  bottom: -60px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.cta-arrow {
+  font-size: 24px;
+  color: var(--green);
+  animation: bounce 2s infinite;
+}
+
+.cta-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.cta-line {
+  font-size: 11px;
+  color: var(--green);
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
 }
 
 /* Simplified - removed unused notification and bottom action styles */
