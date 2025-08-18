@@ -63,7 +63,8 @@ app.post('/api/gpt/prompts', async (req, res) => {
       brand,
       rules: [
         'CRITICAL: Return the image prompt in this EXACT format in Portuguese:',
-        'Format: \'[Gender] brasileiro(a) de cerca de [age] anos, [physical description], veste [clothing]. Ele/Ela está em [specific location/landmark], em [city], sob [lighting]. [Background description with local elements]. Com a câmera Selfie VLOG, próxima ao rosto, ele/ela fala para a câmera, gesticulando de forma natural. A câmera tem leves tremores de mão, estilo vlog. Sound FX: [local ambient sounds]. Fala do personagem: \"[8-12 second speech about using Dinn for business growth]\"\'',
+        'Use this EXACT template structure, only changing the specific details:',
+        'TEMPLATE: \'Um [homem/mulher] brasileiro(a) de cerca de [age] anos, [detailed physical description including skin tone, hair, facial features], veste [detailed clothing description]. Ele/Ela está [location description with specific landmark], em [city], sob [lighting description]. [Detailed background description with local elements, architecture, movement, etc.]. Com a câmera Selfie VLOG, próxima ao rosto, ele/ela [diz para/fala para] a câmera, gesticulando de forma natural. A câmera tem leves tremores de mão, estilo vlog. Sound FX: [specific local ambient sounds]. Fala do personagem: \"[Brazilian Portuguese speech about using Dinn for business]\"\'',
         'The speech in \'Fala do personagem\' should be about using Dinn (InfinitePay\'s AI assistant) to improve sales, get insights, help with digital payments, etc.',
         'CRITICAL: HEAVILY emphasize the specific city/region - make it OBVIOUS which Brazilian city this is',
         'CRITICAL: The person in the image and the voice MUST be the same gender - if image shows a woman, voice must be female; if image shows a man, voice must be male',
