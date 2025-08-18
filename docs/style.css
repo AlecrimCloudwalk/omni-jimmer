@@ -15,6 +15,92 @@ html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); f
 .header h1 { margin: 0 0 6px; font-size: 20px; }
 .header .sub { margin: 0; color: var(--muted); font-size: 13px; }
 
+/* API Key Notice Styles */
+.api-key-notice {
+  background: var(--card);
+  border: 2px solid var(--green);
+  border-radius: 8px;
+  margin: 1rem auto;
+  max-width: 600px;
+  padding: 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  position: relative;
+  z-index: 1000;
+}
+
+.notice-content {
+  padding: 1.5rem;
+}
+
+.notice-content h3 {
+  margin: 0 0 1rem 0;
+  color: var(--text);
+}
+
+.notice-content p {
+  margin: 0 0 1rem 0;
+  color: var(--muted);
+}
+
+.api-key-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.key-input {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.key-input label {
+  min-width: 120px;
+  font-weight: 600;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.key-input input {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.5rem;
+  border: 1px solid #232427;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.key-input input:focus {
+  outline: none;
+  border-color: var(--green);
+}
+
+.key-input button, .close-notice {
+  background: var(--green);
+  color: var(--bg);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s;
+  font-size: 14px;
+}
+
+.key-input button:hover, .close-notice:hover {
+  background: #a8e32a;
+}
+
+.close-notice {
+  display: block;
+  margin: 1rem auto 0;
+  padding: 0.75rem 2rem;
+}
+
 .three-column-container {
   max-width: 1600px;
   margin: 0 auto;
