@@ -18,22 +18,31 @@
   <main class="three-column-container">
     <!-- LEFT COLUMN: Controls -->
     <section class="left-column">
-      <div class="card">
+      <!-- Controls Section -->
+      <div class="controls-section">
+        <h3>Generation Controls</h3>
         <div class="generation-options">
-          <label>
-            <input id="enableImage" type="checkbox" checked> Generate Image
+          <label class="option-toggle">
+            <input id="enableImage" type="checkbox" checked>
+            <span class="checkmark"></span>
+            <span class="option-text">Generate Image</span>
           </label>
-          <label>
-            <input id="enableVeo3" type="checkbox" checked> Generate Veo3 Video
+          <label class="option-toggle">
+            <input id="enableVeo3" type="checkbox" checked>
+            <span class="checkmark"></span>
+            <span class="option-text">Generate Video</span>
           </label>
         </div>
 
-        <div class="actions">
-          <button id="shuffleBtn" type="button">Shuffle</button>
-          <button id="generateBtn" type="button" class="primary">Generate</button>
+        <div class="action-buttons">
+          <button id="shuffleBtn" type="button" class="shuffle-btn">🎲 Shuffle</button>
+          <button id="generateBtn" type="button" class="generate-btn">✨ Generate</button>
         </div>
+      </div>
 
-        <h2>Customer Profile</h2>
+      <!-- Customer Profile Section -->
+      <div class="profile-section">
+        <h3>Customer Profile</h3>
         <div class="form-grid">
           <label>
             Business name

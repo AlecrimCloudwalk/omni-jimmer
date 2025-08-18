@@ -28,31 +28,147 @@ html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); f
 
 /* LEFT COLUMN: Controls */
 .left-column {
-  background: var(--card);
-  border: 1px solid #232427;
-  border-radius: 12px;
-  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
   height: fit-content;
 }
 
-.left-column .card {
-  background: transparent;
-  border: none;
-  padding: 0;
-  margin: 0;
+.controls-section {
+  background: var(--card);
+  border: 1px solid #232427;
+  border-radius: 12px;
+  padding: 20px;
 }
 
-.left-column h2 { margin: 0 0 16px; font-size: 16px; }
-.left-column label { display: grid; gap: 6px; font-size: 12px; color: var(--muted); margin-bottom: 12px; }
-.left-column input, .left-column select { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #2a2b2f; background: #121316; color: var(--text); }
+.profile-section {
+  background: var(--card);
+  border: 1px solid #232427;
+  border-radius: 12px;
+  padding: 20px;
+}
 
-.form-grid { display: grid; gap: 12px; margin-bottom: 16px; }
-.generation-options { margin: 12px 0; display: flex; gap: 16px; }
-.generation-options label { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+.controls-section h3, .profile-section h3 { 
+  margin: 0 0 16px; 
+  font-size: 16px; 
+  color: var(--text);
+}
 
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.generation-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
 
-.actions { display: flex; gap: 10px; margin-top: 8px; }
+.option-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #1a1b1d;
+  border: 1px solid #2a2b2f;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.option-toggle:hover {
+  background: #202124;
+  border-color: #3a3b3f;
+}
+
+.option-toggle input[type="checkbox"] {
+  display: none;
+}
+
+.checkmark {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #2a2b2f;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.option-toggle input[type="checkbox"]:checked + .checkmark {
+  background: linear-gradient(45deg, var(--green), var(--purple));
+  border-color: var(--green);
+}
+
+.option-toggle input[type="checkbox"]:checked + .checkmark::after {
+  content: "✓";
+  color: #000;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.option-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.shuffle-btn, .generate-btn {
+  flex: 1;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.shuffle-btn {
+  background: #2a2b2f;
+  color: var(--text);
+  border: 1px solid #3a3b3f;
+}
+
+.shuffle-btn:hover {
+  background: #343539;
+  transform: translateY(-1px);
+}
+
+.generate-btn {
+  background: linear-gradient(90deg, var(--green), var(--purple));
+  color: #101010;
+}
+
+.generate-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(193, 247, 50, 0.3);
+}
+
+.form-grid { 
+  display: grid; 
+  gap: 12px; 
+}
+
+.profile-section label { 
+  display: grid; 
+  gap: 6px; 
+  font-size: 12px; 
+  color: var(--muted); 
+  margin-bottom: 12px; 
+}
+
+.profile-section input, .profile-section select { 
+  width: 100%; 
+  padding: 10px 12px; 
+  border-radius: 8px; 
+  border: 1px solid #2a2b2f; 
+  background: #121316; 
+  color: var(--text); 
+}
 button { appearance: none; background: #232427; color: var(--text); border: 1px solid #2c2e33; border-radius: 10px; padding: 10px 14px; cursor: pointer; }
 button.primary { background: linear-gradient(90deg, var(--green), var(--purple)); color: #101010; font-weight: 600; }
 button:disabled { opacity: 0.6; cursor: not-allowed; }
@@ -136,9 +252,9 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
   border-radius: 25px;
   padding: 8px;
   box-shadow: 0 0 0 2px #333, 0 8px 32px rgba(0,0,0,0.3);
-  /* Use the app background image */
-  background-image: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="304" height="624" viewBox="0 0 304 624"><rect width="304" height="624" fill="%23232427"/><rect x="16" y="20" width="272" height="20" rx="4" fill="%23666"/><rect x="16" y="60" width="120" height="24" rx="12" fill="%23999"/><text x="152" y="100" font-family="Arial" font-size="32" font-weight="bold" fill="white" text-anchor="middle">R$ 4.200,00</text><rect x="16" y="140" width="64" height="64" rx="16" fill="%23c1f732"/><rect x="88" y="140" width="64" height="64" rx="16" fill="%23444"/><rect x="160" y="140" width="64" height="64" rx="16" fill="%23444"/><rect x="232" y="140" width="56" height="64" rx="16" fill="%23444"/><rect x="16" y="240" width="272" height="48" rx="24" fill="%236B46C1"/><text x="152" y="270" font-family="Arial" font-size="16" font-weight="600" fill="white" text-anchor="middle">Fale com JIM ✨</text></svg>');
-  background-size: 304px 624px;
+  /* Use the actual app background image */
+  background-image: url('./app-bg.png');
+  background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
 }
