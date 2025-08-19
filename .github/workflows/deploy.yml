@@ -32,6 +32,19 @@ jobs:
     - name: Inject Supabase Configuration
       run: |
         echo "🔧 Injecting Supabase secrets into config..."
+        echo "🔑 URL: ${{ secrets.SUPABASE_URL }}"
+        echo "🔑 Key length: $(echo '${{ secrets.SUPABASE_ANON_KEY }}' | wc -c)"
+        
+        # Verify secrets exist
+        if [ -z "${{ secrets.SUPABASE_URL }}" ]; then
+          echo "❌ SUPABASE_URL secret not found"
+          exit 1
+        fi
+        
+        if [ -z "${{ secrets.SUPABASE_ANON_KEY }}" ]; then
+          echo "❌ SUPABASE_ANON_KEY secret not found"
+          exit 1
+        fi
         
         # Create supabase-config.js from template with real secrets
         cat > docs/supabase-config.js << 'EOF'
@@ -51,25 +64,41 @@ jobs:
         
         // Export for use in main app
         window.supabaseConfig = supabaseConfig;
+        console.log('🔧 Supabase config loaded with URL:', supabaseConfig.url);
         EOF
         
         echo "✅ Supabase config created with secrets"
         echo "📦 Config file size: $(wc -c < docs/supabase-config.js) bytes"
+        echo "📄 Config contents preview:"
+        head -10 docs/supabase-config.js
 
     - name: Build artifact
       run: |
         echo "📁 Creating build artifact..."
         
+        # List files before build
+        echo "📁 Files in docs/ before build:"
+        ls -la docs/
+        
         # Copy docs directory to _site (GitHub Pages standard)
         cp -r docs _site/
         
-        # Verify supabase-config.js exists
+        # List files after build
+        echo "📁 Files in _site/ after build:"
+        ls -la _site/
+        
+        # Verify supabase-config.js exists and has content
         if [ -f "_site/supabase-config.js" ]; then
           echo "✅ supabase-config.js found in build"
+          echo "📦 File size: $(wc -c < _site/supabase-config.js) bytes"
           echo "🔍 First few lines:"
           head -5 _site/supabase-config.js
+          echo "🔍 URL check:"
+          grep "url:" _site/supabase-config.js || echo "❌ URL not found in config"
         else
           echo "❌ supabase-config.js missing from build"
+          echo "📁 Available files:"
+          find _site/ -name "*.js" -type f
           exit 1
         fi
 
