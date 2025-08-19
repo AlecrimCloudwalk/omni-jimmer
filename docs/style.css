@@ -942,6 +942,9 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
   align-items: center;
   justify-content: center;
   z-index: 9999;
+  margin: 0;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 /* Auth Card - Modern card design */
@@ -951,10 +954,12 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
   border-radius: 16px;
   padding: 0;
   max-width: 400px;
-  width: 90%;
+  width: 100%;
   max-height: 90vh;
   overflow: hidden;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  margin: auto;
+  position: relative;
 }
 
 /* Auth Header */
