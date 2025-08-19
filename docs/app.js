@@ -704,12 +704,11 @@ async function generateImage(imagePrompt) {
     // Prompt is already displayed by displayPrompts() function
     
     const body = {
-      version: "bytedance/seedream-3",
       input: {
-              prompt: finalPrompt,
-      aspect_ratio: "16:9",
-      size: "regular",
-      guidance_scale: 5.0
+        prompt: finalPrompt,
+        aspect_ratio: "16:9",
+        size: "regular",
+        guidance_scale: 5.0
       }
     };
          // Status is already set by caller function
@@ -732,6 +731,9 @@ async function generateImage(imagePrompt) {
        const proxyUrl = proxies[0]; // Start with first proxy
        const replicateUrl = encodeURIComponent('https://api.replicate.com/v1/models/bytedance/seedream-3/predictions');
        
+       console.log('Making Replicate Image API call:', proxyUrl + replicateUrl);
+       console.log('Image request body:', JSON.stringify(body, null, 2));
+       
        const r = await fetch(proxyUrl + replicateUrl, {
          method: 'POST',
          headers: {
@@ -740,24 +742,58 @@ async function generateImage(imagePrompt) {
          },
          body: JSON.stringify(body)
        });
-       if (!r.ok) throw new Error(await r.text());
+       
+       console.log('Replicate image response status:', r.status);
+       if (!r.ok) {
+         const errorText = await r.text();
+         console.error('Replicate Image API error:', errorText);
+         throw new Error(`Replicate Image API error (${r.status}): ${errorText}`);
+       }
+       
        const prediction = await r.json();
+       console.log('Replicate image prediction:', prediction);
        
        // Poll for completion
        let result = prediction;
-       while (result.status === 'starting' || result.status === 'processing') {
+       let pollAttempts = 0;
+       const maxPollAttempts = 30; // 60 seconds max
+       
+       while ((result.status === 'starting' || result.status === 'processing') && pollAttempts < maxPollAttempts) {
+         pollAttempts++;
+         console.log(`Polling attempt ${pollAttempts}, status: ${result.status}`);
          await new Promise(resolve => setTimeout(resolve, 2000));
+         
+         if (!result.urls || !result.urls.get) {
+           console.error('No polling URL available:', result);
+           throw new Error('No polling URL available from Replicate');
+         }
+         
          const pollUrl = proxyUrl + encodeURIComponent(result.urls.get);
+         console.log('Polling URL:', pollUrl);
+         
          const pollR = await fetch(pollUrl, {
            headers: { 'Authorization': `Bearer ${replicateKey}` }
          });
+         
+         if (!pollR.ok) {
+           console.error('Polling failed:', await pollR.text());
+           throw new Error(`Polling failed: ${pollR.status}`);
+         }
+         
          result = await pollR.json();
+         console.log('Poll result:', result);
        }
        
        if (result.status === 'succeeded') {
-         imageUrl = result.output[0];
+         imageUrl = Array.isArray(result.output) ? result.output[0] : result.output;
+         console.log('Image generation succeeded:', imageUrl);
+       } else if (result.status === 'failed') {
+         console.error('Image generation failed:', result.error || result);
+         throw new Error(`Image generation failed: ${result.error || 'Unknown error'}`);
+       } else if (pollAttempts >= maxPollAttempts) {
+         throw new Error('Image generation timed out');
        } else {
-         throw new Error('Image generation failed');
+         throw new Error(`Unexpected status: ${result.status}`);
        }
      } else {
        // Use serverless function (Vercel/local)
