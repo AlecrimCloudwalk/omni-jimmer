@@ -409,6 +409,7 @@ async function onGenerate() {
   clearOutputs();
 
   const profile = buildUserProfile();
+  console.log('🔍 Profile data being sent to OpenAI:', profile); // Debug
   const promptResult = await callOpenAIForPrompts(profile);
   if (!promptResult) {
     lockUI(false);
@@ -528,6 +529,7 @@ function buildUserProfile() {
 
 async function callOpenAIForPrompts(profile) {
   try {
+    console.log('🎯 OpenAI prompt generation for profile:', profile.city, profile.region); // Debug
     const randomEthnicity = getRandomEthnicity();
     const randomClothing = getRandomClothingColor();
     
@@ -565,6 +567,8 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
         `HORÁRIOS: Use preferencialmente '${window.randomTimeOfDay || 'Meio-dia ensolarado'}' ou horários naturais similares como 'Seis horas da manhã', 'Final de tarde', 'Início da manhã'`,
         "AMBIENTES EXTERNOS: Para atividades ao ar livre, use pontos turísticos da cidade (Cristo Redentor-RJ, Elevador Lacerda-Salvador, Avenida Paulista-SP, Pelourinho-Salvador, Pão de Açúcar-RJ, etc.)",
         `ETNIA OBRIGATÓRIA: Use sempre '${randomEthnicity}' para garantir diversidade racial brasileira`,
+        `CIDADE OBRIGATÓRIA: Use sempre '${profile.city || profile.region || 'Brasil'}' - NUNCA use outras cidades como Rio, São Paulo, Salvador, etc.`,
+        `CNAE DO CLIENTE: ${profile.cnae || 'negócio genérico'}`,
         "",
         "ESTRUTURA PARA IMAGE_PROMPT:",
         "1. HORÁRIO + AMBIENTAÇÃO: '[horário do dia], interior/exterior do local baseado no CNAE, descrição cinematográfica'",
@@ -577,10 +581,9 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
         "3. CÂMERA: 'Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.'",
         `4. FALA: 'fala da pessoa: "Oi! Aqui em ${profile.city || profile.region || 'sua cidade'}, ${profile.productCallout || 'o Dinn'} está revolucionando os negócios! Vem usar você também!"'`,
         "",
-        "Exemplo de estrutura:",
-        "IMAGE: 'Meio-dia ensolarado, exterior de uma loja de roupas em Salvador, cercada por clientes e com vitrines exibindo vestidos leves e coloridos, sem letreiros visíveis. Uma mulher brasileira de 35 anos, parda, pele morena, Salvador BA, cabelos castanhos escuros e olhos castanhos, vestindo um vestido florido. Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível.'",
-        `VIDEO: 'Oito horas da noite, interior de uma loja brasileira aconchegante, com produtos organizados e ambiente acolhedor, sem letreiros visíveis. Uma mulher brasileira de 30 anos, negra, pele escura, São Paulo SP, cabelos crespos pretos e olhos castanhos. Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.\\n\\nfala da pessoa: "Oi! Aqui em São Paulo, ${profile.productCallout || 'o Dinn'} está revolucionando os negócios! Vem usar você também!"'`,
-        `OUTDOOR: 'Meio-dia ensolarado, em frente ao Cristo Redentor no Rio de Janeiro, movimento de turistas ao fundo. Um homem brasileiro de 40 anos, moreno, pele bronzeada, Rio de Janeiro RJ, personal trainer, roupas esportivas. Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.\\n\\nfala da pessoa: "Oi! Aqui no Rio, ${profile.productCallout || 'o Dinn'} está ajudando profissionais como eu! Experimenta aí!"'`,
+        `Exemplo de estrutura (USE A CIDADE DO PERFIL: ${profile.city || profile.region || 'Brasil'}):`,
+        `IMAGE: '${window.randomTimeOfDay || 'Meio-dia ensolarado'}, exterior de uma loja baseada no CNAE, ambiente brasileiro, sem letreiros visíveis. Uma pessoa brasileira de [idade] anos, ${randomEthnicity}, ${profile.city || profile.region || 'Brasil'}, [aparência detalhada], ${randomClothing}. Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível.'`,
+        `VIDEO: '${window.randomTimeOfDay || 'Meio-dia ensolarado'}, mesmo ambiente da imagem. Uma pessoa brasileira de [idade] anos, ${randomEthnicity}, ${profile.city || profile.region || 'Brasil'}, [aparência detalhada], ${randomClothing}. Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.\\n\\nfala da pessoa: "Oi! Aqui em ${profile.city || profile.region || 'sua cidade'}, ${profile.productCallout || 'o Dinn'} está revolucionando os negócios! Vem usar você também!"'`,
         "",
         "RETORNE JSON com 'image_prompt', 'video_prompt', 'overlay_text' (máximo 15 chars) e 'button_text' (máximo 12 chars) seguindo essas estruturas exatas.",
         "",
@@ -617,7 +620,7 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
               content: user.rules.join('\n') + '\n\nRETURNE APENAS JSON VÁLIDO:'
             }
           ],
-          temperature: 0.8,
+          temperature: 0.7,
           response_format: { type: "json_object" }
         })
       });
