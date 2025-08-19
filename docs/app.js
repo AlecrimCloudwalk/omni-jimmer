@@ -847,7 +847,7 @@ async function generateVeo3Video(videoPrompt) {
        
        // Use corsproxy.io which supports Authorization headers
        const corsProxy = 'https://corsproxy.io/?';
-       const replicateUrl = 'https://api.replicate.com/v1/models/lightricks/ltx-video/predictions';
+       const replicateUrl = 'https://api.replicate.com/v1/models/google/veo-3-fast/predictions';
        
        const body = {
          input: {
