@@ -338,10 +338,16 @@ function init() {
   // No API card hiding needed since it's removed from HTML
 }
 
-// Profile toggle function
-function toggleProfile() {
+// Profile toggle function  
+window.toggleProfile = function() {
+  console.log('toggleProfile called');
   const profileSection = document.querySelector('.profile-section');
-  profileSection.classList.toggle('collapsed');
+  if (profileSection) {
+    profileSection.classList.toggle('collapsed');
+    console.log('Profile collapsed state:', profileSection.classList.contains('collapsed'));
+  } else {
+    console.error('Profile section not found');
+  }
 }
 
 // Pricing calculation
