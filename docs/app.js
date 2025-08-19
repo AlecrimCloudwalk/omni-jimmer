@@ -424,6 +424,8 @@ async function onGenerate() {
   
   if (enableImageEl.checked) {
     imageStatus.innerHTML = '🎨 Generating image… <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" style="width: 20px; height: 20px; vertical-align: middle;">';
+    // Add loading GIF to image container
+    imageContainer.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 200px; flex-direction: column;"><img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" style="width: 60px; height: 60px;"><p style="margin-top: 10px; color: #a8a8ad; font-size: 14px;">Generating image...</p></div>';
     promises.push(generateImage(promptResult.image_prompt));
   } else {
     imageStatus.textContent = "Disabled (checkbox unchecked)";
@@ -432,6 +434,8 @@ async function onGenerate() {
   
   if (enableVeo3El.checked) {
     if (veo3Status) veo3Status.innerHTML = '🎬 Generating video… <img src="https://media.giphy.com/media/xTkcEQACH24SMPxIQg/giphy.gif" style="width: 20px; height: 20px; vertical-align: middle;">';
+    // Add loading GIF to video container
+    if (veo3Container) veo3Container.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 200px; flex-direction: column;"><img src="https://media.giphy.com/media/xTkcEQACH24SMPxIQg/giphy.gif" style="width: 60px; height: 60px;"><p style="margin-top: 10px; color: #a8a8ad; font-size: 14px;">Generating video...</p></div>';
     promises.push(generateVeo3Video(promptResult.video_prompt));
   } else {
     if (veo3Status) veo3Status.textContent = "Disabled (checkbox unchecked)";
@@ -456,8 +460,10 @@ function lockUI(disabled) {
 }
 
 function clearOutputs() {
-  imageContainer.innerHTML = "";
-  if (veo3Container) veo3Container.innerHTML = "";
+  // Set placeholder content for image and video containers
+  imageContainer.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 200px; color: #666; font-size: 14px;">Image will appear here</div>';
+  if (veo3Container) veo3Container.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 200px; color: #666; font-size: 14px;">Video will appear here</div>';
+  
   imagePromptEl.innerHTML = "";
   if (veo3PromptEl) veo3PromptEl.innerHTML = "";
   imagePromptEl.classList.remove("show");
@@ -601,10 +607,11 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
         `- OBRIGATÓRIO usar tipo específico do CNAE: "${profile.cnae}" (não "loja genérica")`,
         `- OBRIGATÓRIO analisar o nome "${profile.ownerName}" para determinar o gênero`,
         `- OBRIGATÓRIO usar horário "${randomTimeOfDay}"`,
+        `- OBRIGATÓRIO criar overlay_text baseado em "${profile.productCallout}" (não usar exemplos genéricos)`,
         "",
         "RETORNE JSON com 'image_prompt', 'video_prompt', 'overlay_text' (máximo 15 chars) e 'button_text' (máximo 12 chars) seguindo essas estruturas exatas.",
         "",
-        "OVERLAY_TEXT: OBRIGATÓRIO 2 linhas exatas separadas por \\n. Exemplos: 'Pagamento de contas\\ne boletos', 'Indique a InfinitePay\\ne ganhe R$ 50', 'Gestão de Cobrança\\ninteligente', 'Emitir boletos\\ngratuitamente', 'Transforme seu celular\\nem uma maquininha', 'Cartão virtual gratuito\\ne sem anuidade'.",
+        `OVERLAY_TEXT: OBRIGATÓRIO 2 linhas exatas separadas por \\n baseado no produto "${profile.productCallout}". Se for "JIM assistente virtual no app", use algo como "Assistente Virtual\\nInteligente" ou "Gestão Automatizada\\ncom IA". Máximo 15 caracteres por linha.`,
         "BUTTON_TEXT: Texto do botão call-to-action. Exemplos: 'Pagar contas', 'Indicar agora', 'Começar a usar', 'Saber mais'.",
       ],
     };
