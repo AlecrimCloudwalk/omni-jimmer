@@ -221,6 +221,7 @@ const shuffleBtn = document.getElementById("shuffleBtn");
 const generateBtn = document.getElementById("generateBtn");
 const enableImageEl = document.getElementById("enableImage");
 const enableVeo3El = document.getElementById("enableVeo3");
+const useStartFrameEl = document.getElementById("useStartFrame");
 
 const imageStatus = document.getElementById("imageStatus");
 const veo3Status = document.getElementById("veo3Status");
@@ -419,30 +420,32 @@ async function onGenerate() {
   // ALWAYS display prompts regardless of checkbox status
   displayPrompts(promptResult);
 
-  // Generate based on checkbox selections
-  const promises = [];
+  // Generate based on checkbox selections and start frame logic
+  let imageUrl = null;
+  let veo3Url = null;
   
+  // Generate image first if needed
   if (enableImageEl.checked) {
     imageStatus.innerHTML = '🎨 Generating image… <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" style="width: 20px; height: 20px; vertical-align: middle;">';
     // Add loading GIF to image container
     imageContainer.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 200px; flex-direction: column;"><img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" style="width: 60px; height: 60px;"><p style="margin-top: 10px; color: #a8a8ad; font-size: 14px;">Generating image...</p></div>';
-    promises.push(generateImage(promptResult.image_prompt));
+    imageUrl = await generateImage(promptResult.image_prompt);
   } else {
     imageStatus.textContent = "Disabled (checkbox unchecked)";
-    promises.push(Promise.resolve(null));
   }
   
+  // Generate video with or without start frame
   if (enableVeo3El.checked) {
     if (veo3Status) veo3Status.innerHTML = '🎬 Generating video… <img src="https://media.giphy.com/media/xTkcEQACH24SMPxIQg/giphy.gif" style="width: 20px; height: 20px; vertical-align: middle;">';
     // Add loading GIF to video container
     if (veo3Container) veo3Container.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 200px; flex-direction: column;"><img src="https://media.giphy.com/media/xTkcEQACH24SMPxIQg/giphy.gif" style="width: 60px; height: 60px;"><p style="margin-top: 10px; color: #a8a8ad; font-size: 14px;">Generating video...</p></div>';
-    promises.push(generateVeo3Video(promptResult.video_prompt));
+    
+    // Use start frame if toggle is enabled and image was generated
+    const startFrameUrl = (useStartFrameEl.checked && imageUrl) ? imageUrl : null;
+    veo3Url = await generateVeo3Video(promptResult.video_prompt, startFrameUrl);
   } else {
     if (veo3Status) veo3Status.textContent = "Disabled (checkbox unchecked)";
-    promises.push(Promise.resolve(null));
   }
-  
-  const [imageUrl, veo3Url] = await Promise.all(promises);
   
   console.log('Generation complete:', { 
     imageUrl: !!imageUrl, 
@@ -543,6 +546,10 @@ async function callOpenAIForPrompts(profile) {
     // Randomize time of day for each generation
     const timesOfDay = ['Amanhecer', 'Meio-dia ensolarado', 'Final de tarde', 'Anoitecer', 'Noite'];
     const randomTimeOfDay = timesOfDay[Math.floor(Math.random() * timesOfDay.length)];
+    
+    // Random greetings for video
+    const greetings = ['Iaí pessoal!', 'Bom dia galera!', 'Iaí!', 'Eaí galera!', 'Oi gente!', 'E aí pessoal!'];
+    const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
     console.log('🌅 Horário randomizado:', randomTimeOfDay); // Debug
     
     const randomEthnicity = getRandomEthnicity();
@@ -582,7 +589,7 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
         `HORÁRIOS: Use preferencialmente '${randomTimeOfDay}' ou horários naturais similares como 'Seis horas da manhã', 'Final de tarde', 'Início da manhã'`,
         "AMBIENTES EXTERNOS: Para atividades ao ar livre, use pontos turísticos da cidade (Cristo Redentor-RJ, Elevador Lacerda-Salvador, Avenida Paulista-SP, Pelourinho-Salvador, Pão de Açúcar-RJ, etc.)",
         `ETNIA OBRIGATÓRIA: Use sempre '${randomEthnicity}' para garantir diversidade racial brasileira`,
-        `CIDADE OBRIGATÓRIA: Use sempre '${profile.city}, ${profile.region}' - NUNCA use outras cidades como Rio, São Paulo, Salvador, etc.`,
+        `CIDADE OBRIGATÓRIA: Use sempre '${profile.city}' (SEM região) - NUNCA use outras cidades como Rio, São Paulo, Salvador, etc.`,
         `CNAE DO CLIENTE: ${profile.cnae || 'negócio genérico'} - USE O TIPO ESPECÍFICO DE NEGÓCIO (joalheria, marcenaria, restaurante, etc.)`,
         `GÊNERO DA PESSOA: ${profile.gender || 'Auto'} - NOME DO DONO: "${profile.ownerName}" - Se for nome masculino (João, Carlos, Rodrigo, etc.), use "Um homem brasileiro". Se feminino (Maria, Ana, etc.), use "Uma mulher brasileira". OBRIGATÓRIO analisar o nome!`,
         "",
@@ -595,15 +602,15 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
         `1. HORÁRIO + AMBIENTAÇÃO: '[horário do dia], mesmo ambiente da imagem na ${profile.cnae ? profile.cnae.split(' - ')[1] || 'loja' : 'loja'} em ${profile.city}, ${profile.region}'`,
         `2. PERSONAGEM: 'Um(a) proprietário(a) brasileiro(a) de [idade] anos, [etnia], ${profile.city}, ${profile.region}, [aparência detalhada], ${randomClothing}.'`,
         "3. CÂMERA: 'Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.'",
-        `4. FALA: 'fala da pessoa: "Oi! Aqui em ${profile.city}, ${profile.region}, ${profile.productCallout || 'o Dinn'} está revolucionando os negócios! Vem usar você também!"'`,
+        `4. FALA: 'fala da pessoa: "${randomGreeting} Aqui em ${profile.city}, ${profile.productCallout || 'o Dinn'} está revolucionando os negócios! Vem usar você também!"'`,
         "",
         `Exemplo de estrutura (USE OS DADOS EXATOS DO PERFIL):`,
         `IMAGE: '${randomTimeOfDay}, exterior de uma ${profile.cnae ? profile.cnae.split(' - ')[1] || 'loja' : 'loja'} em ${profile.city}, ${profile.region}, ambiente brasileiro, sem letreiros visíveis. Um(a) proprietário(a) brasileiro(a) de [idade] anos, ${randomEthnicity}, ${profile.city}, ${profile.region}, [aparência detalhada], ${randomClothing}. Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível.'`,
-        `VIDEO: '${randomTimeOfDay}, mesmo ambiente da ${profile.cnae ? profile.cnae.split(' - ')[1] || 'loja' : 'loja'} em ${profile.city}, ${profile.region}. Um(a) proprietário(a) brasileiro(a) de [idade] anos, ${randomEthnicity}, ${profile.city}, ${profile.region}, [aparência detalhada], ${randomClothing}. Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.\\n\\nfala da pessoa: "Oi! Aqui em ${profile.city}, ${profile.region}, ${profile.productCallout || 'o Dinn'} está revolucionando os negócios! Vem usar você também!"'`,
+        `VIDEO: '${randomTimeOfDay}, mesmo ambiente da ${profile.cnae ? profile.cnae.split(' - ')[1] || 'loja' : 'loja'} em ${profile.city}. Um(a) proprietário(a) brasileiro(a) de [idade] anos, ${randomEthnicity}, ${profile.city}, [aparência detalhada], ${randomClothing}. Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.\\n\\nfala da pessoa: "${randomGreeting} Aqui em ${profile.city}, ${profile.productCallout || 'o Dinn'} está revolucionando os negócios! Vem usar você também!"'`,
         "",
         "",
         "INSTRUÇÕES CRÍTICAS FINAIS:",
-        `- OBRIGATÓRIO usar "${profile.city}, ${profile.region}" (não outras cidades)`,
+        `- OBRIGATÓRIO usar "${profile.city}" (SEM região, não outras cidades)`,
         `- OBRIGATÓRIO usar tipo específico do CNAE: "${profile.cnae}" (não "loja genérica")`,
         `- OBRIGATÓRIO analisar o nome "${profile.ownerName}" para determinar o gênero`,
         `- OBRIGATÓRIO usar horário "${randomTimeOfDay}"`,
@@ -685,7 +692,7 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
       const product = profile.productCallout || 'o Dinn';
       json.video_prompt = `Meio da tarde, interior de uma loja brasileira moderna, iluminação natural, ao fundo produtos e clientes, sem letreiros visíveis. Uma pessoa brasileira de aparência simpática, ${randomEthnicity}, ${city}. Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.
 
-fala da pessoa: "Oi! Aqui em ${city}, ${product} está ajudando empresários a revolucionar seus negócios! Vem usar você também!"`;
+fala da pessoa: "Iaí pessoal! Aqui em ${city}, ${product} está ajudando empresários a revolucionar seus negócios! Vem usar você também!"`;
     }
     
     // Add default overlay and button text if not provided
@@ -855,7 +862,7 @@ async function generateImage(imagePrompt) {
 
 
 
-async function generateVeo3Video(videoPrompt) {
+async function generateVeo3Video(videoPrompt, startFrameUrl = null) {
   try {
     // Prompt is already displayed by displayPrompts() function
          // Status is already set by caller function
@@ -881,6 +888,12 @@ async function generateVeo3Video(videoPrompt) {
            seed: Math.floor(Math.random() * 1000000)
          }
        };
+       
+       // Add start frame image if provided
+       if (startFrameUrl) {
+         body.input.image = startFrameUrl;
+         console.log('🖼️ Using start frame:', startFrameUrl);
+       }
        
        console.log('Making Replicate Video API call:', corsProxy + replicateUrl);
        console.log('Video request body:', JSON.stringify(body, null, 2));
@@ -915,10 +928,15 @@ async function generateVeo3Video(videoPrompt) {
      } else {
        // Use serverless function (Vercel/local)
        const endpoint = `${API_BASE}/replicate/veo3`;
+       const requestBody = { prompt: videoPrompt };
+       if (startFrameUrl) {
+         requestBody.startFrame = startFrameUrl;
+         console.log('🖼️ Using start frame for serverless:', startFrameUrl);
+       }
        const r = await fetch(endpoint, {
          method: 'POST',
          headers: { 'Content-Type': 'application/json' },
-         body: JSON.stringify({ prompt: videoPrompt })
+         body: JSON.stringify(requestBody)
        });
        if (!r.ok) throw new Error(await r.text());
        const j = await r.json();

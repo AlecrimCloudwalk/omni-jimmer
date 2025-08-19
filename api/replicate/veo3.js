@@ -39,6 +39,7 @@ export default async function handler(req, res) {
     if (!REPLICATE_API_TOKEN) return res.status(500).json({ error: 'missing REPLICATE_API_TOKEN' });
     
     const prompt = req.body?.prompt;
+    const startFrame = req.body?.startFrame;
     if (!prompt) return res.status(400).json({ error: 'missing prompt' });
     
     const input = {
@@ -46,6 +47,12 @@ export default async function handler(req, res) {
       aspect_ratio: '16:9',
       duration: 8
     };
+    
+    // Add start frame image if provided
+    if (startFrame) {
+      input.image = startFrame;
+      console.log('Using start frame:', startFrame);
+    }
     
     console.log('Veo3 input being sent:', JSON.stringify(input, null, 2));
     const r = await axios.post('https://api.replicate.com/v1/models/google/veo-3-fast/predictions', { input }, {
