@@ -530,6 +530,12 @@ function buildUserProfile() {
 async function callOpenAIForPrompts(profile) {
   try {
     console.log('🎯 OpenAI prompt generation for profile:', profile.city, profile.region); // Debug
+    
+    // Randomize time of day for each generation
+    const timesOfDay = ['Amanhecer', 'Meio-dia ensolarado', 'Final de tarde', 'Anoitecer', 'Noite'];
+    const randomTimeOfDay = timesOfDay[Math.floor(Math.random() * timesOfDay.length)];
+    console.log('🌅 Horário randomizado:', randomTimeOfDay); // Debug
+    
     const randomEthnicity = getRandomEthnicity();
     const randomClothing = getRandomClothingColor();
     
@@ -564,7 +570,7 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
         "CRÍTICO: NUNCA use nomes de empresas reais. NUNCA mencione o nome da loja/empresa do cliente. Use termos genéricos como 'uma loja', 'um estabelecimento', 'uma empresa'.",
         "CRÍTICO: NUNCA use 'o personagem' - use 'uma mulher', 'um homem', etc. para evitar personagens de anime.",
         "CRÍTICO: SEM LETREIROS - Nunca inclua placas, letreiros, nomes de lojas, textos visíveis ou escritas de qualquer tipo nas descrições.",
-        `HORÁRIOS: Use preferencialmente '${window.randomTimeOfDay || 'Meio-dia ensolarado'}' ou horários naturais similares como 'Seis horas da manhã', 'Final de tarde', 'Início da manhã'`,
+        `HORÁRIOS: Use preferencialmente '${randomTimeOfDay}' ou horários naturais similares como 'Seis horas da manhã', 'Final de tarde', 'Início da manhã'`,
         "AMBIENTES EXTERNOS: Para atividades ao ar livre, use pontos turísticos da cidade (Cristo Redentor-RJ, Elevador Lacerda-Salvador, Avenida Paulista-SP, Pelourinho-Salvador, Pão de Açúcar-RJ, etc.)",
         `ETNIA OBRIGATÓRIA: Use sempre '${randomEthnicity}' para garantir diversidade racial brasileira`,
         `CIDADE OBRIGATÓRIA: Use sempre '${profile.city || profile.region || 'Brasil'}' - NUNCA use outras cidades como Rio, São Paulo, Salvador, etc.`,
@@ -582,8 +588,8 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
         `4. FALA: 'fala da pessoa: "Oi! Aqui em ${profile.city || profile.region || 'sua cidade'}, ${profile.productCallout || 'o Dinn'} está revolucionando os negócios! Vem usar você também!"'`,
         "",
         `Exemplo de estrutura (USE A CIDADE DO PERFIL: ${profile.city || profile.region || 'Brasil'}):`,
-        `IMAGE: '${window.randomTimeOfDay || 'Meio-dia ensolarado'}, exterior de uma loja baseada no CNAE, ambiente brasileiro, sem letreiros visíveis. Uma pessoa brasileira de [idade] anos, ${randomEthnicity}, ${profile.city || profile.region || 'Brasil'}, [aparência detalhada], ${randomClothing}. Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível.'`,
-        `VIDEO: '${window.randomTimeOfDay || 'Meio-dia ensolarado'}, mesmo ambiente da imagem. Uma pessoa brasileira de [idade] anos, ${randomEthnicity}, ${profile.city || profile.region || 'Brasil'}, [aparência detalhada], ${randomClothing}. Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.\\n\\nfala da pessoa: "Oi! Aqui em ${profile.city || profile.region || 'sua cidade'}, ${profile.productCallout || 'o Dinn'} está revolucionando os negócios! Vem usar você também!"'`,
+        `IMAGE: '${randomTimeOfDay}, exterior de uma loja baseada no CNAE, ambiente brasileiro, sem letreiros visíveis. Uma pessoa brasileira de [idade] anos, ${randomEthnicity}, ${profile.city || profile.region || 'Brasil'}, [aparência detalhada], ${randomClothing}. Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível.'`,
+        `VIDEO: '${randomTimeOfDay}, mesmo ambiente da imagem. Uma pessoa brasileira de [idade] anos, ${randomEthnicity}, ${profile.city || profile.region || 'Brasil'}, [aparência detalhada], ${randomClothing}. Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.\\n\\nfala da pessoa: "Oi! Aqui em ${profile.city || profile.region || 'sua cidade'}, ${profile.productCallout || 'o Dinn'} está revolucionando os negócios! Vem usar você também!"'`,
         "",
         "RETORNE JSON com 'image_prompt', 'video_prompt', 'overlay_text' (máximo 15 chars) e 'button_text' (máximo 12 chars) seguindo essas estruturas exatas.",
         "",
