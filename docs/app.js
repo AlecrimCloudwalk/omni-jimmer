@@ -407,6 +407,13 @@ function generateBetterRandomSeed() {
   }
 }
 
+// Generate seed variation based on master seed for different models
+function generateSeedVariation(masterSeed, variation) {
+  // Create predictable but different seeds for each model based on master
+  const hash = (masterSeed + variation) * 9973; // Large prime for distribution
+  return Math.abs(hash) % 1000000;
+}
+
 function getRandomFromArray(array) {
   if (window.crypto && window.crypto.getRandomValues) {
     const randomArray = new Uint32Array(1);
@@ -629,6 +636,13 @@ function selectValue(select, val) {
 
 async function onGenerate() {
   // API keys are handled server-side, no validation needed
+
+  // Generate MASTER SEED for this generation cycle
+  const masterSeed = generateBetterRandomSeed();
+  console.log(`🎲 MASTER SEED for this generation: ${masterSeed}`);
+  
+  // Store master seed globally for this generation cycle
+  window.currentMasterSeed = masterSeed;
 
   lockUI(true);
   clearOutputs();
@@ -1001,12 +1015,16 @@ async function generateImage(imagePrompt) {
     
     // Prompt is already displayed by displayPrompts() function
     
+    const imageSeed = generateSeedVariation(window.currentMasterSeed || generateBetterRandomSeed(), 1);
+    console.log(`🎨 Image Seed: ${imageSeed} (Master: ${window.currentMasterSeed})`);
+    
     const body = {
       input: {
         prompt: finalPrompt,
         aspect_ratio: "16:9",
         size: "regular",
-        guidance_scale: 5.0
+        guidance_scale: 5.0,
+        seed: imageSeed
       }
     };
          // Status is already set by caller function
@@ -1146,12 +1164,15 @@ async function generateSeededit(imageUrl) {
       const corsProxy = 'https://corsproxy.io/?';
       const replicateUrl = 'https://api.replicate.com/v1/models/bytedance/seededit-3.0/predictions';
       
+      const seededitSeed = generateSeedVariation(window.currentMasterSeed || generateBetterRandomSeed(), 2);
+      console.log(`🔧 Seededit Seed: ${seededitSeed} (Master: ${window.currentMasterSeed})`);
+      
       const body = {
         input: {
           image: imageUrl,
           prompt: "remove text from image, remove name of the shop, remove letterings, remove subtitle, remove storefront name, remove text, remove all written, remove every text",
           guidance_scale: 5.5,
-          seed: generateBetterRandomSeed()
+          seed: seededitSeed
         }
       };
       
@@ -1256,12 +1277,15 @@ async function generateVeo3Video(videoPrompt, startFrameUrl = null) {
        const corsProxy = 'https://corsproxy.io/?';
        const replicateUrl = 'https://api.replicate.com/v1/models/google/veo-3-fast/predictions';
        
+       const videoSeed = generateSeedVariation(window.currentMasterSeed || generateBetterRandomSeed(), 3);
+       console.log(`🎬 Video Seed: ${videoSeed} (Master: ${window.currentMasterSeed})`);
+       
        const body = {
          input: {
            prompt: videoPrompt,
            aspect_ratio: "16:9",
            duration: 5,
-           seed: generateBetterRandomSeed()
+           seed: videoSeed
          }
        };
        
