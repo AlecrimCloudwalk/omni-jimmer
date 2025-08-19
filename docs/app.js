@@ -647,19 +647,26 @@ function selectValue(select, val) {
 // API key functions removed - handled server-side
 
 async function onGenerate() {
+  // Check authentication first
+  if (window.cloudwalkAuth && !window.cloudwalkAuth.requireAuth()) {
+    return;
+  }
+
   // Pre-flight checks for GitHub Pages mode
   if (GITHUB_PAGES_MODE) {
+    // For authenticated Cloudwalk users, we'll use serverless functions
+    // But for now, still check for API keys as fallback
     const openaiKey = localStorage.getItem('openai_api_key');
     const replicateKey = localStorage.getItem('replicate_api_key');
     
-    console.log('🔍 Pre-flight API Key Check:');
-    console.log('• OpenAI Key:', openaiKey ? `✅ Present (${openaiKey.length} chars)` : '❌ Missing');
-    console.log('• Replicate Key:', replicateKey ? `✅ Present (${replicateKey.length} chars)` : '❌ Missing');
-    console.log('• Mode: GitHub Pages (using CORS proxy)');
-    console.log('• CORS Proxy: https://corsproxy.io/');
+    console.log('🔍 Pre-flight Check:');
+    console.log('• User:', window.cloudwalkAuth?.user?.email || 'Not authenticated');
+    console.log('• Mode: GitHub Pages (Cloudwalk authenticated)');
     
+    // For authenticated users, we'll eventually use serverless functions
+    // For now, keep the existing key check
     if (!openaiKey || !replicateKey) {
-      alert('❌ Missing API Keys!\n\nPlease add your API keys first:\n• OpenAI: https://platform.openai.com/api-keys\n• Replicate: https://replicate.com/account/api-tokens');
+      alert('❌ Missing API Keys!\n\nNote: In the future, this will be handled automatically for Cloudwalk users.\nFor now, please add your API keys:\n• OpenAI: https://platform.openai.com/api-keys\n• Replicate: https://replicate.com/account/api-tokens');
       showApiNoticeIfNeeded();
       return;
     }
@@ -934,19 +941,38 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
     let json;
     
     if (GITHUB_PAGES_MODE) {
-      // Direct OpenAI API call for GitHub Pages
-      const openaiKey = localStorage.getItem('openai_api_key');
-      if (!openaiKey) {
-        showApiNoticeIfNeeded();
-        throw new Error('Please provide your OpenAI API key using the key input above');
-      }
+      // Check if we have authenticated user with potential server-side keys
+      const authToken = window.cloudwalkAuth ? await window.cloudwalkAuth.getAuthToken() : null;
       
-      const r = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${openaiKey}`,
-          'Content-Type': 'application/json'
-        },
+      if (authToken && !authToken.startsWith('demo_token_')) {
+        // Use serverless function with authentication
+        console.log('🔐 Using authenticated serverless API');
+        const endpoint = `${API_BASE}/gpt/prompts`;
+        const r = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+          },
+          body: JSON.stringify({ user })
+        });
+        if (!r.ok) throw new Error(`Serverless API error: ${await r.text()}`);
+        const response = await r.json();
+        json = response;
+      } else {
+        // Fallback to direct OpenAI API call
+        const openaiKey = localStorage.getItem('openai_api_key');
+        if (!openaiKey) {
+          showApiNoticeIfNeeded();
+          throw new Error('Please provide your OpenAI API key using the key input above');
+        }
+        
+        const r = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${openaiKey}`,
+            'Content-Type': 'application/json'
+          },
         body: JSON.stringify({
           model: 'gpt-4o-mini',
           messages: [
@@ -961,33 +987,34 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
           ],
           temperature: 0.7,
           response_format: { type: "json_object" }
-        })
-      });
-      if (!r.ok) {
-        const errorText = await r.text();
-        console.error('❌ OpenAI API Error Details:', {
-          status: r.status,
-          statusText: r.statusText,
-          error: errorText
+          })
         });
-        
-        if (r.status === 401) {
-          throw new Error('❌ OpenAI API Key Invalid!\n\n🔍 Possible issues:\n• Wrong API key format\n• Expired or revoked key\n• Key without GPT-4 access\n\n💡 Get new key: https://platform.openai.com/api-keys');
-        } else if (r.status === 429) {
-          throw new Error('❌ OpenAI Rate Limit!\n\n🔍 Possible issues:\n• Too many requests\n• Insufficient credits\n• Free tier limitations\n\n💡 Check usage: https://platform.openai.com/usage');
-        } else {
-          throw new Error(`❌ OpenAI API Error (${r.status}): ${errorText}\n\n💡 Check your account: https://platform.openai.com/`);
+        if (!r.ok) {
+          const errorText = await r.text();
+          console.error('❌ OpenAI API Error Details:', {
+            status: r.status,
+            statusText: r.statusText,
+            error: errorText
+          });
+          
+          if (r.status === 401) {
+            throw new Error('❌ OpenAI API Key Invalid!\n\n🔍 Possible issues:\n• Wrong API key format\n• Expired or revoked key\n• Key without GPT-4 access\n\n💡 Get new key: https://platform.openai.com/api-keys');
+          } else if (r.status === 429) {
+            throw new Error('❌ OpenAI Rate Limit!\n\n🔍 Possible issues:\n• Too many requests\n• Insufficient credits\n• Free tier limitations\n\n💡 Check usage: https://platform.openai.com/usage');
+          } else {
+            throw new Error(`❌ OpenAI API Error (${r.status}): ${errorText}\n\n💡 Check your account: https://platform.openai.com/`);
+          }
         }
-      }
-      const openaiResponse = await r.json();
-      try {
-        const content = openaiResponse.choices[0].message.content;
-        console.log('OpenAI raw response:', content); // Debug
-        json = JSON.parse(content);
-      } catch (e) {
-        console.error('JSON parse error:', e);
-        console.error('OpenAI response was:', openaiResponse.choices[0].message.content);
-        throw new Error(`Failed to parse OpenAI response as JSON: ${e.message}`);
+        const openaiResponse = await r.json();
+        try {
+          const content = openaiResponse.choices[0].message.content;
+          console.log('OpenAI raw response:', content); // Debug
+          json = JSON.parse(content);
+        } catch (e) {
+          console.error('JSON parse error:', e);
+          console.error('OpenAI response was:', openaiResponse.choices[0].message.content);
+          throw new Error(`Failed to parse OpenAI response as JSON: ${e.message}`);
+        }
       }
     } else {
       // Use serverless function (Vercel/local)
