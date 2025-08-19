@@ -607,16 +607,30 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
         },
         body: JSON.stringify({
           model: 'gpt-4o-mini',
-          messages: [{ role: 'user', content: user.rules.join('\n') }],
-          temperature: 0.8
+          messages: [
+            {
+              role: 'system',
+              content: 'You are a JSON generator. Always respond with valid JSON only, no explanations or extra text.'
+            },
+            {
+              role: 'user', 
+              content: user.rules.join('\n') + '\n\nRETURNE APENAS JSON VÁLIDO:'
+            }
+          ],
+          temperature: 0.8,
+          response_format: { type: "json_object" }
         })
       });
       if (!r.ok) throw new Error(`OpenAI API error: ${await r.text()}`);
       const openaiResponse = await r.json();
       try {
-        json = JSON.parse(openaiResponse.choices[0].message.content);
+        const content = openaiResponse.choices[0].message.content;
+        console.log('OpenAI raw response:', content); // Debug
+        json = JSON.parse(content);
       } catch (e) {
-        throw new Error('Failed to parse OpenAI response as JSON');
+        console.error('JSON parse error:', e);
+        console.error('OpenAI response was:', openaiResponse.choices[0].message.content);
+        throw new Error(`Failed to parse OpenAI response as JSON: ${e.message}`);
       }
     } else {
       // Use serverless function (Vercel/local)
