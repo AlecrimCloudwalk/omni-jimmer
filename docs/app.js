@@ -555,9 +555,9 @@ async function onGenerate() {
   
   // Step 1: Generate image first if needed
   if (enableImageEl.checked) {
-    imageStatus.innerHTML = '🎨 Generating image… <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" style="width: 20px; height: 20px; vertical-align: middle;">';
+    imageStatus.innerHTML = '🎨 Generating image (~30s)… <img src="https://media.giphy.com/media/xTkcEQACH24SMPxIQg/giphy.gif" style="width: 20px; height: 20px; vertical-align: middle;">';
     // Add loading GIF to image container
-    imageContainer.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 200px; flex-direction: column;"><img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" style="width: 60px; height: 60px;"><p style="margin-top: 10px; color: #a8a8ad; font-size: 14px;">Generating image...</p></div>';
+    imageContainer.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 200px; flex-direction: column;"><img src="https://media.giphy.com/media/xTkcEQACH24SMPxIQg/giphy.gif" style="width: 80px; height: 80px;"><p style="margin-top: 10px; color: #a8a8ad; font-size: 14px;">Generating image...</p></div>';
     imageUrl = await generateImage(promptResult.image_prompt);
   } else {
     imageStatus.textContent = "Disabled (checkbox unchecked)";
@@ -565,9 +565,9 @@ async function onGenerate() {
   
   // Step 2: Remove text from image if needed and image was generated
   if (enableSeededitEl.checked && imageUrl) {
-    if (seededitStatus) seededitStatus.innerHTML = '🔧 Removing text… <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" style="width: 20px; height: 20px; vertical-align: middle;">';
+    if (seededitStatus) seededitStatus.innerHTML = '🔧 Removing text (~45s)… <img src="https://media.giphy.com/media/xTkcEQACH24SMPxIQg/giphy.gif" style="width: 20px; height: 20px; vertical-align: middle;">';
     // Add loading GIF to seededit container
-    if (seededitContainer) seededitContainer.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 200px; flex-direction: column;"><img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" style="width: 60px; height: 60px;"><p style="margin-top: 10px; color: #a8a8ad; font-size: 14px;">Removing text...</p></div>';
+    if (seededitContainer) seededitContainer.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 200px; flex-direction: column;"><img src="https://media.giphy.com/media/xTkcEQACH24SMPxIQg/giphy.gif" style="width: 80px; height: 80px;"><p style="margin-top: 10px; color: #a8a8ad; font-size: 14px;">Removing text...</p></div>';
     editedImageUrl = await generateSeededit(imageUrl);
   } else if (enableSeededitEl.checked && !imageUrl) {
     if (seededitStatus) seededitStatus.textContent = "No image to process (image generation disabled or failed)";
@@ -577,9 +577,9 @@ async function onGenerate() {
   
   // Step 3: Generate video with or without start frame
   if (enableVeo3El.checked) {
-    if (veo3Status) veo3Status.innerHTML = '🎬 Generating video… <img src="https://media.giphy.com/media/xTkcEQACH24SMPxIQg/giphy.gif" style="width: 20px; height: 20px; vertical-align: middle;">';
+    if (veo3Status) veo3Status.innerHTML = '🎬 Generating video (~3-5 min)… <img src="https://media.giphy.com/media/xTkcEQACH24SMPxIQg/giphy.gif" style="width: 20px; height: 20px; vertical-align: middle;">';
     // Add loading GIF to video container
-    if (veo3Container) veo3Container.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 200px; flex-direction: column;"><img src="https://media.giphy.com/media/xTkcEQACH24SMPxIQg/giphy.gif" style="width: 60px; height: 60px;"><p style="margin-top: 10px; color: #a8a8ad; font-size: 14px;">Generating video...</p></div>';
+    if (veo3Container) veo3Container.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 200px; flex-direction: column;"><img src="https://media.giphy.com/media/xTkcEQACH24SMPxIQg/giphy.gif" style="width: 80px; height: 80px;"><p style="margin-top: 10px; color: #a8a8ad; font-size: 14px;">Generating video...</p></div>';
     
     // Use start frame: prefer edited image, fallback to original image
     let startFrameUrl = null;
