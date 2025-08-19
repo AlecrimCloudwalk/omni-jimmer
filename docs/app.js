@@ -299,6 +299,7 @@ const videoOverlay = document.getElementById("videoOverlay");
 const imagePromptEl = document.getElementById("imagePrompt");
 const veo3PromptEl = document.getElementById("veo3Prompt");
 const previewImageRadio = document.getElementById("previewImage");
+const previewEditedRadio = document.getElementById("previewEdited");
 const previewVideoRadio = document.getElementById("previewVideo");
 const videoAudioToggle = document.getElementById("videoAudioToggle");
 
@@ -323,6 +324,7 @@ function init() {
 
   // Preview mode switching
   previewImageRadio.addEventListener("change", updatePreviewMode);
+  previewEditedRadio.addEventListener("change", updatePreviewMode);
   previewVideoRadio.addEventListener("change", updatePreviewMode);
   videoAudioToggle.addEventListener("change", updateVideoAudio);
 
@@ -408,10 +410,12 @@ function updatePreviewMode() {
   if (!videoOverlay) return;
   
   const showImage = previewImageRadio.checked;
+  const showEdited = previewEditedRadio.checked;
+  const showVideo = previewVideoRadio.checked;
   const videoPlaceholder = videoOverlay.querySelector('.video-placeholder');
   
   if (showImage) {
-    // Show the generated image in the preview
+    // Show the original generated image in the preview
     const imageInCenter = imageContainer.querySelector('img');
     if (imageInCenter && videoPlaceholder) {
       videoPlaceholder.innerHTML = '';
@@ -422,7 +426,19 @@ function updatePreviewMode() {
       previewImg.style.objectFit = 'cover';
       videoPlaceholder.appendChild(previewImg);
     }
-  } else {
+  } else if (showEdited) {
+    // Show the edited image in the preview
+    const editedImageInCenter = seededitContainer.querySelector('img');
+    if (editedImageInCenter && videoPlaceholder) {
+      videoPlaceholder.innerHTML = '';
+      const previewImg = document.createElement('img');
+      previewImg.src = editedImageInCenter.src;
+      previewImg.style.width = '100%';
+      previewImg.style.height = '100%';
+      previewImg.style.objectFit = 'cover';
+      videoPlaceholder.appendChild(previewImg);
+    }
+  } else if (showVideo) {
     // Show the generated video in the preview (if available)
     const videoInCenter = veo3Container.querySelector('video');
     if (videoInCenter && videoPlaceholder) {
