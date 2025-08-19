@@ -11,5 +11,18 @@ node_modules/
 .DS_Store
 *.log
 
+# Supabase local development & config with real keys
+.supabase/
+supabase/.env
+supabase/config.toml
+supabase-config.js
+supabase-config.prod.js
+
+# Firebase config with real keys (if any)
+firebase-config.js
+
+# OAuth credentials and sensitive configs
+github-oauth-config.js
+oauth-credentials.js
 
 .vercel

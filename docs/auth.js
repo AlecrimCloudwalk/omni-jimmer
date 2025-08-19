@@ -1,4 +1,4 @@
-// Real Firebase Google OAuth Authentication for Cloudwalk
+// Supabase GitHub OAuth Authentication for Cloudwalk
 // Restricts access to @cloudwalk.io domain only
 
 class CloudwalkAuth {
@@ -6,131 +6,111 @@ class CloudwalkAuth {
     this.user = null;
     this.isAuthenticated = false;
     this.allowedDomain = 'cloudwalk.io';
-    this.auth = null;
-    this.provider = null;
+    this.supabase = null;
     this.init();
   }
 
   async init() {
     try {
-      console.log('🔥 Initializing Firebase Auth...');
+      console.log('🔥 Initializing Supabase Auth...');
       
-      // Load Firebase SDK
-      await this.loadFirebaseSDK();
+      // Load Supabase SDK
+      await this.loadSupabaseSDK();
       
-      // Initialize Firebase
-      await this.initializeFirebase();
+      // Initialize Supabase
+      await this.initializeSupabase();
       
       // Set up auth state listener
       this.setupAuthStateListener();
       
-      console.log('✅ Firebase Auth initialized');
+      console.log('✅ Supabase Auth initialized');
       
     } catch (error) {
-      console.error('❌ Firebase Auth initialization failed:', error);
+      console.error('❌ Supabase Auth initialization failed:', error);
       // Fallback to demo mode
       this.initDemoMode();
     }
   }
 
-  async loadFirebaseSDK() {
+  async loadSupabaseSDK() {
     return new Promise((resolve, reject) => {
-      // Check if Firebase is already loaded
-      if (window.firebase) {
+      // Check if Supabase is already loaded
+      if (window.supabase) {
         resolve();
         return;
       }
       
-      // Load Firebase SDKs
-      const scripts = [
-        'https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js',
-        'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js'
-      ];
-      
-      let loadedCount = 0;
-      
-      scripts.forEach(src => {
-        const script = document.createElement('script');
-        script.src = src;
-        script.onload = () => {
-          loadedCount++;
-          if (loadedCount === scripts.length) {
-            console.log('📦 Firebase SDK loaded');
-            resolve();
-          }
-        };
-        script.onerror = () => reject(new Error(`Failed to load ${src}`));
-        document.head.appendChild(script);
-      });
+      // Load Supabase SDK
+      const script = document.createElement('script');
+      script.src = 'https://unpkg.com/@supabase/supabase-js@2.39.3/dist/umd/supabase.js';
+      script.onload = () => {
+        console.log('📦 Supabase SDK loaded');
+        resolve();
+      };
+      script.onerror = () => reject(new Error('Failed to load Supabase SDK'));
+      document.head.appendChild(script);
     });
   }
 
-  async initializeFirebase() {
+  async initializeSupabase() {
     // Get config from global
-    const config = window.firebaseConfig;
+    const config = window.supabaseConfig;
     
-    // Check if Firebase is properly configured
-    if (!config || !config.apiKey || config.apiKey === null || config.apiKey.includes('YOUR_') || config.apiKey.length < 30) {
-      throw new Error('Firebase not configured - falling back to demo mode');
+    // Check if Supabase is properly configured
+    if (!config || !config.url || !config.anonKey || config.anonKey === 'YOUR_ANON_KEY_HERE' || config.anonKey.length < 30) {
+      throw new Error('Supabase not configured - falling back to demo mode');
     }
     
-    console.log('🔧 Firebase config valid:', { ...config, apiKey: config.apiKey.substring(0, 10) + '...' });
-    
-    // Initialize Firebase
-    if (!window.firebase.apps.length) {
-      window.firebase.initializeApp(config);
-    }
-    
-    // Get Auth instance
-    this.auth = window.firebase.auth();
-    
-    // Configure Google Provider with domain restriction
-    this.provider = new window.firebase.auth.GoogleAuthProvider();
-    this.provider.setCustomParameters({
-      hd: this.allowedDomain // Restrict to cloudwalk.io domain
+    console.log('🔧 Supabase config valid:', { 
+      url: config.url, 
+      anonKey: config.anonKey.substring(0, 10) + '...' 
     });
     
-    console.log('🔑 Google provider configured for domain:', this.allowedDomain);
+    // Initialize Supabase client
+    this.supabase = window.supabase.createClient(config.url, config.anonKey);
+    
+    console.log('🔑 Supabase client initialized for GitHub OAuth');
   }
 
   setupAuthStateListener() {
-    this.auth.onAuthStateChanged((user) => {
-      console.log('🔄 Auth state changed:', user ? user.email : 'signed out');
+    this.supabase.auth.onAuthStateChange((event, session) => {
+      console.log('🔄 Auth state changed:', event, session?.user?.email || 'signed out');
       
-      if (user) {
-        this.handleAuthenticatedUser(user);
-      } else {
+      if (event === 'SIGNED_IN' && session?.user) {
+        this.handleAuthenticatedUser(session.user);
+      } else if (event === 'SIGNED_OUT') {
         this.handleSignedOutUser();
       }
     });
   }
 
-  handleAuthenticatedUser(firebaseUser) {
-    console.log('✅ User authenticated:', firebaseUser.email);
+  handleAuthenticatedUser(supabaseUser) {
+    console.log('✅ User authenticated:', supabaseUser.email);
     
     // Validate domain
-    if (!this.validateUserDomain(firebaseUser.email)) {
+    if (!this.validateUserDomain(supabaseUser.email)) {
       console.warn('🚫 Domain validation failed, signing out');
-      this.auth.signOut();
+      this.supabase.auth.signOut();
       return;
     }
     
     // Create our user object
     this.user = {
-      uid: firebaseUser.uid,
-      email: firebaseUser.email,
-      name: firebaseUser.displayName || firebaseUser.email.split('@')[0],
-      picture: firebaseUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(firebaseUser.email)}&background=c87ef7&color=fff`,
-      domain: firebaseUser.email.split('@')[1],
+      uid: supabaseUser.id,
+      email: supabaseUser.email,
+      name: supabaseUser.user_metadata?.full_name || supabaseUser.email.split('@')[0],
+      picture: supabaseUser.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(supabaseUser.email)}&background=c87ef7&color=fff`,
+      domain: supabaseUser.email.split('@')[1],
       loginTime: Date.now(),
-      idToken: null // Will be set when needed
+      provider: 'github',
+      accessToken: null // Will be set when needed
     };
     
     this.isAuthenticated = true;
     this.updateAuthUI();
     
-    // Get ID token for API calls
-    this.refreshIdToken();
+    // Get access token for API calls
+    this.refreshAccessToken();
   }
 
   handleSignedOutUser() {
@@ -153,21 +133,21 @@ class CloudwalkAuth {
     return isValid;
   }
 
-  async refreshIdToken() {
+  async refreshAccessToken() {
     try {
-      if (this.auth.currentUser) {
-        const idToken = await this.auth.currentUser.getIdToken(true);
-        this.user.idToken = idToken;
-        console.log('🎫 ID token refreshed');
+      const { data: { session } } = await this.supabase.auth.getSession();
+      if (session?.access_token) {
+        this.user.accessToken = session.access_token;
+        console.log('🎫 Access token refreshed');
       }
     } catch (error) {
-      console.error('❌ Failed to refresh ID token:', error);
+      console.error('❌ Failed to refresh access token:', error);
     }
   }
 
   initDemoMode() {
     console.log('🔄 Falling back to demo mode');
-    console.log('ℹ️ To enable real Google OAuth, configure Firebase in firebase-config.js');
+    console.log('ℹ️ To enable real GitHub OAuth, configure Supabase in supabase-config.js');
     this.loadDemoMode();
   }
 
@@ -186,8 +166,8 @@ class CloudwalkAuth {
       infoDiv.className = 'demo-mode-info';
       infoDiv.innerHTML = `
         <div style="background: #fef3cd; border: 1px solid #ffc107; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 14px;">
-          <strong>🔧 Demo Mode:</strong> Firebase não configurado.<br>
-          <small>Para Google OAuth real, siga o guia em <code>FIREBASE_SETUP_GUIDE.md</code></small>
+          <strong>🔧 Demo Mode:</strong> Supabase não configurado.<br>
+          <small>Para GitHub OAuth real, configure <code>supabase-config.js</code></small>
         </div>
       `;
       
@@ -201,10 +181,10 @@ class CloudwalkAuth {
   // Get auth token for API calls
   async getAuthToken() {
     try {
-      if (this.auth && this.auth.currentUser) {
-        // Real Firebase ID token
-        const token = await this.auth.currentUser.getIdToken();
-        return token;
+      if (this.supabase) {
+        // Real Supabase JWT token
+        const { data: { session } } = await this.supabase.auth.getSession();
+        return session?.access_token || null;
       } else if (this.user && this.user.demoMode) {
         // Demo mode - return fake token
         return `demo_token_${this.user.email}`;
@@ -218,27 +198,29 @@ class CloudwalkAuth {
 
   async signIn() {
     try {
-      console.log('🔐 Starting Google Sign-In...');
+      console.log('🔐 Starting GitHub Sign-In...');
       
-      if (this.auth && this.provider) {
-        // Real Firebase Google Auth
-        console.log('🔥 Using Firebase Google Auth');
+      if (this.supabase) {
+        // Real Supabase GitHub Auth
+        console.log('🔥 Using Supabase GitHub Auth');
         
-        const result = await this.auth.signInWithPopup(this.provider);
-        const user = result.user;
+        const { data, error } = await this.supabase.auth.signInWithOAuth({
+          provider: 'github',
+          options: {
+            redirectTo: window.location.origin + window.location.pathname
+          }
+        });
         
-        console.log('✅ Google Sign-In successful:', user.email);
-        
-        // Validate domain (additional check)
-        if (!this.validateUserDomain(user.email)) {
-          await this.auth.signOut();
-          throw new Error(`Access restricted to @${this.allowedDomain} emails only`);
+        if (error) {
+          throw error;
         }
         
-        // Show success message
-        alert(`✅ Welcome ${user.displayName || user.email.split('@')[0]}!\n\nYou're now authenticated with your Cloudwalk account.\nAPI keys are managed automatically.`);
+        console.log('✅ GitHub Sign-In initiated');
         
-        return user;
+        // Note: User will be redirected to GitHub, then back to our app
+        // The auth state listener will handle the successful auth
+        
+        return data;
         
       } else {
         // Fallback demo mode
@@ -249,9 +231,7 @@ class CloudwalkAuth {
     } catch (error) {
       console.error('❌ Sign-in failed:', error);
       
-      if (error.code === 'auth/popup-closed-by-user') {
-        alert('❌ Sign-in cancelled\n\nYou closed the popup before completing sign-in.');
-      } else if (error.code === 'auth/popup-blocked') {
+      if (error.message.includes('popup')) {
         alert('❌ Popup blocked\n\nPlease allow popups for this site and try again.');
       } else {
         alert(`❌ Sign-in failed: ${error.message}`);
@@ -295,10 +275,10 @@ class CloudwalkAuth {
     try {
       console.log('🚪 Signing out...');
       
-      if (this.auth && this.auth.currentUser) {
-        // Real Firebase sign out
-        await this.auth.signOut();
-        console.log('✅ Firebase sign out complete');
+      if (this.supabase) {
+        // Real Supabase sign out
+        await this.supabase.auth.signOut();
+        console.log('✅ Supabase sign out complete');
       } else {
         // Demo mode sign out
         this.user = null;
