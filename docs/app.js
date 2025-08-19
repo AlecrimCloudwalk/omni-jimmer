@@ -529,7 +529,10 @@ function buildUserProfile() {
 
 async function callOpenAIForPrompts(profile) {
   try {
-    console.log('🎯 OpenAI prompt generation for profile:', profile.city, profile.region); // Debug
+    console.log('🎯 OpenAI prompt generation for profile:', profile); // Debug
+    console.log('📝 CNAE:', profile.cnae);
+    console.log('👤 Dono:', profile.ownerName, '| Gênero:', profile.gender);
+    console.log('🏙️ Local:', profile.city, profile.region);
     
     // Randomize time of day for each generation
     const timesOfDay = ['Amanhecer', 'Meio-dia ensolarado', 'Final de tarde', 'Anoitecer', 'Noite'];
@@ -573,23 +576,31 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
         `HORÁRIOS: Use preferencialmente '${randomTimeOfDay}' ou horários naturais similares como 'Seis horas da manhã', 'Final de tarde', 'Início da manhã'`,
         "AMBIENTES EXTERNOS: Para atividades ao ar livre, use pontos turísticos da cidade (Cristo Redentor-RJ, Elevador Lacerda-Salvador, Avenida Paulista-SP, Pelourinho-Salvador, Pão de Açúcar-RJ, etc.)",
         `ETNIA OBRIGATÓRIA: Use sempre '${randomEthnicity}' para garantir diversidade racial brasileira`,
-        `CIDADE OBRIGATÓRIA: Use sempre '${profile.city || profile.region || 'Brasil'}' - NUNCA use outras cidades como Rio, São Paulo, Salvador, etc.`,
-        `CNAE DO CLIENTE: ${profile.cnae || 'negócio genérico'}`,
+        `CIDADE OBRIGATÓRIA: Use sempre '${profile.city}, ${profile.region}' - NUNCA use outras cidades como Rio, São Paulo, Salvador, etc.`,
+        `CNAE DO CLIENTE: ${profile.cnae || 'negócio genérico'} - USE O TIPO ESPECÍFICO DE NEGÓCIO (joalheria, marcenaria, restaurante, etc.)`,
+        `GÊNERO DA PESSOA: ${profile.gender || 'Auto'} - NOME DO DONO: "${profile.ownerName}" - Se for nome masculino (João, Carlos, Rodrigo, etc.), use "Um homem brasileiro". Se feminino (Maria, Ana, etc.), use "Uma mulher brasileira". OBRIGATÓRIO analisar o nome!`,
         "",
         "ESTRUTURA PARA IMAGE_PROMPT:",
-        "1. HORÁRIO + AMBIENTAÇÃO: '[horário do dia], interior/exterior do local baseado no CNAE, descrição cinematográfica'",
-        `2. PERSONAGEM: 'Uma mulher/Um homem brasileiro(a) de [idade] anos, [etnia], ${profile.city || profile.region || 'Brasil'}, [aparência detalhada], ${randomClothing}.'`,
+        `1. HORÁRIO + AMBIENTAÇÃO: '[horário do dia], interior/exterior de uma ${profile.cnae ? profile.cnae.split(' - ')[1] || 'loja' : 'loja'} em ${profile.city}, ${profile.region}, descrição cinematográfica, sem letreiros visíveis'`,
+        `2. PERSONAGEM: 'Um(a) proprietário(a) brasileiro(a) de [idade] anos, [etnia], ${profile.city}, ${profile.region}, [aparência detalhada], ${randomClothing}.'`,
         "3. CÂMERA: 'Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível.'",
         "",
         "ESTRUTURA PARA VIDEO_PROMPT:",  
-        "1. HORÁRIO + AMBIENTAÇÃO: '[horário do dia], mesmo ambiente da imagem'",
-        `2. PERSONAGEM: 'Uma mulher/Um homem brasileiro(a) de [idade] anos, [etnia], ${profile.city || profile.region || 'Brasil'}, [aparência detalhada], ${randomClothing}.'`,
+        `1. HORÁRIO + AMBIENTAÇÃO: '[horário do dia], mesmo ambiente da imagem na ${profile.cnae ? profile.cnae.split(' - ')[1] || 'loja' : 'loja'} em ${profile.city}, ${profile.region}'`,
+        `2. PERSONAGEM: 'Um(a) proprietário(a) brasileiro(a) de [idade] anos, [etnia], ${profile.city}, ${profile.region}, [aparência detalhada], ${randomClothing}.'`,
         "3. CÂMERA: 'Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.'",
-        `4. FALA: 'fala da pessoa: "Oi! Aqui em ${profile.city || profile.region || 'sua cidade'}, ${profile.productCallout || 'o Dinn'} está revolucionando os negócios! Vem usar você também!"'`,
+        `4. FALA: 'fala da pessoa: "Oi! Aqui em ${profile.city}, ${profile.region}, ${profile.productCallout || 'o Dinn'} está revolucionando os negócios! Vem usar você também!"'`,
         "",
-        `Exemplo de estrutura (USE A CIDADE DO PERFIL: ${profile.city || profile.region || 'Brasil'}):`,
-        `IMAGE: '${randomTimeOfDay}, exterior de uma loja baseada no CNAE, ambiente brasileiro, sem letreiros visíveis. Uma pessoa brasileira de [idade] anos, ${randomEthnicity}, ${profile.city || profile.region || 'Brasil'}, [aparência detalhada], ${randomClothing}. Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível.'`,
-        `VIDEO: '${randomTimeOfDay}, mesmo ambiente da imagem. Uma pessoa brasileira de [idade] anos, ${randomEthnicity}, ${profile.city || profile.region || 'Brasil'}, [aparência detalhada], ${randomClothing}. Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.\\n\\nfala da pessoa: "Oi! Aqui em ${profile.city || profile.region || 'sua cidade'}, ${profile.productCallout || 'o Dinn'} está revolucionando os negócios! Vem usar você também!"'`,
+        `Exemplo de estrutura (USE OS DADOS EXATOS DO PERFIL):`,
+        `IMAGE: '${randomTimeOfDay}, exterior de uma ${profile.cnae ? profile.cnae.split(' - ')[1] || 'loja' : 'loja'} em ${profile.city}, ${profile.region}, ambiente brasileiro, sem letreiros visíveis. Um(a) proprietário(a) brasileiro(a) de [idade] anos, ${randomEthnicity}, ${profile.city}, ${profile.region}, [aparência detalhada], ${randomClothing}. Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível.'`,
+        `VIDEO: '${randomTimeOfDay}, mesmo ambiente da ${profile.cnae ? profile.cnae.split(' - ')[1] || 'loja' : 'loja'} em ${profile.city}, ${profile.region}. Um(a) proprietário(a) brasileiro(a) de [idade] anos, ${randomEthnicity}, ${profile.city}, ${profile.region}, [aparência detalhada], ${randomClothing}. Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.\\n\\nfala da pessoa: "Oi! Aqui em ${profile.city}, ${profile.region}, ${profile.productCallout || 'o Dinn'} está revolucionando os negócios! Vem usar você também!"'`,
+        "",
+        "",
+        "INSTRUÇÕES CRÍTICAS FINAIS:",
+        `- OBRIGATÓRIO usar "${profile.city}, ${profile.region}" (não outras cidades)`,
+        `- OBRIGATÓRIO usar tipo específico do CNAE: "${profile.cnae}" (não "loja genérica")`,
+        `- OBRIGATÓRIO analisar o nome "${profile.ownerName}" para determinar o gênero`,
+        `- OBRIGATÓRIO usar horário "${randomTimeOfDay}"`,
         "",
         "RETORNE JSON com 'image_prompt', 'video_prompt', 'overlay_text' (máximo 15 chars) e 'button_text' (máximo 12 chars) seguindo essas estruturas exatas.",
         "",
