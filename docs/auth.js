@@ -66,15 +66,15 @@ class CloudwalkAuth {
   }
 
   async initializeFirebase() {
-    // Get config from global or use default
-    const config = window.firebaseConfig || {
-      // Fallback config - replace with your actual values
-      apiKey: "AIzaSyC8X9_YOUR_KEY_HERE",
-      authDomain: "cloudwalk-omni-jimmer.firebaseapp.com",
-      projectId: "cloudwalk-omni-jimmer"
-    };
+    // Get config from global
+    const config = window.firebaseConfig;
     
-    console.log('🔧 Firebase config:', { ...config, apiKey: config.apiKey.substring(0, 10) + '...' });
+    // Check if Firebase is properly configured
+    if (!config || !config.apiKey || config.apiKey === null || config.apiKey.includes('YOUR_') || config.apiKey.length < 30) {
+      throw new Error('Firebase not configured - falling back to demo mode');
+    }
+    
+    console.log('🔧 Firebase config valid:', { ...config, apiKey: config.apiKey.substring(0, 10) + '...' });
     
     // Initialize Firebase
     if (!window.firebase.apps.length) {
@@ -167,12 +167,35 @@ class CloudwalkAuth {
 
   initDemoMode() {
     console.log('🔄 Falling back to demo mode');
+    console.log('ℹ️ To enable real Google OAuth, configure Firebase in firebase-config.js');
     this.loadDemoMode();
   }
 
   loadDemoMode() {
-    // Simplified demo mode
+    // Demo mode - show auth UI immediately
     this.updateAuthUI();
+    
+    // Add info message to auth container
+    this.showDemoModeInfo();
+  }
+
+  showDemoModeInfo() {
+    const authContainer = document.getElementById('authContainer');
+    if (authContainer) {
+      const infoDiv = document.createElement('div');
+      infoDiv.className = 'demo-mode-info';
+      infoDiv.innerHTML = `
+        <div style="background: #fef3cd; border: 1px solid #ffc107; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 14px;">
+          <strong>🔧 Demo Mode:</strong> Firebase não configurado.<br>
+          <small>Para Google OAuth real, siga o guia em <code>FIREBASE_SETUP_GUIDE.md</code></small>
+        </div>
+      `;
+      
+      const authCard = authContainer.querySelector('.auth-card');
+      if (authCard && !authCard.querySelector('.demo-mode-info')) {
+        authCard.insertBefore(infoDiv, authCard.firstChild);
+      }
+    }
   }
 
   // Get auth token for API calls
