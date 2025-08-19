@@ -394,15 +394,42 @@ function getRandomEthnicity() {
 
 function getRandomClothingColor() {
   const random = Math.random();
-  if (random < 0.8) {
-    // 80% - preto ou branco
-    return Math.random() < 0.5 ? "roupa preta" : "roupa branca";
-  } else if (random < 0.9) {
-    // 10% - roxo da marca
-    return "roupa roxa (#c87ef7)";
+  
+  if (random < 0.75) {
+    // 75% - black, white, or tan
+    const neutralColors = [
+      "roupa preta", 
+      "roupa branca", 
+      "roupa bege claro", 
+      "roupa marrom claro", 
+      "roupa creme",
+      "roupa off-white"
+    ];
+    return neutralColors[Math.floor(Math.random() * neutralColors.length)];
+    
+  } else if (random < 0.87) {
+    // 12% - purple hues (soft, pale, lilac, lavender)
+    const purpleColors = [
+      "roupa lilás suave",
+      "roupa lavanda pálida", 
+      "roupa roxo claro",
+      "roupa violeta suave",
+      "roupa lilás pastel",
+      "roupa lavanda delicada"
+    ];
+    return purpleColors[Math.floor(Math.random() * purpleColors.length)];
+    
   } else {
-    // 10% - verde da marca  
-    return "roupa verde (#c1f732)";
+    // 12% - green tones (soft lime, avocado, pale green)
+    const greenColors = [
+      "roupa verde lima suave",
+      "roupa verde abacate", 
+      "roupa verde claro",
+      "roupa verde menta pálido",
+      "roupa verde lima pálido",
+      "roupa verde pistache suave"
+    ];
+    return greenColors[Math.floor(Math.random() * greenColors.length)];
   }
 }
 
