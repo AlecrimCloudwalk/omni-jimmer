@@ -547,9 +547,30 @@ async function callOpenAIForPrompts(profile) {
     const timesOfDay = ['Amanhecer', 'Meio-dia ensolarado', 'Final de tarde', 'Anoitecer', 'Noite'];
     const randomTimeOfDay = timesOfDay[Math.floor(Math.random() * timesOfDay.length)];
     
-    // Random greetings for video
-    const greetings = ['Iaí pessoal!', 'Bom dia galera!', 'Iaí!', 'Eaí galera!', 'Oi gente!', 'E aí pessoal!'];
-    const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
+    // Random video text templates with varied themes (~20 words each)
+    const videoTexts = [
+      `Iaí pessoal! Aqui em {city}, {product} triplicou meu faturamento! Negócio que era difícil ficou super fácil!`,
+      `Bom dia galera! {product} mudou tudo aqui em {city}! Agora consigo focar no que realmente importa: crescer!`,
+      `E aí! Desde que comecei a usar {product} em {city}, meus clientes ficaram impressionados com a praticidade!`,
+      `Oi gente! {product} é o futuro dos negócios aqui em {city}! Quem não usar vai ficar pra trás!`,
+      `Salve! Meu negócio em {city} explodiu depois que descobri {product}! Agora tudo funciona no automático!`,
+      `Eaí galera! {product} economizou tanto tempo aqui em {city} que sobra pra família! Vale cada centavo!`,
+      `Opa! Todo empresário de {city} deveria conhecer {product}! Minha vida de empreendedor nunca foi tão tranquila!`,
+      `Beleza! Com {product} aqui em {city}, consegui automatizar coisas que antes davam muito trabalho! Sensacional!`,
+      `E aí pessoal! {product} é tipo ter um assistente pessoal 24h aqui em {city}! Revolucionou meu dia!`,
+      `Oi! Quem tem negócio em {city} precisa conhecer {product}! Meus resultados melhoraram em todas as áreas!`,
+      `Olá! {product} transformou meu negócio em {city} numa máquina de fazer dinheiro! Recomendo demais!`,
+      `Iaí! Antes de usar {product} em {city}, eu vivia estressado. Hoje meu negócio roda sozinho!`,
+      `Salve galera! {product} deixou meu negócio em {city} tão organizado que até sobra tempo pra inovar!`,
+      `Opa pessoal! Desde que uso {product} aqui em {city}, meus concorrentes perguntam qual é meu segredo!`,
+      `E aí! {product} é a melhor decisão que tomei pro meu negócio em {city}! Mudança total de vida!`,
+      `Beleza galera! Com {product}, meu negócio em {city} cresceu tanto que tive que contratar mais gente!`,
+      `Oi! {product} fez meu negócio em {city} funcionar 10x melhor! Agora sim sou um empreendedor de verdade!`,
+      `Iaí pessoal! {product} é como ter superpoderes para negócios aqui em {city}! Eficiência no máximo!`,
+      `Salve! Todo mundo em {city} quer saber como meu negócio cresceu tanto! A resposta é {product}!`,
+      `E aí galera! {product} transformou meu negócio em {city} de sobrevivência pra sucesso! Incrível mesmo!`
+    ];
+    const randomVideoText = videoTexts[Math.floor(Math.random() * videoTexts.length)];
     console.log('🌅 Horário randomizado:', randomTimeOfDay); // Debug
     
     const randomEthnicity = getRandomEthnicity();
@@ -602,11 +623,11 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
         `1. HORÁRIO + AMBIENTAÇÃO: '[horário do dia], mesmo ambiente da imagem na ${profile.cnae ? profile.cnae.split(' - ')[1] || 'loja' : 'loja'} em ${profile.city}, ${profile.region}'`,
         `2. PERSONAGEM: 'Um(a) proprietário(a) brasileiro(a) de [idade] anos, [etnia], ${profile.city}, ${profile.region}, [aparência detalhada], ${randomClothing}.'`,
         "3. CÂMERA: 'Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.'",
-        `4. FALA: 'fala da pessoa: "${randomGreeting} Aqui em ${profile.city}, ${profile.productCallout || 'o Dinn'} está revolucionando os negócios! Vem usar você também!"'`,
+        `4. FALA: 'fala da pessoa: "${randomVideoText.replace('{city}', profile.city).replace('{product}', profile.productCallout || 'o Dinn')}"'`,
         "",
         `Exemplo de estrutura (USE OS DADOS EXATOS DO PERFIL):`,
         `IMAGE: '${randomTimeOfDay}, exterior de uma ${profile.cnae ? profile.cnae.split(' - ')[1] || 'loja' : 'loja'} em ${profile.city}, ${profile.region}, ambiente brasileiro, sem letreiros visíveis. Um(a) proprietário(a) brasileiro(a) de [idade] anos, ${randomEthnicity}, ${profile.city}, ${profile.region}, [aparência detalhada], ${randomClothing}. Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível.'`,
-        `VIDEO: '${randomTimeOfDay}, mesmo ambiente da ${profile.cnae ? profile.cnae.split(' - ')[1] || 'loja' : 'loja'} em ${profile.city}. Um(a) proprietário(a) brasileiro(a) de [idade] anos, ${randomEthnicity}, ${profile.city}, [aparência detalhada], ${randomClothing}. Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.\\n\\nfala da pessoa: "${randomGreeting} Aqui em ${profile.city}, ${profile.productCallout || 'o Dinn'} está revolucionando os negócios! Vem usar você também!"'`,
+        `VIDEO: '${randomTimeOfDay}, mesmo ambiente da ${profile.cnae ? profile.cnae.split(' - ')[1] || 'loja' : 'loja'} em ${profile.city}. Um(a) proprietário(a) brasileiro(a) de [idade] anos, ${randomEthnicity}, ${profile.city}, [aparência detalhada], ${randomClothing}. Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.\\n\\nfala da pessoa: "${randomVideoText.replace('{city}', profile.city).replace('{product}', profile.productCallout || 'o Dinn')}"'`,
         "",
         "",
         "INSTRUÇÕES CRÍTICAS FINAIS:",
@@ -692,7 +713,7 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
       const product = profile.productCallout || 'o Dinn';
       json.video_prompt = `Meio da tarde, interior de uma loja brasileira moderna, iluminação natural, ao fundo produtos e clientes, sem letreiros visíveis. Uma pessoa brasileira de aparência simpática, ${randomEthnicity}, ${city}. Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.
 
-fala da pessoa: "Iaí pessoal! Aqui em ${city}, ${product} está ajudando empresários a revolucionar seus negócios! Vem usar você também!"`;
+fala da pessoa: "Iaí pessoal! ${product} triplicou meu faturamento aqui em ${city}! Negócio que era difícil ficou super fácil!"`;
     }
     
     // Add default overlay and button text if not provided
