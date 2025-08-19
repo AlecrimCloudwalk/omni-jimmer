@@ -11,12 +11,11 @@ node_modules/
 .DS_Store
 *.log
 
-# Supabase local development & config with real keys
+# Supabase local development & config with secrets
 .supabase/
 supabase/.env
 supabase/config.toml
 supabase-config.js
-supabase-config.prod.js
 
 # Firebase config with real keys (if any)
 firebase-config.js
