@@ -565,9 +565,9 @@ async function onGenerate() {
   
   // Step 2: Remove text from image if needed and image was generated
   if (enableSeededitEl.checked && imageUrl) {
-    if (seededitStatus) seededitStatus.innerHTML = '🔧 Removing text (~45s)… <img src="https://media.giphy.com/media/xTkcEQACH24SMPxIQg/giphy.gif" style="width: 20px; height: 20px; vertical-align: middle;">';
+    if (seededitStatus) seededitStatus.innerHTML = '🔧 Removing ALL text (~60s)… <img src="https://media.giphy.com/media/xTkcEQACH24SMPxIQg/giphy.gif" style="width: 20px; height: 20px; vertical-align: middle;">';
     // Add loading GIF to seededit container
-    if (seededitContainer) seededitContainer.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 200px; flex-direction: column;"><img src="https://media.giphy.com/media/xTkcEQACH24SMPxIQg/giphy.gif" style="width: 80px; height: 80px;"><p style="margin-top: 10px; color: #a8a8ad; font-size: 14px;">Removing text...</p></div>';
+    if (seededitContainer) seededitContainer.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 200px; flex-direction: column;"><img src="https://media.giphy.com/media/xTkcEQACH24SMPxIQg/giphy.gif" style="width: 80px; height: 80px;"><p style="margin-top: 10px; color: #a8a8ad; font-size: 14px;">Removing ALL text and signs...</p></div>';
     editedImageUrl = await generateSeededit(imageUrl);
   } else if (enableSeededitEl.checked && !imageUrl) {
     if (seededitStatus) seededitStatus.textContent = "No image to process (image generation disabled or failed)";
@@ -1053,8 +1053,8 @@ async function generateSeededit(imageUrl) {
       const body = {
         input: {
           image: imageUrl,
-          prompt: "remove text from image, remove name of the shop, remove letterings, remove subtitle, remove storefront name, remove text, remove all written, remove every text",
-          guidance_scale: 5.5,
+          prompt: "completely remove all text, letters, words, signs, shop names, store signs, writing, lettering, typography, characters, symbols, and any written content from this image. Make the background clean without any text or writing visible.",
+          guidance_scale: 7.5,
           seed: Math.floor(Math.random() * 1000000)
         }
       };
