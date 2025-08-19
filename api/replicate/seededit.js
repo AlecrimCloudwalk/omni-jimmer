@@ -43,8 +43,8 @@ export default async function handler(req, res) {
     
     const input = {
       image: imageUrl,
-      prompt: "completely remove all text, letters, words, signs, shop names, store signs, writing, lettering, typography, characters, symbols, and any written content from this image. Make the background clean without any text or writing visible.",
-      guidance_scale: 7.5
+      prompt: "remove text from image, remove name of the shop, remove letterings, remove subtitle, remove storefront name, remove text, remove all written, remove every text",
+      guidance_scale: 5.5
     };
     
     console.log('Seededit input being sent:', JSON.stringify(input, null, 2));

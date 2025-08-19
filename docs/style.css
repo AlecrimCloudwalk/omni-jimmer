@@ -617,6 +617,11 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
   padding-top: 40px;
 }
 
+.video-placeholder.with-content {
+  align-items: center;
+  padding-top: 0;
+}
+
 .video-controls {
   position: absolute;
   bottom: 0;
