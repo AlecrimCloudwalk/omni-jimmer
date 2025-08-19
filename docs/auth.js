@@ -120,6 +120,86 @@ class CloudwalkAuth {
     this.updateAuthUI();
   }
 
+  // SECURITY FIX: Secure email input dialog to replace prompt()
+  showSecureEmailDialog() {
+    return new Promise((resolve, reject) => {
+      // Create modal overlay
+      const overlay = SecurityUtils.createElement('div', '', 'secure-modal-overlay');
+      overlay.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+        background: rgba(0,0,0,0.5); z-index: 10000; display: flex; 
+        align-items: center; justify-content: center;
+      `;
+      
+      // Create modal dialog
+      const modal = SecurityUtils.createElement('div', '', 'secure-modal');
+      modal.style.cssText = `
+        background: white; padding: 30px; border-radius: 12px; 
+        max-width: 400px; width: 90%; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      `;
+      
+      // Create form elements
+      const title = SecurityUtils.createElement('h3', 'Demo Mode - Cloudwalk Authentication');
+      const description = SecurityUtils.createElement('p', 'Enter your @cloudwalk.io email address:');
+      description.style.color = '#666';
+      
+      const input = document.createElement('input');
+      input.type = 'email';
+      input.placeholder = 'name@cloudwalk.io';
+      input.style.cssText = `
+        width: 100%; padding: 12px; border: 2px solid #ddd; 
+        border-radius: 6px; font-size: 16px; margin: 15px 0;
+      `;
+      
+      const buttonContainer = SecurityUtils.createElement('div');
+      buttonContainer.style.cssText = 'display: flex; gap: 10px; justify-content: flex-end;';
+      
+      const cancelBtn = SecurityUtils.createElement('button', 'Cancel');
+      cancelBtn.style.cssText = 'padding: 10px 20px; border: 1px solid #ddd; background: white; border-radius: 6px; cursor: pointer;';
+      
+      const submitBtn = SecurityUtils.createElement('button', 'Sign In');
+      submitBtn.style.cssText = 'padding: 10px 20px; background: #c87ef7; color: white; border: none; border-radius: 6px; cursor: pointer;';
+      
+      // Event handlers
+      const cleanup = () => document.body.removeChild(overlay);
+      
+      cancelBtn.onclick = () => {
+        cleanup();
+        reject(new Error('User cancelled'));
+      };
+      
+      const submit = () => {
+        const email = input.value.trim();
+        if (SecurityUtils.isCloudwalkEmail(email)) {
+          cleanup();
+          resolve(email);
+        } else {
+          input.style.borderColor = '#ff4444';
+          input.focus();
+        }
+      };
+      
+      submitBtn.onclick = submit;
+      input.onkeypress = (e) => {
+        if (e.key === 'Enter') submit();
+        if (e.key === 'Escape') cancelBtn.click();
+      };
+      
+      // Assemble modal
+      buttonContainer.appendChild(cancelBtn);
+      buttonContainer.appendChild(submitBtn);
+      modal.appendChild(title);
+      modal.appendChild(description);
+      modal.appendChild(input);
+      modal.appendChild(buttonContainer);
+      overlay.appendChild(modal);
+      
+      // Add to page and focus
+      document.body.appendChild(overlay);
+      input.focus();
+    });
+  }
+
   validateUserDomain(email) {
     if (!email) return false;
     
@@ -164,12 +244,23 @@ class CloudwalkAuth {
     if (authContainer) {
       const infoDiv = document.createElement('div');
       infoDiv.className = 'demo-mode-info';
-      infoDiv.innerHTML = `
-        <div style="background: #fef3cd; border: 1px solid #ffc107; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 14px;">
-          <strong>🔧 Demo Mode:</strong> Supabase não configurado.<br>
-          <small>Para GitHub OAuth real, configure <code>supabase-config.js</code></small>
-        </div>
-      `;
+      // SECURITY FIX: Use safe DOM methods instead of innerHTML
+      const warningDiv = SecurityUtils.createElement('div');
+      warningDiv.style.cssText = 'background: #fef3cd; border: 1px solid #ffc107; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 14px;';
+      
+      const strongEl = SecurityUtils.createElement('strong', '🔧 Demo Mode:');
+      const textEl = SecurityUtils.createElement('span', ' Supabase não configurado.');
+      const brEl = document.createElement('br');
+      const smallEl = SecurityUtils.createElement('small', 'Para GitHub OAuth real, configure ');
+      const codeEl = SecurityUtils.createElement('code', 'supabase-config.js');
+      
+      smallEl.appendChild(codeEl);
+      warningDiv.appendChild(strongEl);
+      warningDiv.appendChild(textEl);
+      warningDiv.appendChild(brEl);
+      warningDiv.appendChild(smallEl);
+      
+      infoDiv.appendChild(warningDiv);
       
       const authCard = authContainer.querySelector('.auth-card');
       if (authCard && !authCard.querySelector('.demo-mode-info')) {
@@ -242,10 +333,10 @@ class CloudwalkAuth {
   }
 
   async signInDemo() {
-    // Demo mode fallback
-    const email = prompt('Demo Mode - Enter your Cloudwalk email:');
+    // SECURITY FIX: Replace prompt() with secure input dialog
+    const email = await this.showSecureEmailDialog();
     
-    if (!email || !email.includes('@')) {
+    if (!email || !SecurityUtils.isValidEmail(email)) {
       throw new Error('Invalid email format');
     }
     
@@ -334,16 +425,33 @@ class CloudwalkAuth {
     }
     
     if (userInfo && this.user) {
-      userInfo.innerHTML = `
-        <div class="user-profile">
-          <img src="${this.user.picture}" alt="${this.user.name}" class="user-avatar">
-          <div class="user-details">
-            <span class="user-name">${this.user.name}</span>
-            <span class="user-email">${this.user.email}</span>
-          </div>
-          <button onclick="cloudwalkAuth.signOut()" class="sign-out-btn">Sign Out</button>
-        </div>
-      `;
+      // SECURITY FIX: Use safe DOM methods instead of innerHTML
+      const profileDiv = SecurityUtils.createElement('div', '', 'user-profile');
+      
+      // Create user avatar
+      const imgEl = document.createElement('img');
+      imgEl.src = this.user.picture || '';
+      imgEl.alt = this.user.name || 'User';
+      imgEl.className = 'user-avatar';
+      
+      // Create user details
+      const detailsDiv = SecurityUtils.createElement('div', '', 'user-details');
+      const nameSpan = SecurityUtils.createElement('span', this.user.name || '', 'user-name');
+      const emailSpan = SecurityUtils.createElement('span', this.user.email || '', 'user-email');
+      detailsDiv.appendChild(nameSpan);
+      detailsDiv.appendChild(emailSpan);
+      
+      // Create sign out button
+      const signOutBtn = SecurityUtils.createElement('button', 'Sign Out', 'sign-out-btn');
+      signOutBtn.onclick = () => cloudwalkAuth.signOut();
+      
+      // Assemble profile
+      profileDiv.appendChild(imgEl);
+      profileDiv.appendChild(detailsDiv);
+      profileDiv.appendChild(signOutBtn);
+      
+      userInfo.innerHTML = ''; // Clear existing content safely
+      userInfo.appendChild(profileDiv);
     }
   }
 

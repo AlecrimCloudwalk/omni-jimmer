@@ -3,7 +3,7 @@
 
 const supabaseConfig = {
   // Get these from: https://supabase.com/dashboard/project/zeeyvgspihtrgcdkrsvx/settings/api
-  url: 'https://zeeyvgspihtrgcdkrsvx.supabase.co',
+  url: 'https://zeeyvgsadawjqgcdkrsvx.supabase.co',
   anonKey: 'YOUR_ANON_KEY_HERE', // Replace with real anon key
   
   // Edge Function URLs (automatically generated)

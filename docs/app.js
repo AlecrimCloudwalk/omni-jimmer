@@ -23,7 +23,7 @@ window.saveOpenAIKey = function() {
     const key = input ? input.value.trim() : '';
     console.log('Key length:', key.length); // Debug
     if (key) {
-      localStorage.setItem('openai_api_key', key);
+      SecurityUtils.secureStore('openai_api_key', key);
       alert('OpenAI API key saved!');
       input.value = '';
       checkApiKeysAndHideNotice();
@@ -44,7 +44,7 @@ window.saveReplicateKey = function() {
     const key = input ? input.value.trim() : '';
     console.log('Key length:', key.length); // Debug
     if (key) {
-      localStorage.setItem('replicate_api_key', key);
+      SecurityUtils.secureStore('replicate_api_key', key);
       alert('Replicate API key saved!');
       input.value = '';
       checkApiKeysAndHideNotice();
@@ -108,8 +108,8 @@ window.pasteCombinedKeys = function() {
     return;
   }
   
-  localStorage.setItem('openai_api_key', openaiKey);
-  localStorage.setItem('replicate_api_key', replicateKey);
+  SecurityUtils.secureStore('openai_api_key', openaiKey);
+  SecurityUtils.secureStore('replicate_api_key', replicateKey);
   
   // Update the individual input fields
   document.getElementById('openaiKeyInput').value = openaiKey;
@@ -121,8 +121,8 @@ window.pasteCombinedKeys = function() {
 }
 
 window.copyCombinedKeys = function() {
-  const openaiKey = localStorage.getItem('openai_api_key') || '';
-  const replicateKey = localStorage.getItem('replicate_api_key') || '';
+  const openaiKey = SecurityUtils.secureRetrieve('openai_api_key') || '';
+  const replicateKey = SecurityUtils.secureRetrieve('replicate_api_key') || '';
   
   if (!openaiKey || !replicateKey) {
     alert('Both keys must be saved first');
@@ -148,8 +148,8 @@ window.copyCombinedKeys = function() {
 window.clearAllKeys = function() {
   console.log('clearAllKeys called'); // Debug
   try {
-    localStorage.removeItem('openai_api_key');
-    localStorage.removeItem('replicate_api_key');
+    SecurityUtils.secureClear('openai_api_key');
+    SecurityUtils.secureClear('replicate_api_key');
     
     // Clear the input fields
     const openaiInput = document.getElementById('openaiKeyInput');
@@ -168,8 +168,8 @@ window.clearAllKeys = function() {
 }
 
 function checkApiKeysAndHideNotice() {
-  const hasOpenAI = localStorage.getItem('openai_api_key');
-  const hasReplicate = localStorage.getItem('replicate_api_key');
+  const hasOpenAI = SecurityUtils.secureRetrieve('openai_api_key');
+  const hasReplicate = SecurityUtils.secureRetrieve('replicate_api_key');
   if (hasOpenAI && hasReplicate) {
     hideApiNotice();
   }
@@ -177,8 +177,8 @@ function checkApiKeysAndHideNotice() {
 
 function showApiNoticeIfNeeded() {
   if (GITHUB_PAGES_MODE) {
-    const hasOpenAI = localStorage.getItem('openai_api_key');
-    const hasReplicate = localStorage.getItem('replicate_api_key');
+    const hasOpenAI = SecurityUtils.secureRetrieve('openai_api_key');
+    const hasReplicate = SecurityUtils.secureRetrieve('replicate_api_key');
     if (!hasOpenAI || !hasReplicate) {
       document.getElementById('apiKeyNotice').style.display = 'block';
       // Pre-fill keys if they exist
@@ -654,21 +654,26 @@ async function onGenerate() {
 
   // Pre-flight checks for GitHub Pages mode
   if (GITHUB_PAGES_MODE) {
-    // For authenticated Cloudwalk users, we'll use serverless functions
-    // But for now, still check for API keys as fallback
-    const openaiKey = localStorage.getItem('openai_api_key');
-    const replicateKey = localStorage.getItem('replicate_api_key');
-    
     console.log('🔍 Pre-flight Check:');
     console.log('• User:', window.cloudwalkAuth?.user?.email || 'Not authenticated');
-    console.log('• Mode: GitHub Pages (Cloudwalk authenticated)');
+    console.log('• Mode: GitHub Pages');
     
-    // For authenticated users, we'll eventually use serverless functions
-    // For now, keep the existing key check
-    if (!openaiKey || !replicateKey) {
-      alert('❌ Missing API Keys!\n\nNote: In the future, this will be handled automatically for Cloudwalk users.\nFor now, please add your API keys:\n• OpenAI: https://platform.openai.com/api-keys\n• Replicate: https://replicate.com/account/api-tokens');
-      showApiNoticeIfNeeded();
-      return;
+    // Check if user is authenticated with Supabase (preferred method)
+    if (window.cloudwalkAuth?.isAuthenticated && window.cloudwalkAuth?.user?.accessToken) {
+      console.log('🔑 Using Supabase authenticated session - server-side API keys');
+      // Will use Supabase Edge Functions with server-side keys
+    } else {
+      // Fallback to client-side API keys with security warning
+      console.warn('⚠️ SECURITY WARNING: Using client-side API keys as fallback');
+      
+      const openaiKey = SecurityUtils.secureRetrieve('openai_api_key');
+      const replicateKey = SecurityUtils.secureRetrieve('replicate_api_key');
+      
+      if (!openaiKey || !replicateKey) {
+        alert('❌ Missing API Keys!\n\n🔐 Please sign in with your Cloudwalk account for secure server-side API handling,\n\nOR provide client-side keys as fallback:\n• OpenAI: https://platform.openai.com/api-keys\n• Replicate: https://replicate.com/account/api-tokens\n\n⚠️ Client-side keys are less secure');
+        showApiNoticeIfNeeded();
+        return;
+      }
     }
   } else {
     console.log('🔍 Mode: Serverless (Vercel/Local)');
@@ -944,7 +949,7 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
       // GitHub Pages always uses direct OpenAI API calls
       // Note: Even with auth, we don't have serverless functions on GitHub Pages
       // Direct OpenAI API call (GitHub Pages doesn't have serverless functions)
-      const openaiKey = localStorage.getItem('openai_api_key');
+      const openaiKey = SecurityUtils.secureRetrieve('openai_api_key');
       if (!openaiKey) {
         showApiNoticeIfNeeded();
         throw new Error('Please provide your OpenAI API key using the key input above');
@@ -1092,7 +1097,7 @@ async function generateImage(imagePrompt) {
      let imageUrl;
      if (GITHUB_PAGES_MODE) {
        // Direct Replicate API call with CORS proxy for GitHub Pages
-       const replicateKey = localStorage.getItem('replicate_api_key');
+       const replicateKey = SecurityUtils.secureRetrieve('replicate_api_key');
        if (!replicateKey) {
          showApiNoticeIfNeeded();
          throw new Error('Please provide your Replicate API key using the key input above');
@@ -1229,7 +1234,7 @@ async function generateSeededit(imageUrl) {
     let editedImageUrl;
     if (GITHUB_PAGES_MODE) {
       // Direct Replicate API call with CORS proxy for GitHub Pages
-      const replicateKey = localStorage.getItem('replicate_api_key');
+      const replicateKey = SecurityUtils.secureRetrieve('replicate_api_key');
       if (!replicateKey) {
         showApiNoticeIfNeeded();
         return null;
@@ -1342,7 +1347,7 @@ async function generateVeo3Video(videoPrompt, startFrameUrl = null) {
      let videoUrl;
      if (GITHUB_PAGES_MODE) {
        // Direct Replicate API call with CORS proxy for GitHub Pages
-       const replicateKey = localStorage.getItem('replicate_api_key');
+       const replicateKey = SecurityUtils.secureRetrieve('replicate_api_key');
        if (!replicateKey) {
          showApiNoticeIfNeeded();
          throw new Error('Please provide your Replicate API key using the key input above');
