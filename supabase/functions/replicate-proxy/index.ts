@@ -4,6 +4,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 // SECURITY FIX: Restrict CORS to allowed origins
 const allowedOrigins = [
   'https://alecrimcloudwalk.github.io',
+  'https://design-cw-omni.onrender.com',
   'http://localhost:3000',
   'http://localhost:5173',
   'http://127.0.0.1:3000',
