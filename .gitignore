@@ -16,7 +16,7 @@ node_modules/
 supabase/.env
 supabase/config.toml
 supabase-config.js
-docs/supabase-config.js
+# docs/supabase-config.js (temporarily allowed for OAuth testing)
 
 # Firebase config with real keys (if any)
 firebase-config.js
