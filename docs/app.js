@@ -177,62 +177,73 @@ function showApiNoticeIfNeeded() {
 }
 
 const CNAE_OPTIONS = [
-  "5611-2/01 - Restaurante",
-  "4721-1/02 - Padaria",
-  "4781-4/00 - Loja de Roupas",
-  "9602-5/01 - Salão de Beleza",
-  "4711-3/02 - Mercado/Supermercado",
-  "4771-7/01 - Farmácia",
+  "1623-9/01 - Marcenaria",
+  "1813-0/01 - Gráfica",
+  "2391-5/01 - Marmoraria",
+  "2511-0/00 - Serralheria",
   "4520-0/01 - Oficina Mecânica",
-  "4789-0/05 - Pet Shop",
-  "8630-5/02 - Clínica Odontológica",
-  "4761-0/01 - Papelaria",
-  "5612-1/00 - Food Truck",
-  "0161-0/01 - Agricultura (Plantação)",
-  "4789-0/01 - Barraca de Praia",
-  "8593-7/00 - Ensino de Idiomas",
-  "9329-8/99 - Personal Trainer (Parque)",
-  "4635-4/02 - Distribuidora de Bebidas",
-  "7490-1/04 - Fotógrafo",
-  "4744-0/01 - Loja de Materiais",
-  "9491-0/00 - Organização Religiosa",
-  "8630-5/01 - Clínica Médica",
-  "4753-9/00 - Ótica",
-  "4713-0/02 - Loja de Calçados",
-  "4712-1/00 - Posto de Combustível",
-  "9602-5/02 - Barbearia",
-  "4729-6/99 - Loja de Eletrônicos",
-  "5620-1/03 - Lanchonete",
-  "0162-8/01 - Floricultura",
-  "4632-0/01 - Atacadista",
-  "9001-9/99 - Academia de Dança",
-  "8650-0/02 - Consultório Veterinário",
-  "4789-0/02 - Loja de Artesanato",
-  "5620-1/04 - Açaíteria",
-  "4789-0/03 - Loja de Perfumes",
-  "5611-2/03 - Pizzaria",
-  "4757-1/00 - Loja de Livros",
-  "4772-5/00 - Loja de Suplementos",
-  "8630-5/03 - Fisioterapia",
-  "9602-5/03 - Manicure/Pedicure",
-  "4789-0/04 - Loja de Presentes",
-  "5611-2/04 - Sorveteria",
-  "4713-0/03 - Loja de Bolsas",
-  "4789-0/06 - Joalheria",
-  "5620-1/05 - Hamburgueria",
-  "4744-0/02 - Loja de Tintas",
-  "9329-8/01 - Academia de Ginástica",
-  "4789-0/07 - Loja de Móveis",
-  "5611-2/05 - Confeitaria",
+  "4520-0/03 - Oficina de Motos",
+  "4520-0/04 - Borracharia",
   "4637-1/01 - Distribuidora de Doces",
-  "4789-0/08 - Loja de Decoração",
-  "8511-2/00 - Escola Particular",
-  "9602-5/04 - Estética e Cosméticos",
+  "4711-3/02 - Supermercado",
+  "4721-1/02 - Padaria",
+  "4722-9/01 - Açougue",
+  "4724-5/00 - Frutaria",
+  "4757-1/00 - Loja de Livros",
+  "4759-8/01 - Loja de Móveis",
+  "4763-6/03 - Loja de Esportes",
+  "4771-7/01 - Farmácia",
+  "4781-4/00 - Loja de Roupas",
+  "4782-2/01 - Loja de Calçados",
+  "4789-0/03 - Loja de Perfumes",
+  "4789-0/04 - Ótica",
+  "4789-0/06 - Joalheria",
+  "4789-0/07 - Papelaria",
+  "4789-0/08 - Pet Shop",
   "4789-0/09 - Loja de Informática",
+  "4789-0/10 - Loja de Brinquedos",
+  "4789-0/11 - Loja de Instrumentos",
+  "4789-0/12 - Floricultura",
+  "4789-0/13 - Loja de Celulares",
+  "4789-0/14 - Loja de Bicicletas",
+  "4789-0/15 - Loja de Artesanato",
+  "4930-2/01 - Transportadora",
+  "5110-2/00 - Taxi Aéreo",
+  "5510-8/02 - Pousada",
+  "5611-2/01 - Churrascaria",
+  "5611-2/02 - Restaurante",
+  "5611-2/03 - Pizzaria",
+  "5611-2/04 - Sorveteria",
+  "5611-2/05 - Confeitaria",
+  "5611-2/07 - Restaurante Japonês",
+  "5620-1/03 - Lanchonete",
+  "5620-1/04 - Açaíteria",
+  "5620-1/05 - Hamburgueria",
   "5620-1/06 - Tapiocaria",
-  "4713-0/04 - Loja de Acessórios",
+  "5620-1/07 - Casa de Sucos",
+  "6911-7/01 - Escritório de Advocacia",
+  "7500-1/00 - Clínica Veterinária",
+  "7722-2/00 - Locadora",
+  "8511-2/00 - Escola Particular",
+  "8511-2/01 - Creche",
+  "8549-2/00 - Autoescola",
+  "8592-9/01 - Escola de Dança",
+  "8593-7/00 - Escola de Idiomas",
+  "8630-5/01 - Odontologia",
+  "8630-5/03 - Fisioterapia",
+  "8630-5/04 - Psicologia",
+  "8630-5/05 - Laboratório",
+  "8630-5/06 - Nutrição",
+  "8630-5/07 - Acupuntura",
+  "9319-1/01 - Studio de Pilates",
   "9319-1/99 - Crossfit",
-  "4789-0/10 - Loja de Brinquedos"
+  "9329-8/01 - Academia de Ginástica",
+  "9511-8/00 - Assistência Técnica",
+  "9601-7/01 - Lavanderia",
+  "9602-5/01 - Salão de Beleza",
+  "9602-5/02 - Barbearia",
+  "9602-5/04 - Estética e Cosméticos",
+  "9609-2/06 - Studio de Tatuagem"
 ];
 
 const REGIONS = {
@@ -384,8 +395,26 @@ function updateCities() {
   });
 }
 
+// Better random seed generation
+function generateBetterRandomSeed() {
+  if (window.crypto && window.crypto.getRandomValues) {
+    const randomArray = new Uint32Array(1);
+    window.crypto.getRandomValues(randomArray);
+    return randomArray[0] % 1000000;
+  } else {
+    // Fallback with better entropy
+    return Math.floor((Math.random() * Date.now()) % 1000000);
+  }
+}
+
 function getRandomFromArray(array) {
-  return array[Math.floor(Math.random() * array.length)];
+  if (window.crypto && window.crypto.getRandomValues) {
+    const randomArray = new Uint32Array(1);
+    window.crypto.getRandomValues(randomArray);
+    return array[randomArray[0] % array.length];
+  } else {
+    return array[Math.floor(Math.random() * array.length)];
+  }
 }
 
 function getRandomEthnicity() {
@@ -531,9 +560,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function onShuffle() {
   try {
-    const res = await fetch("./clients.sample.json");
+    // Prevent rapid clicking
+    if (shuffleBtn.disabled) return;
+    shuffleBtn.disabled = true;
+    shuffleBtn.textContent = "Shuffling...";
+    
+    // Add cache-busting timestamp for better randomization
+    const timestamp = Date.now();
+    const res = await fetch(`./clients.sample.json?t=${timestamp}`);
     const list = await res.json();
-    const sample = list[Math.floor(Math.random() * list.length)];
+    
+    // Better randomization: use crypto.getRandomValues if available, fallback to Math.random
+    let randomIndex;
+    if (window.crypto && window.crypto.getRandomValues) {
+      const randomArray = new Uint32Array(1);
+      window.crypto.getRandomValues(randomArray);
+      randomIndex = randomArray[0] % list.length;
+    } else {
+      randomIndex = Math.floor(Math.random() * list.length);
+    }
+    
+    const sample = list[randomIndex];
+    console.log(`🎲 Shuffled profile ${randomIndex}/${list.length}:`, sample.businessName, '-', sample.ownerName);
     
     // Add random time of day for variance
     const timesOfDay = ['Amanhecer', 'Meio-dia ensolarado', 'Final de tarde', 'Anoitecer', 'Noite'];
@@ -543,8 +591,16 @@ async function onShuffle() {
     
     // Store random time for prompt generation
     window.randomTimeOfDay = randomTime;
+    
+    // Re-enable button after a short delay
+    setTimeout(() => {
+      shuffleBtn.disabled = false;
+      shuffleBtn.textContent = "🎲 Shuffle";
+    }, 1000);
   } catch (e) {
     console.error(e);
+    shuffleBtn.disabled = false;
+    shuffleBtn.textContent = "🎲 Shuffle";
   }
 }
 
@@ -1095,7 +1151,7 @@ async function generateSeededit(imageUrl) {
           image: imageUrl,
           prompt: "remove text from image, remove name of the shop, remove letterings, remove subtitle, remove storefront name, remove text, remove all written, remove every text",
           guidance_scale: 5.5,
-          seed: Math.floor(Math.random() * 1000000)
+          seed: generateBetterRandomSeed()
         }
       };
       
@@ -1205,7 +1261,7 @@ async function generateVeo3Video(videoPrompt, startFrameUrl = null) {
            prompt: videoPrompt,
            aspect_ratio: "16:9",
            duration: 5,
-           seed: Math.floor(Math.random() * 1000000)
+           seed: generateBetterRandomSeed()
          }
        };
        
