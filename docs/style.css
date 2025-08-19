@@ -445,7 +445,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .video-overlay {
   position: absolute;
-  top: calc(50% + 55px);
+  top: calc(50% + 35px);
   left: 50%;
   transform: translate(-50%, -65%);
   width: 76%;
@@ -497,7 +497,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 .content-overlay {
   position: relative;
   width: 100%;
-  padding: 20px;
+  padding: 20px 20px 30px 20px;
   display: flex;
   justify-content: space-between;
   align-items: end;
