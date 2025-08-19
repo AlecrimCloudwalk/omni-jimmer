@@ -490,7 +490,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
   left: 0;
   right: 0;
   height: 60%;
-  background: linear-gradient(transparent, rgba(0,0,0,0.7));
+  background: linear-gradient(transparent, rgba(0,0,0,0.9));
   pointer-events: none;
 }
 

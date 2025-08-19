@@ -568,14 +568,14 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
         "",
         "ESTRUTURA PARA IMAGE_PROMPT:",
         "1. HORÁRIO + AMBIENTAÇÃO: '[horário do dia], interior/exterior do local baseado no CNAE, descrição cinematográfica'",
-        `2. PERSONAGEM: 'Uma mulher/Um homem brasileiro(a) de [idade] anos, [etnia], [cidade/região], [aparência detalhada], ${randomClothing}.'`,
+        `2. PERSONAGEM: 'Uma mulher/Um homem brasileiro(a) de [idade] anos, [etnia], ${profile.city || profile.region || 'Brasil'}, [aparência detalhada], ${randomClothing}.'`,
         "3. CÂMERA: 'Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível.'",
         "",
         "ESTRUTURA PARA VIDEO_PROMPT:",  
         "1. HORÁRIO + AMBIENTAÇÃO: '[horário do dia], mesmo ambiente da imagem'",
-        `2. PERSONAGEM: 'Uma mulher/Um homem brasileiro(a) de [idade] anos, [etnia], [cidade/região], [aparência detalhada], ${randomClothing}.'`,
+        `2. PERSONAGEM: 'Uma mulher/Um homem brasileiro(a) de [idade] anos, [etnia], ${profile.city || profile.region || 'Brasil'}, [aparência detalhada], ${randomClothing}.'`,
         "3. CÂMERA: 'Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível. Com a câmera Selfie VLOG, próxima ao rosto. Câmera subjetiva, POV.'",
-        `4. FALA: 'fala da pessoa: "Oi! Aqui em [cidade], ${profile.productCallout || 'o Dinn'} está revolucionando os negócios! Vem usar você também!"'`,
+        `4. FALA: 'fala da pessoa: "Oi! Aqui em ${profile.city || profile.region || 'sua cidade'}, ${profile.productCallout || 'o Dinn'} está revolucionando os negócios! Vem usar você também!"'`,
         "",
         "Exemplo de estrutura:",
         "IMAGE: 'Meio-dia ensolarado, exterior de uma loja de roupas em Salvador, cercada por clientes e com vitrines exibindo vestidos leves e coloridos, sem letreiros visíveis. Uma mulher brasileira de 35 anos, parda, pele morena, Salvador BA, cabelos castanhos escuros e olhos castanhos, vestindo um vestido florido. Foto estilo selfie, perspectiva de primeira pessoa, ângulo de selfie, sem câmera visível.'",
@@ -844,14 +844,14 @@ async function generateVeo3Video(videoPrompt) {
        
        // Use corsproxy.io which supports Authorization headers
        const corsProxy = 'https://corsproxy.io/?';
-       const replicateUrl = 'https://api.replicate.com/v1/models/tencent/hunyuan-video/predictions';
+       const replicateUrl = 'https://api.replicate.com/v1/models/lightricks/ltx-video/predictions';
        
        const body = {
          input: {
            prompt: videoPrompt,
-           seed: Math.floor(Math.random() * 1000000),
-           video_length: "2s",
-           flow_shift: 7
+           aspect_ratio: "16:9",
+           duration: 5,
+           seed: Math.floor(Math.random() * 1000000)
          }
        };
        
