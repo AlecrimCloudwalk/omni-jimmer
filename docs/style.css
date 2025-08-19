@@ -445,7 +445,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .video-overlay {
   position: absolute;
-  top: calc(50% + 35px);
+  top: calc(50% + 55px);
   left: 50%;
   transform: translate(-50%, -65%);
   width: 76%;
@@ -533,7 +533,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .carousel-indicators {
   position: absolute;
-  bottom: 8px;
+  bottom: 18px;
   left: 16px;
   right: 16px;
   display: flex;
