@@ -941,31 +941,14 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
     let json;
     
     if (GITHUB_PAGES_MODE) {
-      // Check if we have authenticated user with potential server-side keys
-      const authToken = window.cloudwalkAuth ? await window.cloudwalkAuth.getAuthToken() : null;
-      
-      if (authToken && !authToken.startsWith('demo_token_')) {
-        // Use serverless function with authentication
-        console.log('🔐 Using authenticated serverless API');
-        const endpoint = `${API_BASE}/gpt/prompts`;
-        const r = await fetch(endpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`
-          },
-          body: JSON.stringify({ user })
-        });
-        if (!r.ok) throw new Error(`Serverless API error: ${await r.text()}`);
-        const response = await r.json();
-        json = response;
-      } else {
-        // Fallback to direct OpenAI API call
-        const openaiKey = localStorage.getItem('openai_api_key');
-        if (!openaiKey) {
-          showApiNoticeIfNeeded();
-          throw new Error('Please provide your OpenAI API key using the key input above');
-        }
+      // GitHub Pages always uses direct OpenAI API calls
+      // Note: Even with auth, we don't have serverless functions on GitHub Pages
+      // Direct OpenAI API call (GitHub Pages doesn't have serverless functions)
+      const openaiKey = localStorage.getItem('openai_api_key');
+      if (!openaiKey) {
+        showApiNoticeIfNeeded();
+        throw new Error('Please provide your OpenAI API key using the key input above');
+      }
         
         const r = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
