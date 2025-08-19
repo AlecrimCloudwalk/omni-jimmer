@@ -1,0 +1,69 @@
+# Security Cursor Rule - Cloudwalk
+
+## Overview
+This rule helps prevent security vulnerabilities, especially API key leaks and sensitive data exposure in code.
+
+## Rules
+
+### 🚨 Critical - Never Commit API Keys or Secrets
+- **Forbidden Patterns:**
+  - Any string starting with `sk-`, `pk_`, `rk_`, `ghp_`, `gho_`, `ghu_`, `ghs_`
+  - JWT tokens: `eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+`
+  - Supabase anon keys: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9`
+  - Firebase config objects with real `apiKey` values
+  - Database connection strings with credentials
+  - Any hardcoded passwords or tokens
+
+### 🔐 Environment Variables Only
+- **Always use environment variables for:**
+  - API keys (OpenAI, Replicate, Supabase, etc.)
+  - Database credentials
+  - Authentication secrets
+  - Third-party service tokens
+
+### ✅ Safe Patterns
+- **Use placeholders:**
+  - `YOUR_API_KEY_HERE`
+  - `process.env.API_KEY`
+  - `${{ secrets.API_KEY }}`
+  - Example/template files with fake data
+
+### 📁 File Protection
+- **Always gitignore:**
+  - `.env` and `.env.*` files
+  - Config files with real credentials
+  - Private keys and certificates
+  - Local development secrets
+
+### 🚫 Code Patterns to Avoid
+- Hardcoded credentials in source code
+- Inline API keys in HTML/JavaScript
+- Credentials in comments or documentation
+- Real connection strings in config files
+
+### ✅ Recommended Practices
+- Use example/template config files
+- Implement runtime environment detection
+- Use secure deployment platforms (Vercel, Netlify)
+- Regular security audits of git history
+- Demo/fallback modes for development
+
+## Enforcement
+This rule should trigger warnings/errors when:
+1. API key patterns are detected in staged files
+2. Environment variables are hardcoded
+3. Sensitive configuration is being committed
+
+## Compliance
+- All Cloudwalk projects must follow these security practices
+- Security reviews required before production deployment
+- Regular audits of git history for leaked credentials
+- Immediate revocation of any exposed keys
+
+## Emergency Response
+If credentials are accidentally committed:
+1. Immediately revoke/rotate the exposed credentials
+2. Remove from git history using `git filter-branch`
+3. Force push to remove from remote repository
+4. Audit all systems that may have been compromised
+5. Update security practices to prevent recurrence
