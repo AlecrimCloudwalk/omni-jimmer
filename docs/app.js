@@ -74,25 +74,37 @@ window.pasteCombinedKeys = function() {
   const combined = combinedInput.value.trim();
   
   if (!combined) {
-    alert('Please paste the combined keys (openai_key,replicate_key)');
+    alert('❌ Please paste the combined keys (openai_key,replicate_key)');
     return;
   }
   
   const keys = combined.split(',').map(k => k.trim());
   if (keys.length !== 2) {
-    alert('Please use format: openai_key,replicate_key');
+    alert('❌ Please use format: openai_key,replicate_key\n\nExample:\nsk-proj-abc123...,r8_xyz789...');
     return;
   }
   
   const [openaiKey, replicateKey] = keys;
   
+  // Enhanced validation with better error messages
   if (!openaiKey.startsWith('sk-')) {
-    alert('OpenAI key should start with "sk-"');
+    alert('❌ OpenAI key format error!\n\n✅ Should start with "sk-" (usually "sk-proj-...")\n❌ Your key starts with: "' + openaiKey.substring(0, 10) + '..."');
     return;
   }
   
   if (!replicateKey.startsWith('r8_')) {
-    alert('Replicate key should start with "r8_"');
+    alert('❌ Replicate key format error!\n\n✅ Should start with "r8_"\n❌ Your key starts with: "' + replicateKey.substring(0, 10) + '..."');
+    return;
+  }
+  
+  // Additional length validation
+  if (openaiKey.length < 50) {
+    alert('❌ OpenAI key seems too short!\n\n✅ Should be 50+ characters\n❌ Your key is only ' + openaiKey.length + ' characters');
+    return;
+  }
+  
+  if (replicateKey.length < 40) {
+    alert('❌ Replicate key seems too short!\n\n✅ Should be 40+ characters\n❌ Your key is only ' + replicateKey.length + ' characters');
     return;
   }
   
@@ -104,7 +116,7 @@ window.pasteCombinedKeys = function() {
   document.getElementById('replicateKeyInput').value = replicateKey;
   
   combinedInput.value = '';
-  alert('Both keys saved successfully!');
+  alert('✅ Both keys saved successfully!\n\n🎯 Ready to generate!\n\n📋 Debug: F12 → Console to see detailed logs');
   checkApiKeysAndHideNotice();
 }
 
@@ -635,7 +647,25 @@ function selectValue(select, val) {
 // API key functions removed - handled server-side
 
 async function onGenerate() {
-  // API keys are handled server-side, no validation needed
+  // Pre-flight checks for GitHub Pages mode
+  if (GITHUB_PAGES_MODE) {
+    const openaiKey = localStorage.getItem('openai_api_key');
+    const replicateKey = localStorage.getItem('replicate_api_key');
+    
+    console.log('🔍 Pre-flight API Key Check:');
+    console.log('• OpenAI Key:', openaiKey ? `✅ Present (${openaiKey.length} chars)` : '❌ Missing');
+    console.log('• Replicate Key:', replicateKey ? `✅ Present (${replicateKey.length} chars)` : '❌ Missing');
+    console.log('• Mode: GitHub Pages (using CORS proxy)');
+    console.log('• CORS Proxy: https://corsproxy.io/');
+    
+    if (!openaiKey || !replicateKey) {
+      alert('❌ Missing API Keys!\n\nPlease add your API keys first:\n• OpenAI: https://platform.openai.com/api-keys\n• Replicate: https://replicate.com/account/api-tokens');
+      showApiNoticeIfNeeded();
+      return;
+    }
+  } else {
+    console.log('🔍 Mode: Serverless (Vercel/Local)');
+  }
 
   // Generate MASTER SEED for this generation cycle
   const masterSeed = generateBetterRandomSeed();
@@ -933,7 +963,22 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
           response_format: { type: "json_object" }
         })
       });
-      if (!r.ok) throw new Error(`OpenAI API error: ${await r.text()}`);
+      if (!r.ok) {
+        const errorText = await r.text();
+        console.error('❌ OpenAI API Error Details:', {
+          status: r.status,
+          statusText: r.statusText,
+          error: errorText
+        });
+        
+        if (r.status === 401) {
+          throw new Error('❌ OpenAI API Key Invalid!\n\n🔍 Possible issues:\n• Wrong API key format\n• Expired or revoked key\n• Key without GPT-4 access\n\n💡 Get new key: https://platform.openai.com/api-keys');
+        } else if (r.status === 429) {
+          throw new Error('❌ OpenAI Rate Limit!\n\n🔍 Possible issues:\n• Too many requests\n• Insufficient credits\n• Free tier limitations\n\n💡 Check usage: https://platform.openai.com/usage');
+        } else {
+          throw new Error(`❌ OpenAI API Error (${r.status}): ${errorText}\n\n💡 Check your account: https://platform.openai.com/`);
+        }
+      }
       const openaiResponse = await r.json();
       try {
         const content = openaiResponse.choices[0].message.content;
@@ -1057,8 +1102,23 @@ async function generateImage(imagePrompt) {
        console.log('Replicate image response status:', r.status);
        if (!r.ok) {
          const errorText = await r.text();
-         console.error('Replicate Image API error:', errorText);
-         throw new Error(`Replicate Image API error (${r.status}): ${errorText}`);
+         console.error('❌ Replicate Image API Error Details:', {
+           status: r.status,
+           statusText: r.statusText,
+           error: errorText,
+           corsProxy: corsProxy,
+           apiUrl: replicateUrl
+         });
+         
+         if (r.status === 401) {
+           throw new Error('❌ Replicate API Key Invalid!\n\n🔍 Possible issues:\n• Wrong API key format\n• Expired or revoked key\n• Key without model access\n\n💡 Get new key: https://replicate.com/account/api-tokens');
+         } else if (r.status === 429) {
+           throw new Error('❌ Replicate Rate Limit!\n\n🔍 Possible issues:\n• Too many requests\n• Insufficient credits\n• Daily spending limit reached\n\n💡 Check billing: https://replicate.com/account/billing');
+         } else if (r.status === 400) {
+           throw new Error('❌ Replicate Bad Request!\n\n🔍 Possible issues:\n• Invalid prompt format\n• Unsupported parameters\n• Model restrictions\n\n💡 Error: ' + errorText);
+         } else {
+           throw new Error(`❌ Replicate API Error (${r.status}): ${errorText}\n\n🌐 Network issue? Try:\n• Different browser\n• Disable ad-blocker\n• Check corsproxy.io status`);
+         }
        }
        
        const prediction = await r.json();
