@@ -722,19 +722,14 @@ async function generateImage(imagePrompt) {
          throw new Error('Please provide your Replicate API key using the key input above');
        }
        
-       // Use CORS proxy for Replicate API (try multiple proxies for reliability)
-       const proxies = [
-         'https://api.allorigins.win/raw?url=',
-         'https://corsproxy.io/?',
-         'https://cors-anywhere.herokuapp.com/'
-       ];
-       const proxyUrl = proxies[0]; // Start with first proxy
-       const replicateUrl = encodeURIComponent('https://api.replicate.com/v1/models/bytedance/seedream-3/predictions');
+       // Use corsproxy.io which supports Authorization headers
+       const corsProxy = 'https://corsproxy.io/?';
+       const replicateUrl = 'https://api.replicate.com/v1/models/bytedance/seedream-3/predictions';
        
-       console.log('Making Replicate Image API call:', proxyUrl + replicateUrl);
+       console.log('Making Replicate Image API call:', corsProxy + replicateUrl);
        console.log('Image request body:', JSON.stringify(body, null, 2));
        
-       const r = await fetch(proxyUrl + replicateUrl, {
+       const r = await fetch(corsProxy + replicateUrl, {
          method: 'POST',
          headers: {
            'Authorization': `Bearer ${replicateKey}`,
@@ -768,7 +763,7 @@ async function generateImage(imagePrompt) {
            throw new Error('No polling URL available from Replicate');
          }
          
-         const pollUrl = proxyUrl + encodeURIComponent(result.urls.get);
+         const pollUrl = corsProxy + result.urls.get;
          console.log('Polling URL:', pollUrl);
          
          const pollR = await fetch(pollUrl, {
@@ -847,14 +842,9 @@ async function generateVeo3Video(videoPrompt) {
          throw new Error('Please provide your Replicate API key using the key input above');
        }
        
-       // Use CORS proxy for Replicate API - Veo3 model (try multiple proxies for reliability)
-       const proxies = [
-         'https://api.allorigins.win/raw?url=',
-         'https://corsproxy.io/?',
-         'https://cors-anywhere.herokuapp.com/'
-       ];
-       const proxyUrl = proxies[0]; // Start with first proxy
-       const replicateUrl = encodeURIComponent('https://api.replicate.com/v1/models/tencent/hunyuan-video/predictions');
+       // Use corsproxy.io which supports Authorization headers
+       const corsProxy = 'https://corsproxy.io/?';
+       const replicateUrl = 'https://api.replicate.com/v1/models/tencent/hunyuan-video/predictions';
        
        const body = {
          input: {
@@ -865,7 +855,10 @@ async function generateVeo3Video(videoPrompt) {
          }
        };
        
-       const r = await fetch(proxyUrl + replicateUrl, {
+       console.log('Making Replicate Video API call:', corsProxy + replicateUrl);
+       console.log('Video request body:', JSON.stringify(body, null, 2));
+       
+       const r = await fetch(corsProxy + replicateUrl, {
          method: 'POST',
          headers: {
            'Authorization': `Bearer ${replicateKey}`,
@@ -880,7 +873,7 @@ async function generateVeo3Video(videoPrompt) {
        let result = prediction;
        while (result.status === 'starting' || result.status === 'processing') {
          await new Promise(resolve => setTimeout(resolve, 5000)); // Longer wait for video
-         const pollUrl = proxyUrl + encodeURIComponent(result.urls.get);
+         const pollUrl = corsProxy + result.urls.get;
          const pollR = await fetch(pollUrl, {
            headers: { 'Authorization': `Bearer ${replicateKey}` }
          });
