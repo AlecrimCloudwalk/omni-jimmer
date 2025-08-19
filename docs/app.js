@@ -69,6 +69,70 @@ window.hideApiNotice = function() {
   }
 }
 
+window.pasteCombinedKeys = function() {
+  const combinedInput = document.getElementById('combinedKeys');
+  const combined = combinedInput.value.trim();
+  
+  if (!combined) {
+    alert('Please paste the combined keys (openai_key,replicate_key)');
+    return;
+  }
+  
+  const keys = combined.split(',').map(k => k.trim());
+  if (keys.length !== 2) {
+    alert('Please use format: openai_key,replicate_key');
+    return;
+  }
+  
+  const [openaiKey, replicateKey] = keys;
+  
+  if (!openaiKey.startsWith('sk-')) {
+    alert('OpenAI key should start with "sk-"');
+    return;
+  }
+  
+  if (!replicateKey.startsWith('r8_')) {
+    alert('Replicate key should start with "r8_"');
+    return;
+  }
+  
+  localStorage.setItem('openai_api_key', openaiKey);
+  localStorage.setItem('replicate_api_key', replicateKey);
+  
+  // Update the individual input fields
+  document.getElementById('openaiKeyInput').value = openaiKey;
+  document.getElementById('replicateKeyInput').value = replicateKey;
+  
+  combinedInput.value = '';
+  alert('Both keys saved successfully!');
+  checkApiKeysAndHideNotice();
+}
+
+window.copyCombinedKeys = function() {
+  const openaiKey = localStorage.getItem('openai_api_key') || '';
+  const replicateKey = localStorage.getItem('replicate_api_key') || '';
+  
+  if (!openaiKey || !replicateKey) {
+    alert('Both keys must be saved first');
+    return;
+  }
+  
+  const combined = `${openaiKey},${replicateKey}`;
+  
+  navigator.clipboard.writeText(combined).then(() => {
+    alert('Combined keys copied to clipboard!');
+  }).catch(() => {
+    // Fallback for older browsers
+    const textarea = document.createElement('textarea');
+    textarea.value = combined;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+    alert('Combined keys copied to clipboard!');
+  });
+}
+
 window.clearAllKeys = function() {
   console.log('clearAllKeys called'); // Debug
   try {

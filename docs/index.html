@@ -32,10 +32,23 @@
           <button onclick="saveReplicateKey()">Save</button>
         </div>
       </div>
-      <div class="notice-actions">
-        <button onclick="clearAllKeys()" class="clear-keys-btn">Clear All Keys</button>
-        <button onclick="hideApiNotice()" class="close-notice">Continue</button>
-      </div>
+              <div class="key-management">
+          <div class="key-code-section">
+            <label for="combinedKeys">Quick Setup: Paste both keys separated by comma (openai,replicate)</label>
+            <div class="key-code-input">
+              <input type="text" id="combinedKeys" placeholder="sk-proj-abc123...,r8_xyz789..." style="flex: 1; font-family: monospace; font-size: 12px;">
+              <button onclick="pasteCombinedKeys()" class="paste-keys-btn">Parse & Save</button>
+            </div>
+            <div class="key-code-actions">
+              <button onclick="copyCombinedKeys()" class="copy-keys-btn">Copy Both Keys</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="notice-actions">
+          <button onclick="clearAllKeys()" class="clear-keys-btn">Clear All Keys</button>
+          <button onclick="hideApiNotice()" class="close-notice">Continue</button>
+        </div>
     </div>
   </div>
 
