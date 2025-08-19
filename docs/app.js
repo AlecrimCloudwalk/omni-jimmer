@@ -284,12 +284,16 @@ const productCalloutEl = document.getElementById("productCallout");
 const shuffleBtn = document.getElementById("shuffleBtn");
 const generateBtn = document.getElementById("generateBtn");
 const enableImageEl = document.getElementById("enableImage");
-const enableVeo3El = document.getElementById("enableVeo3");
+const enableSeededitEl = document.getElementById("enableSeededit");
 const useStartFrameEl = document.getElementById("useStartFrame");
+const enableVeo3El = document.getElementById("enableVeo3");
+const totalPriceEl = document.getElementById("totalPrice");
 
 const imageStatus = document.getElementById("imageStatus");
+const seededitStatus = document.getElementById("seededitStatus");
 const veo3Status = document.getElementById("veo3Status");
 const imageContainer = document.getElementById("imageContainer");
+const seededitContainer = document.getElementById("seededitContainer");
 const veo3Container = document.getElementById("veo3Container");
 const videoOverlay = document.getElementById("videoOverlay");
 const imagePromptEl = document.getElementById("imagePrompt");
@@ -322,7 +326,45 @@ function init() {
   previewVideoRadio.addEventListener("change", updatePreviewMode);
   videoAudioToggle.addEventListener("change", updateVideoAudio);
 
+  // Pricing calculation event listeners
+  if (enableImageEl) enableImageEl.addEventListener('change', updatePricing);
+  if (enableSeededitEl) enableSeededitEl.addEventListener('change', updatePricing);
+  if (enableVeo3El) enableVeo3El.addEventListener('change', updatePricing);
+  if (useStartFrameEl) useStartFrameEl.addEventListener('change', updatePricing);
+
+  // Initialize pricing
+  updatePricing();
+
   // No API card hiding needed since it's removed from HTML
+}
+
+// Profile toggle function
+function toggleProfile() {
+  const profileSection = document.querySelector('.profile-section');
+  profileSection.classList.toggle('collapsed');
+}
+
+// Pricing calculation
+function updatePricing() {
+  let total = 0;
+  
+  if (enableImageEl && enableImageEl.checked) {
+    total += 0.03; // Seedream
+  }
+  
+  if (enableSeededitEl && enableSeededitEl.checked) {
+    total += 0.03; // Seededit
+  }
+  
+  if (enableVeo3El && enableVeo3El.checked) {
+    total += 3.20; // Veo3 Fast
+  }
+  
+  // Start frame is free, no cost
+  
+  if (totalPriceEl) {
+    totalPriceEl.textContent = `$${total.toFixed(2)}`;
+  }
 }
 
 function updateCities() {
@@ -484,11 +526,12 @@ async function onGenerate() {
   // ALWAYS display prompts regardless of checkbox status
   displayPrompts(promptResult);
 
-  // Generate based on checkbox selections and start frame logic
+  // Generate based on checkbox selections in proper order: image, seededit, video
   let imageUrl = null;
+  let editedImageUrl = null;
   let veo3Url = null;
   
-  // Generate image first if needed
+  // Step 1: Generate image first if needed
   if (enableImageEl.checked) {
     imageStatus.innerHTML = '🎨 Generating image… <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" style="width: 20px; height: 20px; vertical-align: middle;">';
     // Add loading GIF to image container
@@ -498,14 +541,30 @@ async function onGenerate() {
     imageStatus.textContent = "Disabled (checkbox unchecked)";
   }
   
-  // Generate video with or without start frame
+  // Step 2: Remove text from image if needed and image was generated
+  if (enableSeededitEl.checked && imageUrl) {
+    if (seededitStatus) seededitStatus.innerHTML = '🔧 Removing text… <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" style="width: 20px; height: 20px; vertical-align: middle;">';
+    // Add loading GIF to seededit container
+    if (seededitContainer) seededitContainer.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 200px; flex-direction: column;"><img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" style="width: 60px; height: 60px;"><p style="margin-top: 10px; color: #a8a8ad; font-size: 14px;">Removing text...</p></div>';
+    editedImageUrl = await generateSeededit(imageUrl);
+  } else if (enableSeededitEl.checked && !imageUrl) {
+    if (seededitStatus) seededitStatus.textContent = "No image to process (image generation disabled or failed)";
+  } else {
+    if (seededitStatus) seededitStatus.textContent = "Disabled (checkbox unchecked)";
+  }
+  
+  // Step 3: Generate video with or without start frame
   if (enableVeo3El.checked) {
     if (veo3Status) veo3Status.innerHTML = '🎬 Generating video… <img src="https://media.giphy.com/media/xTkcEQACH24SMPxIQg/giphy.gif" style="width: 20px; height: 20px; vertical-align: middle;">';
     // Add loading GIF to video container
     if (veo3Container) veo3Container.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 200px; flex-direction: column;"><img src="https://media.giphy.com/media/xTkcEQACH24SMPxIQg/giphy.gif" style="width: 60px; height: 60px;"><p style="margin-top: 10px; color: #a8a8ad; font-size: 14px;">Generating video...</p></div>';
     
-    // Use start frame if toggle is enabled and image was generated
-    const startFrameUrl = (useStartFrameEl.checked && imageUrl) ? imageUrl : null;
+    // Use start frame: prefer edited image, fallback to original image
+    let startFrameUrl = null;
+    if (useStartFrameEl.checked) {
+      startFrameUrl = editedImageUrl || imageUrl;
+    }
+    
     veo3Url = await generateVeo3Video(promptResult.video_prompt, startFrameUrl);
   } else {
     if (veo3Status) veo3Status.textContent = "Disabled (checkbox unchecked)";
@@ -529,6 +588,7 @@ function lockUI(disabled) {
 function clearOutputs() {
   // Set placeholder content for image and video containers
   imageContainer.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 200px; color: #666; font-size: 14px;">Image will appear here</div>';
+  if (seededitContainer) seededitContainer.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 200px; color: #666; font-size: 14px;">Text removed image will appear here</div>';
   if (veo3Container) veo3Container.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 200px; color: #666; font-size: 14px;">Video will appear here</div>';
   
   imagePromptEl.innerHTML = "";
@@ -536,6 +596,7 @@ function clearOutputs() {
   imagePromptEl.classList.remove("show");
   if (veo3PromptEl) veo3PromptEl.classList.remove("show");
   imageStatus.textContent = "Waiting…";
+  if (seededitStatus) seededitStatus.textContent = "Waiting…";
   if (veo3Status) veo3Status.textContent = "Waiting…";
 }
 
@@ -946,6 +1007,118 @@ async function generateImage(imagePrompt) {
 }
 
 
+
+async function generateSeededit(imageUrl) {
+  try {
+    if (!imageUrl) {
+      if (seededitStatus) seededitStatus.textContent = "No image to process.";
+      return null;
+    }
+
+    let editedImageUrl;
+    if (GITHUB_PAGES_MODE) {
+      // Direct Replicate API call with CORS proxy for GitHub Pages
+      const replicateKey = localStorage.getItem('replicate_api_key');
+      if (!replicateKey) {
+        showApiNoticeIfNeeded();
+        return null;
+      }
+      
+      // Use corsproxy.io which supports Authorization headers
+      const corsProxy = 'https://corsproxy.io/?';
+      const replicateUrl = 'https://api.replicate.com/v1/models/bytedance/seededit-3.0/predictions';
+      
+      const body = {
+        input: {
+          image: imageUrl,
+          prompt: "remove text from image, remove name of the shop, remove letterings, remove subtitle, remove storefront name, remove text, remove all written, remove every text",
+          guidance_scale: 5.5,
+          seed: Math.floor(Math.random() * 1000000)
+        }
+      };
+      
+      console.log('Making Replicate Seededit API call:', corsProxy + replicateUrl);
+      console.log('Seededit request body:', JSON.stringify(body, null, 2));
+      
+      const r = await fetch(corsProxy + replicateUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Token ${replicateKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+      
+      if (!r.ok) {
+        const errorText = await r.text();
+        throw new Error(`HTTP ${r.status}: ${errorText}`);
+      }
+      
+      const prediction = await r.json();
+      console.log('Seededit prediction:', prediction);
+      
+      // Poll for completion
+      let result = prediction;
+      for (let i = 0; i < 120; i++) {
+        console.log(`Polling attempt ${i + 1}, status: ${result.status}`);
+        
+        if (result.status === 'succeeded') {
+          editedImageUrl = result.output;
+          break;
+        } else if (result.status === 'failed' || result.status === 'canceled') {
+          throw new Error('Seededit generation failed');
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const pollR = await fetch(corsProxy + result.urls.get, {
+          headers: { 'Authorization': `Token ${replicateKey}` }
+        });
+        result = await pollR.json();
+      }
+      
+      if (result.status === 'succeeded') {
+        editedImageUrl = result.output;
+      } else {
+        throw new Error('Seededit generation failed');
+      }
+    } else {
+      // Use serverless function (Vercel/local)
+      const endpoint = `${API_BASE}/replicate/seededit`;
+      const requestBody = { imageUrl: imageUrl };
+      const r = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody)
+      });
+      if (!r.ok) throw new Error(await r.text());
+      const j = await r.json();
+      editedImageUrl = j.url;
+    }
+    
+    if (editedImageUrl && seededitContainer) {
+      const img = document.createElement("img");
+      img.src = editedImageUrl;
+      seededitContainer.innerHTML = "";
+      seededitContainer.appendChild(img);
+      const a = document.createElement("a");
+      a.href = editedImageUrl; a.download = "text-removed-image.png"; a.textContent = "📥 Download";
+      a.className = "download-btn";
+      seededitContainer.appendChild(a);
+      if (seededitStatus) seededitStatus.textContent = "Done.";
+      
+      // Update preview if showing image
+      updatePreviewMode();
+    } else {
+      if (seededitStatus) seededitStatus.textContent = "Text removal failed.";
+    }
+    return editedImageUrl;
+  } catch (e) {
+    console.error(e);
+    if (seededitStatus) seededitStatus.textContent = "Text removal failed.";
+    return null;
+  }
+}
 
 async function generateVeo3Video(videoPrompt, startFrameUrl = null) {
   try {

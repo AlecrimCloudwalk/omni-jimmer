@@ -63,17 +63,33 @@
             <input id="enableImage" type="checkbox" checked>
             <span class="checkmark"></span>
             <span class="option-text">Generate Image</span>
+            <span class="option-price">$0.03</span>
           </label>
           <label class="option-toggle">
-            <input id="enableVeo3" type="checkbox" checked>
+            <input id="enableSeededit" type="checkbox">
             <span class="checkmark"></span>
-            <span class="option-text">Generate Video</span>
+            <span class="option-text">Remove Text from Image</span>
+            <span class="option-price">$0.03</span>
           </label>
           <label class="option-toggle">
             <input id="useStartFrame" type="checkbox">
             <span class="checkmark"></span>
             <span class="option-text">Use Image as Start Frame</span>
+            <span class="option-price">Free</span>
           </label>
+          <label class="option-toggle">
+            <input id="enableVeo3" type="checkbox" checked>
+            <span class="checkmark"></span>
+            <span class="option-text">Generate Video</span>
+            <span class="option-price">$3.20</span>
+          </label>
+        </div>
+        
+        <div class="pricing-total">
+          <div class="total-display">
+            <span class="total-label">Estimated Total:</span>
+            <span id="totalPrice" class="total-amount">$3.23</span>
+          </div>
         </div>
 
                         <div class="product-callout">
@@ -87,8 +103,11 @@
               </div>
 
       <!-- Customer Profile Section -->
-      <div class="profile-section">
-        <h3>Customer Profile</h3>
+      <div class="profile-section collapsed">
+        <div class="profile-toggle" onclick="toggleProfile()">
+          <h3>Customer Profile</h3>
+        </div>
+        <div class="profile-content">
         <div class="form-grid">
           <label>
             Business name
@@ -148,6 +167,7 @@
             <input id="signatureItem" type="text" placeholder="Pão francês artesanal" />
           </label>
         </div>
+        </div>
       </div>
     </section>
 
@@ -171,6 +191,11 @@
         <div id="imageStatus" class="status">Waiting…</div>
         <div id="imagePrompt" class="prompt-display"></div>
         <div id="imageContainer" class="media"></div>
+      </div>
+      <div class="step">
+        <h3>Text Removed Image</h3>
+        <div id="seededitStatus" class="status">Waiting…</div>
+        <div id="seededitContainer" class="media"></div>
       </div>
       <div class="step">
         <h3>Generated Video</h3>
