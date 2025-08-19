@@ -949,6 +949,8 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
         showApiNoticeIfNeeded();
         throw new Error('Please provide your OpenAI API key using the key input above');
       }
+      
+      try {
         
         const r = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
@@ -998,6 +1000,9 @@ RETORNE JSON com 'image_prompt' e 'video_prompt'.`;
           console.error('OpenAI response was:', openaiResponse.choices[0].message.content);
           throw new Error(`Failed to parse OpenAI response as JSON: ${e.message}`);
         }
+      } catch (error) {
+        console.error('GitHub Pages API call error:', error);
+        throw error;
       }
     } else {
       // Use serverless function (Vercel/local)

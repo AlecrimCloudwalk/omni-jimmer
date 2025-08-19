@@ -144,7 +144,7 @@
 
       <!-- Customer Profile Section -->
       <div class="profile-section collapsed">
-        <div class="profile-toggle" onclick="toggleProfile()">
+        <div class="profile-toggle" onclick="if(window.toggleProfile) window.toggleProfile(); else console.warn('toggleProfile not loaded yet')">
           <h3>Customer Profile</h3>
         </div>
         <div class="profile-content">
